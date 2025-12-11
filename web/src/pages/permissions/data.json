@@ -1,0 +1,53 @@
+{
+	"roles": ["Pro-Rector", "Supervisors", "Members", "Student Affairs"],
+	"permissions": {
+		"project_management": {
+			"create-projects": {
+				"Pro-Rector": true,
+				"Supervisors": false,
+				"Members": false,
+				"Student Affairs": false
+			},
+			"edit-projects": {
+				"Pro-Rector": true,
+				"Supervisors": "own-only",
+				"Members": false,
+				"Student Affairs": false
+			},
+			"delete-projects": {
+				"Pro-Rector": true,
+				"Supervisors": false,
+				"Members": false,
+				"Student Affairs": false
+			}
+		},
+		"user_management": {
+			"create-users": {
+				"Pro-Rector": true,
+				"Supervisors": false,
+				"Members": false,
+				"Student Affairs": false
+			},
+			"edit-users": {
+				"Pro-Rector": true,
+				"Supervisors": "own-only",
+				"Members": false,
+				"Student Affairs": false
+			}
+		},
+		"reports": {
+			"view-reports": {
+				"Pro-Rector": true,
+				"Supervisors": true,
+				"Members": true,
+				"Student Affairs": true
+			},
+			"download-reports": {
+				"Pro-Rector": true,
+				"Supervisors": true,
+				"Members": false,
+				"Student Affairs": false
+			}
+		}
+	}
+}
