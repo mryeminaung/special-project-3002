@@ -1,5 +1,20 @@
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 
-type AuthStoreProps = {};
+type AuthStoreProps = {
+	authToken: string;
+	setAuthToken: (token: string) => void;
+};
 
-export const useSiteHeaderStore = create<AuthStoreProps>((set) => ({}));
+export const useAuthStore = create<AuthStoreProps>(
+	persist(
+		(set) => ({
+			authToken: "",
+			setAuthToken: (token: string) => set(() => ({ authToken: token })),
+		}),
+		{
+			name: "authToken",
+			// storage: createJSONStorage(() => sessionStorage),
+		},
+	) as any,
+);

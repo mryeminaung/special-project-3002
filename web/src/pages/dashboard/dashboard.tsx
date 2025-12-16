@@ -1,4 +1,3 @@
-import api from "@/api/api";
 import { SectionCards } from "@/components/section-cards";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -10,7 +9,6 @@ import {
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import RootLayout from "@/layouts/RootLayout";
 import { IconDownload } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
 import { Bar, BarChart, CartesianGrid, Cell, XAxis, YAxis } from "recharts";
 
 type ProjectProgressData = {
@@ -43,17 +41,6 @@ const chartConfig = {
 
 export default function DashboardPage() {
 	useHeaderInitializer("MIIT| Dashboard", "Dashboard");
-	const [users, setUsers] = useState();
-
-	const fetchUsers = async () => {
-		const res = await api.get("/users");
-		console.log(res);
-		setUsers(res.data);
-	};
-
-	useEffect(() => {
-		// fetchUsers();
-	}, []);
 
 	const getBarColor = (progress: number): string => {
 		if (progress < 50) return "#ef4444";
@@ -122,7 +109,7 @@ export default function DashboardPage() {
 						<Bar
 							dataKey="progress"
 							radius={10}>
-							{chartData.map((entry, index) => (
+							{chartData.map((index) => (
 								<Cell
 									key={`cell-${index}`}
 									fill={"#eeeff"}

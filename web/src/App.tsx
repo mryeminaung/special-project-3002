@@ -1,7 +1,9 @@
 import DashboardPage from "@/pages/dashboard/dashboard";
 import { createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
-import LoginPage from "./pages/auth/login";
+import LoginPage from "./pages/auth/Login";
+import ProtectedRoute from "./pages/ProtectedRoute";
+import NotFoundPage from "./pages/NotFound";
 import PermissionMatrix from "./pages/permissions/page";
 import ProjectsPage from "./pages/projects/page";
 import SettingsPage from "./pages/settings/page";
@@ -11,9 +13,9 @@ import TeamsPage from "./pages/teams/page";
 const routes = [
 	{
 		path: "/",
+		Component: ProtectedRoute,
 		children: [
 			{
-				index: true,
 				path: "dashboard",
 				Component: DashboardPage,
 			},
@@ -42,6 +44,10 @@ const routes = [
 	{
 		path: "/permissions",
 		Component: PermissionMatrix,
+	},
+	{
+		path: "*",
+		Component: NotFoundPage,
 	},
 ];
 

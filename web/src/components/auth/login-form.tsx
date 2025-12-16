@@ -1,27 +1,96 @@
+import api from "@/api/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+	Field,
+	FieldError,
+	FieldGroup,
+	FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useHeaderInitializer } from "@/hooks/use-header-initializer";
-import { IconEye, IconEyeOff, IconLogin2 } from "@tabler/icons-react";
-import { useState } from "react";
-import { useNavigate } from "react-router";
-
 import {
 	Tooltip,
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useHeaderInitializer } from "@/hooks/use-header-initializer";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { IconEye, IconEyeOff, IconLogin2, IconMail } from "@tabler/icons-react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router";
+import * as z from "zod";
+import GradientWrapper from "../gradient-wrapper";
+
+const LoginSchema = z.object({
+	email: z
+		.string()
+		.email("Invalid email format")
+		.regex(/^[\w-\d]+@miit\.edu\.mm$/i, "Email must end with @miit.edu.mm"),
+	password: z.string().min(8, "Password must be at least 8 characters"),
+});
 
 export function LoginForm() {
 	const navigate = useNavigate();
 	const [showPwd, setShowPwd] = useState(false);
+	const setAuthToken = useAuthStore((state) => state.setAuthToken);
 
 	useHeaderInitializer("MIIT | Log In to the site", "");
 
+	const {
+		register,
+		handleSubmit,
+		setError,
+		formState: { errors },
+	} = useForm<z.infer<typeof LoginSchema>>({
+		resolver: zodResolver(LoginSchema),
+		defaultValues: {
+			email: "2019-miit-ece-050@miit.edu.mm",
+			password: "password",
+			// email: "",
+			// password: "",
+		},
+		mode: "onTouched",
+	});
+
+	const onSubmit = async (data: z.infer<typeof LoginSchema>) => {
+		try {
+			const res = await api.post("login", data);
+			if (res.data) {
+				setAuthToken(res.data.token);
+				navigate("/dashboard");
+			}
+		} catch (error: any) {
+			if (error.status === 422) {
+				setError(
+					"email",
+					{
+						type: "validate",
+						message: error.response.data.message,
+					},
+					{
+						shouldFocus: true,
+					},
+				);
+				setError(
+					"password",
+					{
+						type: "validate",
+						message: error.response.data.message,
+					},
+					{
+						shouldFocus: true,
+					},
+				);
+			}
+		}
+	};
+
 	return (
 		<div className="max-w-[580px] drop-shadow-2xl drop-shadow-cherry-pie-50/20 backdrop-blur-3xl w-full">
-			<div className="bg-linear-to-b from-cherry-pie-900 via-white/10 to-white/5 p-1 rounded-2xl">
+			<GradientWrapper>
 				<Card className="overflow-hidden p-3 rounded-[14px] px-1 sm:px-3 md:px-8 py-8">
 					<CardHeader className="flex justify-center items-center">
 						<img
@@ -33,27 +102,43 @@ export function LoginForm() {
 					<CardContent className="">
 						<form
 							autoComplete="off"
-							onSubmit={(e) => {
-								e.preventDefault();
-								navigate("/dashboard");
-							}}>
+							onSubmit={handleSubmit(onSubmit)}>
 							<FieldGroup>
 								<Field>
 									<FieldLabel htmlFor="email">Email</FieldLabel>
-									<Input
-										id="email"
-										type="email"
-										className="py-5.5 border[1.5px]"
-										placeholder="example@miit.edu.mm"
-									/>
+									<div className="relative">
+										<Input
+											{...register("email")}
+											id="email"
+											type="email"
+											className="py-5.5 focus:ring-cherry-pie-900 border[1.5px]"
+											placeholder="example@miit.edu.mm"
+										/>
+										<Tooltip>
+											<TooltipTrigger asChild>
+												<IconMail
+													color="gray"
+													className="absolute right-5 bottom-3 hover:cursor-pointer"
+													size={20}
+												/>
+											</TooltipTrigger>
+											<TooltipContent>
+												<p>Enter MIIT email</p>
+											</TooltipContent>
+										</Tooltip>
+									</div>
+									{errors.email && (
+										<FieldError>{errors.email.message}</FieldError>
+									)}
 								</Field>
 								<Field>
 									<FieldLabel htmlFor="password">Password</FieldLabel>
 									<div className="relative">
 										<Input
+											{...register("password")}
 											placeholder="********"
 											id="password"
-											className="py-5.5 pr-12 border[1.5px]"
+											className="py-5.5 focus:ring-cherry-pie-900 pr-12 border[1.5px]"
 											type={showPwd ? "text" : "password"}
 										/>
 										{showPwd ? (
@@ -86,11 +171,15 @@ export function LoginForm() {
 											</Tooltip>
 										)}
 									</div>
+									{errors.password && (
+										<FieldError>{errors.password.message}</FieldError>
+									)}
 								</Field>
 								<div className="flex flex-col items-start sm:flex-row sm:items-center sm:justify-between gap-2">
-									<FieldLabel>
-										<input
-											type="checkbox"
+									<Field
+										orientation="horizontal"
+										className="flex-1">
+										<Checkbox
 											id="checkBox"
 											className="accent-cherry-pie-900 w-4 h-4"
 										/>
@@ -99,12 +188,13 @@ export function LoginForm() {
 											className="font-medium">
 											Remember Me
 										</FieldLabel>
-									</FieldLabel>
-									<a
-										href="#"
+									</Field>
+									<Link
+										to="#"
+										onClick={() => alert("Still working on!!!")}
 										className="md:ml-auto text-blue-900 text-sm underline-offset-3 hover:text-blue-900/90 font-medium hover:underline">
 										Forgot your password?
-									</a>
+									</Link>
 								</div>
 								<Button
 									className="bg-cherry-pie-950 hover:cursor-pointer rounded-md py-[22px] hover:bg-cherry-pie-950/90 mt-3 text-[15px]"
@@ -116,7 +206,7 @@ export function LoginForm() {
 						</form>
 					</CardContent>
 				</Card>
-			</div>
+			</GradientWrapper>
 		</div>
 	);
 }

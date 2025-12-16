@@ -41,7 +41,7 @@ class LoginRequest extends FormRequest
     {
         return [
             'email.email' => 'Email format is wrong!',
-            'email.regex' => 'The email address must be a valid MIIT address (e.g., 2019-miit-ece-050@miit.edu.mm).',
+            'email.regex' => 'The email address must be a valid MIIT address (e.g., example@miit.edu.mm).',
             'password.min' => 'Password must be at least 8 characters long.',
         ];
     }
