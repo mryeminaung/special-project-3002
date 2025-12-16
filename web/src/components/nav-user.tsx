@@ -6,6 +6,7 @@ import {
 	IconUserCircle,
 } from "@tabler/icons-react";
 
+import api from "@/api/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
 	DropdownMenu,
@@ -22,6 +23,7 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
+import { useAuthStore } from "@/stores/useAuthStore";
 import { useNavigate } from "react-router";
 
 export function NavUser({
@@ -35,6 +37,22 @@ export function NavUser({
 }) {
 	const { isMobile } = useSidebar();
 	const navigate = useNavigate();
+	const setAuthToken = useAuthStore((state) => state.setAuthToken);
+
+	const handleLogout = async () => {
+		try {
+			await api.post("/logout");
+		} catch (error) {
+			console.error(
+				"Logout request failed, but clearing local session:",
+				error,
+			);
+		} finally {
+			setAuthToken("");
+			delete api.defaults.headers.common["Authorization"];
+			navigate("/login", { replace: true });
+		}
+	};
 
 	return (
 		<SidebarMenu>
@@ -101,7 +119,7 @@ export function NavUser({
 						</DropdownMenuGroup>
 						<DropdownMenuSeparator />
 						<DropdownMenuItem
-							onClick={() => navigate("/login")}
+							onClick={handleLogout}
 							variant="destructive"
 							className="hover:cursor-pointer">
 							<IconLogout />

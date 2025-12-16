@@ -29,8 +29,11 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar";
 
-import { NavLink } from "react-router";
+import api from "@/api/api";
+import { useAuthStore } from "@/stores/useAuthStore";
+import { NavLink, useNavigate } from "react-router";
 import { NavUser } from "./nav-user";
+import { Button } from "./ui/button";
 import adminAvatar from "/avatar.png";
 
 const data = {
@@ -157,8 +160,24 @@ const data = {
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const { open, isMobile } = useSidebar();
-	// use to change the img, that appeared on the side bar
-	// console.log(open);
+
+	const navigate = useNavigate();
+	const setAuthToken = useAuthStore((state) => state.setAuthToken);
+
+	const handleLogout = async () => {
+		try {
+			await api.post("/logout");
+		} catch (error) {
+			console.error(
+				"Logout request failed, but clearing local session:",
+				error,
+			);
+		} finally {
+			setAuthToken("");
+			delete api.defaults.headers.common["Authorization"];
+			navigate("/login", { replace: true });
+		}
+	};
 
 	return (
 		<Sidebar
@@ -199,12 +218,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			</SidebarContent>
 			<SidebarFooter>
 				{!isMobile ? (
-					<NavLink
-						to={"/login"}
-						className="bg-red-500 flex flex-row gap-x-2 items-center px-3 py-2 rounded-full text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear absolute bottom-5 right-5 text-[14px] left-5 justify-center">
+					<Button
+						onClick={handleLogout}
+						className="border border-red-500 bg-white text-red-500 hover:cursor-pointer rounded-xl py-5 hover:bg-gray-100  mt-3 absolute bottom-5 right-5 text-[14px] left-5 justify-center">
 						<IconLogout size={18} />
 						<span>Log Out</span>
-					</NavLink>
+					</Button>
 				) : (
 					<NavUser user={data.user} />
 				)}

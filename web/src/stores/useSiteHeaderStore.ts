@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
 
 type SiteHeaderProps = {
 	tabTitle: string;
@@ -7,14 +8,22 @@ type SiteHeaderProps = {
 	setSiteHeader: (title: string) => void;
 };
 
-export const useSiteHeaderStore = create<SiteHeaderProps>((set) => ({
-	tabTitle: "",
-	siteHeader: "",
-	setTabTitle: (title: string) => {
-		document.title = title;
-		set((state) => ({ ...state, tabTitle: title }));
-	},
-	setSiteHeader: (header: string) => {
-		set((state) => ({ ...state, siteHeader: header }));
-	},
-}));
+export const useSiteHeaderStore = create<SiteHeaderProps>(
+	persist(
+		(set) => ({
+			tabTitle: "",
+			siteHeader: "",
+			setTabTitle: (title: string) => {
+				document.title = title;
+				set((state: any) => ({ ...state, tabTitle: title }));
+			},
+			setSiteHeader: (header: string) => {
+				set((state: any) => ({ ...state, siteHeader: header }));
+			},
+		}),
+		{
+			name: "siteInfo",
+			storage: createJSONStorage(() => sessionStorage),
+		},
+	) as any,
+);

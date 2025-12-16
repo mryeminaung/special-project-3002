@@ -4,24 +4,24 @@ namespace App\Http\Controllers\auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\auth\LoginRequest;
-use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Lang;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
     public function login(LoginRequest $request)
     {
-        $user = User::where('email', $request->email)->first();
-        if ($user) {
-            $token = $user->createToken('authToken');
+        if (Auth::attempt($request->validated())) {
+            $token = Auth::user()->createToken('authToken')->plainTextToken;
             return response()->json([
-                'status' => 'Success',
-                'message' => 'Login Successfully',
-                'user' => $user->load('student'),
-                'token' => $token->plainTextToken
-            ]);
+                'user' => Auth::user()->load('student'),
+                'token' => $token
+            ], 200);
         } else {
-            return "User doesn't exist!!!";
+            throw ValidationException::withMessages([
+                'email' => [Lang::get('auth.failed')],
+            ]);
         }
     }
 
