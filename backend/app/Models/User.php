@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use ApiPlatform\Metadata\ApiResource;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
 // #[ApiResource]
@@ -47,12 +48,17 @@ class User extends Authenticatable
     {
         return [
             // 'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            // 'password' => 'hashed',
         ];
     }
 
     public function student()
     {
         return $this->hasOne(Student::class, 'user_id');
+    }
+
+    public function faculty()
+    {
+        return $this->hasOne(Faculty::class, 'user_id');
     }
 }

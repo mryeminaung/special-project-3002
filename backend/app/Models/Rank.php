@@ -7,4 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Rank extends Model
 {
     protected $fillable = ['name'];
+
+    public function faculties()
+    {
+        return $this->hasMany(Faculty::class, 'rank_id');
+    }
 }

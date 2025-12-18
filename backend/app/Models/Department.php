@@ -8,8 +8,8 @@ class Department extends Model
 {
     protected $fillable = ["name"];
 
-    public function supervisors()
+    public function faculties()
     {
-        return $this->hasMany(Supervisor::class);
+        return $this->hasMany(Faculty::class, 'department_id');
     }
 }

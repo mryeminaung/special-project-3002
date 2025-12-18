@@ -13,32 +13,32 @@ export function SectionCards() {
 	const navigate = useNavigate();
 	const sectionCardData = [
 		{
-			title: "30",
+			title: "0",
 			description: "Total Projects",
 			footerTop: "Project activity increasing this month",
 			footerBottom: "Overall workload remains stable",
 			pageUrl: "/projects",
 		},
 		{
-			title: "15",
+			title: "0",
 			description: "Supervisors",
 			footerTop: "Supervisor availability dropped this cycle",
 			footerBottom: "Resource allocation requires review",
 			pageUrl: "/supervisors",
 		},
 		{
-			title: "30",
+			title: "0",
 			description: "Teams",
 			footerTop: "Team engagement remains strong",
 			footerBottom: "Collaboration levels improving",
 			pageUrl: "/teams",
 		},
 		{
-			title: "70%",
+			title: "0",
 			description: "Projects Completion Rate",
 			footerTop: "Performance metrics show steady progress",
 			footerBottom: "Quality targets are being met",
-			pageUrl: "/dashboard"
+			pageUrl: "/dashboard",
 		},
 	];
 

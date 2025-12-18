@@ -13,16 +13,14 @@ class RankSeeder extends Seeder
      */
     public function run(): void
     {
-        $ranks = [
+        Rank::insert([
             ['name' => 'Rector'],
             ['name' => 'Pro-Rector'],
             ['name' => 'Professor'],
-            ['name' => 'Associate Professor (AP)'],
-            ['name' => 'Lecturer (Lect)'],
-            ['name' => 'Assistant Lecturer (AL)'],
-            ['name' => 'Tutor'],
-            ['name' => 'Student'],
-        ];
-        Rank::insert($ranks);
+            ['name' => 'Associate Professor'],
+            ['name' => 'Lecturer'],
+            ['name' => 'Assistant Lecturer'],
+            // ['name' => 'Student'],
+        ]);
     }
 }

@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\auth\AuthController;
+use App\Http\Resources\UserResource;
+use App\Models\Student;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -10,48 +12,27 @@ use Spatie\Permission\Models\Role;
 Route::controller(AuthController::class)->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->middleware('guest');
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
-
-    Route::get('auth-user', function () {
-        // return 'Auth User';
-        return auth()->user()->load('student');
-    })->middleware('auth:sanctum');
 });
 
-Route::get('/roles', function (Request $request) {
-    // return User::all();
-    return Role::where('name', 'IIC')->get();
-
-    return response()->json(
-        [
-            "status" => "success",
-            "users" => User::all()
-        ],
-    );
+Route::post("project-proposals/submission", function () {
+    $students = User::where('is_student', true)->offset(104)->with('roles')->get();
+    return UserResource::collection($students);
+    return request()->all();
 });
 
-Route::post('/users', function (Request $request) {
-    $validatedData = $request->validate([
-        'title' => 'required|string|min:3',
-        'body' => 'required|string|min:3'
-    ]);
-
-    return $validatedData;
+Route::get('/faculties', function (Request $request) {
+    $adminUsers = User::where('is_student', false)->take(3)->get();
+    $facultyUsers = User::where('is_student', false)->offset(3)->take(100)->get();
+    return [
+        'admin' => $adminUsers,
+        'faculties' => $facultyUsers
+    ];
 });
 
-Route::delete('/users/{id}', function (string $id) {
-    $user = User::find($id);
-    if (!$user) return response()->json([
-        "message" =>  "User is already deleted."
-    ]);
-    else {
-        $user->delete();
-        return response()->json([
-            ["message" =>  "User is deleted."]
-        ]);
-    };
-    // return response()->noContent();
-});
+Route::get('/info', function (Request $request) {
+    $adminUsers = User::where('is_student', false)->take(3)->with([])->get();
 
-Route::get('/users/{user}', function (User $user) {
-    return $user;
-})->middleware('auth:sanctum');
+    $facultyUsers = User::where('is_student', false)->offset(3)->take(100)->with(['faculty.department', 'faculty.rank'])->get();
+
+    return UserResource::collection(User::with(['student', 'faculty'])->get());
+});

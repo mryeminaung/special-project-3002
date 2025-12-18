@@ -68,9 +68,10 @@ export default function DashboardPage() {
 						<span>Export</span>
 					</Button>
 				</div>
+				<h2 className="text-center text-3xl my-5">Still Working On</h2>
 				<ChartContainer
 					config={chartConfig}
-					className="h-[350px] w-full">
+					className="h-[350px] w-full hidden">
 					<BarChart
 						accessibilityLayer
 						data={chartData}
@@ -119,7 +120,6 @@ export default function DashboardPage() {
 					</BarChart>
 				</ChartContainer>
 			</Card>
-			<SectionCards />
 		</RootLayout>
 	);
 }

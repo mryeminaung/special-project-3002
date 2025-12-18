@@ -4,6 +4,7 @@ namespace App\Http\Controllers\auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\auth\LoginRequest;
+use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Lang;
 use Illuminate\Validation\ValidationException;
@@ -16,6 +17,7 @@ class AuthController extends Controller
             $token = Auth::user()->createToken('authToken')->plainTextToken;
             return response()->json([
                 'user' => Auth::user()->load('student'),
+                'user' => new UserResource(Auth::user()->load(['student', 'faculty'])),
                 'token' => $token
             ], 200);
         } else {

@@ -1,5 +1,6 @@
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { useAuthUserStore } from "@/stores/useAuthUserStore";
 import { useSiteHeaderStore } from "@/stores/useSiteHeaderStore";
 import { useEffect, useState } from "react";
 import { NavUser } from "./nav-user";
@@ -17,10 +18,18 @@ export function SiteHeader() {
 		return () => window.removeEventListener("scroll", handleScroll);
 	}, []);
 
+	const authUser = useAuthUserStore((state) => state.authUser);
+
+	// let email = "";
+
+	// if (authUser.roles[0] === "Student Affairs") email = authUser.email;
+	// else if (authUser.roles[0] === "Student") email = "Student";
+	// else if (authUser.faculty_info.rank) email = authUser.faculty_info.rank;
+
 	const data = {
 		user: {
-			name: "Dr. Myat Thuzar Tun",
-			email: "Pro-Rector",
+			name: authUser.name,
+			email: authUser.email,
 			avatar: "/avatars/shadcn.jpg",
 		},
 	};
