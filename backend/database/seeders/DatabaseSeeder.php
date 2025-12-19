@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
 
@@ -24,6 +23,11 @@ class DatabaseSeeder extends Seeder
             FacultySeeder::class,
             StudentSeeder::class,
         ]);
+
+        app()->make(PermissionRegistrar::class)->forgetCachedPermissions();
+
+        $icRole = Role::findByName('IC');
+        $icRole->syncPermissions(['approve proposal', 'reject proposal']);
 
         $superUsers = User::where('is_student', false)->take(3)->get();
         foreach ($superUsers as $user) {

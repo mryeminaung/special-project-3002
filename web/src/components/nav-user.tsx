@@ -24,6 +24,7 @@ import {
 	useSidebar,
 } from "@/components/ui/sidebar";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { useAuthUserStore } from "@/stores/useAuthUserStore";
 import { useNavigate } from "react-router";
 
 export function NavUser({
@@ -38,6 +39,7 @@ export function NavUser({
 	const { isMobile } = useSidebar();
 	const navigate = useNavigate();
 	const setAuthToken = useAuthStore((state) => state.setAuthToken);
+	const setAuthUser = useAuthUserStore((state) => state.setAuthUser);
 
 	const handleLogout = async () => {
 		try {
@@ -49,6 +51,7 @@ export function NavUser({
 			);
 		} finally {
 			setAuthToken("");
+			setAuthUser("");
 			delete api.defaults.headers.common["Authorization"];
 			navigate("/login", { replace: true });
 		}

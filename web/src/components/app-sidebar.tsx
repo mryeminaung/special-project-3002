@@ -1,6 +1,5 @@
 import {
 	IconCamera,
-	IconChartBar,
 	IconDatabase,
 	IconFileAi,
 	IconFileDescription,
@@ -13,6 +12,7 @@ import {
 	IconReport,
 	IconSearch,
 	IconSettings,
+	IconUserHexagon,
 	IconUsers,
 } from "@tabler/icons-react";
 import * as React from "react";
@@ -56,7 +56,7 @@ const data = {
 		{
 			title: "Supervisors",
 			url: "/supervisors",
-			icon: IconChartBar,
+			icon: IconUserHexagon,
 		},
 		{
 			title: "Projects",

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\auth\AuthController;
 use App\Http\Resources\UserResource;
+use App\Models\Faculty;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -14,9 +15,13 @@ Route::controller(AuthController::class)->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
 });
 
+
+Route::get('role-info', function () {
+    $user = Auth::user();
+    return new UserResource($user);
+})->middleware(['auth:sanctum', 'role:Student Affairs']);
+
 Route::post("project-proposals/submission", function () {
-    $students = User::where('is_student', true)->offset(104)->with('roles')->get();
-    return UserResource::collection($students);
     return request()->all();
 });
 

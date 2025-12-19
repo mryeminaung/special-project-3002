@@ -48,8 +48,8 @@ export function LoginForm() {
 	} = useForm<z.infer<typeof LoginSchema>>({
 		resolver: zodResolver(LoginSchema),
 		defaultValues: {
-			email: "2019-miit-ece-050@miit.edu.mm",
-			password: "password",
+			email: "myat_thuzar_tun@miit.edu.mm",
+			password: "admin123",
 			// email: "",
 			// password: "",
 		},

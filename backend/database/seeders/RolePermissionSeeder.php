@@ -2,11 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Student;
-use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\PermissionRegistrar;
@@ -22,12 +19,17 @@ class RolePermissionSeeder extends Seeder
 
         $roles = ['IC', 'Student Affairs', 'Supervisor', 'Faculty', 'Student'];
         foreach ($roles as $role) {
-            Role::create(['name' => $role, 'guard_name' => 'web']);
+            Role::create(['name' => $role]);
         }
 
-        $permissions = ['create projects', 'view projects', 'update projects', 'delete projects'];
+        $icPermissions = ['approve proposal', 'reject proposal'];
+        foreach ($icPermissions as $permission) {
+            Permission::create(['name' => $permission]);
+        }
+
+        $permissions = ['create project proposal', 'update project proposal', 'update projects', 'delete projects'];
         foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission, 'guard_name' => 'web']);
+            Permission::create(['name' => $permission]);
         }
     }
 }

@@ -1,4 +1,10 @@
-import { IconTrendingUp } from "@tabler/icons-react";
+import {
+	IconChartBar,
+	IconListDetails,
+	IconTrendingUp,
+	IconUserHexagon,
+	IconUsers,
+} from "@tabler/icons-react";
 
 import {
 	Card,
@@ -14,6 +20,7 @@ export function SectionCards() {
 	const sectionCardData = [
 		{
 			title: "0",
+			cardIcon: IconListDetails,
 			description: "Total Projects",
 			footerTop: "Project activity increasing this month",
 			footerBottom: "Overall workload remains stable",
@@ -21,6 +28,7 @@ export function SectionCards() {
 		},
 		{
 			title: "0",
+			cardIcon: IconUserHexagon,
 			description: "Supervisors",
 			footerTop: "Supervisor availability dropped this cycle",
 			footerBottom: "Resource allocation requires review",
@@ -28,6 +36,7 @@ export function SectionCards() {
 		},
 		{
 			title: "0",
+			cardIcon: IconUsers,
 			description: "Teams",
 			footerTop: "Team engagement remains strong",
 			footerBottom: "Collaboration levels improving",
@@ -35,23 +44,30 @@ export function SectionCards() {
 		},
 		{
 			title: "0",
-			description: "Projects Completion Rate",
+			cardIcon: IconChartBar,
+			description: "Completion Rate",
 			footerTop: "Performance metrics show steady progress",
 			footerBottom: "Quality targets are being met",
 			pageUrl: "/dashboard",
 		},
 	];
 
+	/*
+	<div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-6 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+	*/
 	return (
-		<div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-6 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
+		<div className="grid grid-cols-1 gap-6 px-4 lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
 			{sectionCardData.map((card) => (
 				<Card
 					onClick={() => navigate(card.pageUrl)}
 					key={card.description}
-					className="@container/card hover:scale-[1.05] transition-transform hover:cursor-pointer">
+					className="@container/card hover:cursor-pointer">
 					<CardHeader>
-						<CardDescription>{card.description}</CardDescription>
-						<CardTitle className="text-2xl font-mono font-semibold tabular-nums @[250px]/card:text-3xl">
+						<CardDescription className="font-medium text-black flex items-center justify-between">
+							{card.description}
+							{card.cardIcon && <card.cardIcon size={20} />}
+						</CardDescription>
+						<CardTitle className="mt-3 text-2xl font-mono font-semibold tabular-nums @[250px]/card:text-3xl">
 							{card.title}
 						</CardTitle>
 					</CardHeader>

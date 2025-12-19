@@ -5,6 +5,7 @@ import {
 	SidebarGroupContent,
 	SidebarMenu,
 } from "@/components/ui/sidebar";
+import { useAuthUserStore } from "@/stores/useAuthUserStore";
 import { NavLink } from "react-router";
 
 export function NavMain({
@@ -16,24 +17,28 @@ export function NavMain({
 		icon?: Icon;
 	}[];
 }) {
+	const authUser = useAuthUserStore((state) => state.authUser);
+
 	return (
 		<SidebarGroup>
 			<SidebarGroupContent className="flex flex-col gap-2">
-				<SidebarMenu>
-					<NavLink
-						to={"/dashboard"}
-						className="bg-cherry-pie-950 rounded-2xl transition-transform active:scale-95 flex items-center px-6 gap-2 text-white py-2">
-						<IconCirclePlusFilled size={28} />
-						<span>Quick Create</span>
-					</NavLink>
-				</SidebarMenu>
-				<SidebarMenu className="gap-y-2 mt-3">
+				{authUser.roles[0] === "Student" && (
+					<SidebarMenu className="mb-3">
+						<NavLink
+							to={"/project-proposal"}
+							className="bg-cherry-pie-950 rounded-2xl transition-transform active:scale-95 flex items-center px-6 gap-2 text-white py-2">
+							<IconCirclePlusFilled size={28} />
+							<span>Create Proposal</span>
+						</NavLink>
+					</SidebarMenu>
+				)}
+				<SidebarMenu className="gap-y-2 ">
 					{items.map((item) => (
 						<NavLink
 							key={item.title}
 							className={({ isActive }) =>
 								[
-									"rounded-2xl py-2 transition-transform active:scale-95",
+									"rounded-md py-2 transition-transform active:scale-95",
 									isActive
 										? "bg-background text-black hover:text-black border-l-5 border-l-cherry-pie-950"
 										: "bg-cherry-pie-50 text-black hover:bg-background hover:text-black",

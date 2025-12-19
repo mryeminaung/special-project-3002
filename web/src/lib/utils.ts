@@ -1,3 +1,4 @@
+import { useAuthUserStore } from "@/stores/useAuthUserStore";
 import { useSiteHeaderStore } from "@/stores/useSiteHeaderStore";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -13,4 +14,12 @@ export const useHeader = () => {
 	const setSiteHeader = useSiteHeaderStore((state) => state.setSiteHeader);
 
 	return { tabTitle, setTabTitle, siteHeader, setSiteHeader };
+};
+
+type UserRole = "IC" | "Supervisor" | "Faculty" | "Student" | "Student Affairs";
+
+export const useRoleCheck = (role: UserRole): boolean => {
+	const authUser = useAuthUserStore((state) => state.authUser);
+
+	return authUser?.roles?.[0] === role;
 };
