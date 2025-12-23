@@ -60,7 +60,7 @@ class UserSeeder extends Seeder
         $facultyPassword = Hash::make('faculty123');
         $faculty_data = [];
 
-        for ($i = 0; $i < 100; $i++) {
+        for ($i = 0; $i < 15; $i++) {
             $isMale = $i % 2 == 0;
 
             $name = $isMale
@@ -85,7 +85,7 @@ class UserSeeder extends Seeder
         // $year_sems = ['2019' => 1, '2021' => 2, '2022' => 3, '2023' => 4, '2024' => 5];
         $year_sems = ['2019' => 1];
         $majors = ['cse', 'ece'];
-        $rollNumbers = range(1, 60);
+        $rollNumbers = range(1, 40);
 
         $defaultPassword = Hash::make('password');
         $user_data = [];

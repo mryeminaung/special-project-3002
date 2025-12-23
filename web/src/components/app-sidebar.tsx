@@ -1,6 +1,7 @@
 import {
 	IconCamera,
 	IconDatabase,
+	IconDeviceTabletSearch,
 	IconFileAi,
 	IconFileDescription,
 	IconFileWord,
@@ -12,8 +13,8 @@ import {
 	IconReport,
 	IconSearch,
 	IconSettings,
-	IconUserHexagon,
 	IconUsers,
+	IconUsersGroup,
 } from "@tabler/icons-react";
 import * as React from "react";
 
@@ -30,139 +31,244 @@ import {
 } from "@/components/ui/sidebar";
 
 import api from "@/api/api";
+import { useRoleCheck } from "@/lib/utils";
 import { useAuthStore } from "@/stores/useAuthStore";
+import { Shield } from "lucide-react";
 import { NavLink, useNavigate } from "react-router";
 import { NavUser } from "./nav-user";
 import { Button } from "./ui/button";
 import adminAvatar from "/avatar.png";
 
-const data = {
-	user: {
-		name: "Dr. Myat Thuzar Tun",
-		email: "myat_thuzar_tun@miit.edu.mm",
-		avatar: adminAvatar,
-	},
-	navMain: [
-		{
-			title: "Dashboard",
-			url: "/dashboard",
-			icon: IconLayoutDashboard,
-		},
-		{
-			title: "My Tasks",
-			url: "/my-tasks",
-			icon: IconListCheck,
-		},
-		{
-			title: "Supervisors",
-			url: "/supervisors",
-			icon: IconUserHexagon,
-		},
-		{
-			title: "Projects",
-			url: "/projects",
-			icon: IconListDetails,
-		},
-		{
-			title: "Teams",
-			url: "/teams",
-			icon: IconUsers,
-		},
-		{
-			title: "Settings",
-			url: "/settings",
-			icon: IconSettings,
-		},
-	],
-	navClouds: [
-		{
-			title: "Capture",
-			icon: IconCamera,
-			isActive: true,
-			url: "#",
-			items: [
-				{
-					title: "Active Proposals",
-					url: "#",
-				},
-				{
-					title: "Archived",
-					url: "#",
-				},
-			],
-		},
-		{
-			title: "Proposal",
-			icon: IconFileDescription,
-			url: "#",
-			items: [
-				{
-					title: "Active Proposals",
-					url: "#",
-				},
-				{
-					title: "Archived",
-					url: "#",
-				},
-			],
-		},
-		{
-			title: "Prompts",
-			icon: IconFileAi,
-			url: "#",
-			items: [
-				{
-					title: "Active Proposals",
-					url: "#",
-				},
-				{
-					title: "Archived",
-					url: "#",
-				},
-			],
-		},
-	],
-	navSecondary: [
-		{
-			title: "Settings",
-			url: "#",
-			icon: IconSettings,
-		},
-		{
-			title: "Get Help",
-			url: "#",
-			icon: IconHelp,
-		},
-		{
-			title: "Search",
-			url: "#",
-			icon: IconSearch,
-		},
-	],
-	documents: [
-		{
-			name: "Data Library",
-			url: "#",
-			icon: IconDatabase,
-		},
-		{
-			name: "Reports",
-			url: "#",
-			icon: IconReport,
-		},
-		{
-			name: "Word Assistant",
-			url: "#",
-			icon: IconFileWord,
-		},
-	],
-};
-
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const { open, isMobile } = useSidebar();
-
 	const navigate = useNavigate();
 	const setAuthToken = useAuthStore((state) => state.setAuthToken);
+
+	const tabs = {
+		IC: [
+			{
+				title: "Dashboard",
+				url: "/dashboard",
+				icon: IconLayoutDashboard,
+			},
+			{
+				title: "Project Proposals",
+				url: "/project-proposals/submission",
+				icon: IconFileDescription,
+			},
+			{
+				title: "Supervisors",
+				url: "/supervisors",
+				icon: Shield,
+			},
+			{
+				title: "Projects",
+				url: "/projects",
+				icon: IconListDetails,
+			},
+			{
+				title: "Faculties",
+				url: "/faculties",
+				icon: IconUsers,
+			},
+			{
+				title: "Teams",
+				url: "/teams",
+				icon: IconUsersGroup,
+			},
+			{
+				title: "Settings",
+				url: "/settings",
+				icon: IconSettings,
+			},
+		],
+		Supervisor: [
+			{
+				title: "Dashboard",
+				url: "/dashboard",
+				icon: IconLayoutDashboard,
+			},
+			{
+				title: "Project Requests",
+				url: "/my-tasks",
+				icon: IconListCheck,
+			},
+			{
+				title: "My Teams",
+				url: "/teams",
+				icon: IconUsers,
+			},
+			{
+				title: "Settings",
+				url: "/settings",
+				icon: IconSettings,
+			},
+		],
+		Faculty: [
+			{
+				title: "Dashboard",
+				url: "/dashboard",
+				icon: IconLayoutDashboard,
+			},
+			{
+				title: "Browse Proposals",
+				url: "/project-proposals/submission/my",
+				icon: IconDeviceTabletSearch,
+			},
+			{
+				title: "Projects",
+				url: "/projects",
+				icon: IconListDetails,
+			},
+			{
+				title: "Settings",
+				url: "/settings",
+				icon: IconSettings,
+			},
+		],
+		Student: [
+			{
+				title: "Dashboard",
+				url: "/dashboard",
+				icon: IconLayoutDashboard,
+			},
+			{
+				title: "My Supervisor",
+				url: "/my-supervisor",
+				icon: Shield,
+			},
+			{
+				title: "My Tasks",
+				url: "/my-tasks",
+				icon: IconListCheck,
+			},
+			{
+				title: "My Team",
+				url: "/my-team",
+				icon: IconUsersGroup,
+			},
+			{
+				title: "Settings",
+				url: "/settings",
+				icon: IconSettings,
+			},
+		],
+		StudentAffairs: [
+			{
+				title: "Dashboard",
+				url: "/dashboard",
+				icon: IconLayoutDashboard,
+			},
+			{
+				title: "Projects",
+				url: "/my-tasks",
+				icon: IconListCheck,
+			},
+			{
+				title: "Settings",
+				url: "/settings",
+				icon: IconSettings,
+			},
+		],
+	};
+
+	const data = {
+		user: {
+			name: "Dr. Myat Thuzar Tun",
+			email: "myat_thuzar_tun@miit.edu.mm",
+			avatar: adminAvatar,
+		},
+		navMain: [
+			...(useRoleCheck("IC") ? tabs.IC : []),
+			...(useRoleCheck("Student") ? tabs.Student : []),
+			...(useRoleCheck("Student Affairs") ? tabs.StudentAffairs : []),
+			...(useRoleCheck("Faculty") ? tabs.Faculty : []),
+			...(useRoleCheck("Supervisor") ? tabs.Supervisor : []),
+		],
+
+		navClouds: [
+			{
+				title: "Capture",
+				icon: IconCamera,
+				isActive: true,
+				url: "#",
+				items: [
+					{
+						title: "Active Proposals",
+						url: "#",
+					},
+					{
+						title: "Archived",
+						url: "#",
+					},
+				],
+			},
+			{
+				title: "Proposal",
+				icon: IconFileDescription,
+				url: "#",
+				items: [
+					{
+						title: "Active Proposals",
+						url: "#",
+					},
+					{
+						title: "Archived",
+						url: "#",
+					},
+				],
+			},
+			{
+				title: "Prompts",
+				icon: IconFileAi,
+				url: "#",
+				items: [
+					{
+						title: "Active Proposals",
+						url: "#",
+					},
+					{
+						title: "Archived",
+						url: "#",
+					},
+				],
+			},
+		],
+		navSecondary: [
+			{
+				title: "Settings",
+				url: "#",
+				icon: IconSettings,
+			},
+			{
+				title: "Get Help",
+				url: "#",
+				icon: IconHelp,
+			},
+			{
+				title: "Search",
+				url: "#",
+				icon: IconSearch,
+			},
+		],
+		documents: [
+			{
+				name: "Data Library",
+				url: "#",
+				icon: IconDatabase,
+			},
+			{
+				name: "Reports",
+				url: "#",
+				icon: IconReport,
+			},
+			{
+				name: "Word Assistant",
+				url: "#",
+				icon: IconFileWord,
+			},
+		],
+	};
 
 	const handleLogout = async () => {
 		try {

@@ -1,4 +1,5 @@
 import api from "@/api/api";
+import GradientWrapper from "@/components/gradient-wrapper";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -23,7 +24,6 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
 import * as z from "zod";
-import GradientWrapper from "../gradient-wrapper";
 
 const LoginSchema = z.object({
 	email: z

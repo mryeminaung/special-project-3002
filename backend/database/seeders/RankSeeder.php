@@ -14,13 +14,34 @@ class RankSeeder extends Seeder
     public function run(): void
     {
         Rank::insert([
-            ['name' => 'Rector'],
-            ['name' => 'Pro-Rector'],
-            ['name' => 'Professor'],
-            ['name' => 'Associate Professor'],
-            ['name' => 'Lecturer'],
-            ['name' => 'Assistant Lecturer'],
-            // ['name' => 'Student'],
+            [
+                'name' => 'Rector',
+                'description' => 'The executive head and chief academic officer of the institution.'
+            ],
+            [
+                'name' => 'Pro-Rector',
+                'description' => 'The deputy to the Rector, assisting in institutional management.'
+            ],
+            [
+                'name' => 'Professor',
+                'description' => 'A senior academic leader recognized for excellence in research and teaching.'
+            ],
+            [
+                'name' => 'Associate Professor',
+                'description' => 'A mid-level academic with significant experience in their field.'
+            ],
+            [
+                'name' => 'Lecturer',
+                'description' => 'A faculty member primarily responsible for delivering course instruction.'
+            ],
+            [
+                'name' => 'Assistant Lecturer',
+                'description' => 'A junior faculty member assisting in teaching and academic duties.'
+            ],
+            [
+                'name' => 'Tutor',
+                'description' => 'An entry-level role providing academic support and small-group guidance.'
+            ],
         ]);
     }
 }

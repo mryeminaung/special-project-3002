@@ -1,11 +1,13 @@
 import DashboardPage from "@/pages/dashboard/dashboard";
 import { createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
-import LoginPage from "./pages/auth/Login";
+import LoginPage from "./pages/auth/login";
+import FacultiesPage from "./pages/faculties/page";
 import NotFoundPage from "./pages/NotFound";
 import PermissionMatrix from "./pages/permissions/page";
 import ProjectsPage from "./pages/projects/page";
 import CreateProposalPage from "./pages/proposals/create";
+import ProjectsProposalPage from "./pages/proposals/page";
 import ProtectedRoute from "./pages/ProtectedRoute";
 import SettingsPage from "./pages/settings/page";
 import SupervisorsPage from "./pages/supervisors/page";
@@ -17,12 +19,20 @@ const routes = [
 		Component: ProtectedRoute,
 		children: [
 			{
-				path: "project-proposal",
+				path: "project-proposal/create",
 				Component: CreateProposalPage,
 			},
 			{
 				path: "dashboard",
 				Component: DashboardPage,
+			},
+			{
+				path: "/faculties",
+				Component: FacultiesPage,
+			},
+			{
+				path: "/project-proposals/submissions",
+				Component: ProjectsProposalPage,
 			},
 			{
 				path: "/supervisors",

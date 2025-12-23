@@ -5,9 +5,9 @@
 
 body {
   /* display: none; */
-  /* scrollbar-width: none; */
-  scrollbar-width: thin;
-  scrollbar-color: #f8f9fa #300050;
+  scrollbar-width: none;
+  /* scrollbar-width: thin; */
+  /* scrollbar-color: #f8f9fa #300050; */
 }
 
 @custom-variant dark (&:is(.dark *));

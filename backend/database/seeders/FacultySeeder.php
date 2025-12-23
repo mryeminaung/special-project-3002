@@ -42,7 +42,7 @@ class FacultySeeder extends Seeder
             $faculty_data[] = [
                 'phone_number' => $this->generateMyanmarPhoneNumber(),
                 'user_id' => $facultyUser->id,
-                'rank_id' => fake()->numberBetween(3, 6),
+                'rank_id' => fake()->numberBetween(3, 7),
                 'department_id' => fake()->numberBetween(1, 5)
             ];
         }

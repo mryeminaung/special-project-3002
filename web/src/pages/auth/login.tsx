@@ -1,4 +1,3 @@
-import { LoginForm } from "@/components/auth/login-form";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -11,6 +10,7 @@ import {
 import { useAuthStore } from "@/stores/useAuthStore";
 import { IconMail, IconQuestionMark } from "@tabler/icons-react";
 import { Navigate } from "react-router";
+import { LoginForm } from "./components/login-form";
 
 export default function LoginPage() {
 	const authToken = useAuthStore((state) => state.authToken);
