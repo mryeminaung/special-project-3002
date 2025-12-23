@@ -3,10 +3,6 @@
 @tailwind utilities;
 
 @theme inline {
-  --font-sans: 'Inter Tight Variable',
-    sans-serif;
-  --font-mono: 'Geist Mono Variable',
-    monospace;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -55,17 +51,6 @@
   --color-daisy-bush-950: #261b4b;
   --color-success: #8a81f8;
   --color-danger: red;
-  --color-cherry-pie-50: #faf4ff;
-  --color-cherry-pie-100: #f4e6ff;
-  --color-cherry-pie-200: #ebd2ff;
-  --color-cherry-pie-300: #dbaeff;
-  --color-cherry-pie-400: #c57bff;
-  --color-cherry-pie-500: #af49ff;
-  --color-cherry-pie-600: #9d25f8;
-  --color-cherry-pie-700: #8715db;
-  --color-cherry-pie-800: #7217b2;
-  --color-cherry-pie-900: #5e148f;
-  --color-cherry-pie-950: #300050;
 }
 
 :root {
