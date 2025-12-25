@@ -31,7 +31,7 @@ const routes = [
 				Component: FacultiesPage,
 			},
 			{
-				path: "/project-proposals/submissions",
+				path: "/project-proposals/submission",
 				Component: ProjectsProposalPage,
 			},
 			{

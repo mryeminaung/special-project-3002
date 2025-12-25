@@ -22,7 +22,7 @@ export function NavMain({
 	return (
 		<SidebarGroup>
 			<SidebarGroupContent className="flex flex-col gap-2">
-				{authUser.roles[0] === "Student" && (
+				{authUser.role === "Student" && (
 					<SidebarMenu className="mb-3">
 						<NavLink
 							to={"/project-proposal/create"}

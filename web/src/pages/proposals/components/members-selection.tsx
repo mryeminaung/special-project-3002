@@ -16,12 +16,12 @@ interface Props {
 
 export default function MembersSelection({ control, error }: Props) {
 	const members = [
-		{ id: "mem001", name: "Mg Ye Min Aung" },
-		{ id: "mem002", name: "Mg Khant Zaw Phyo" },
-		{ id: "mem003", name: "Mg Aung Paing Min" },
-		{ id: "mem004", name: "Mg Min Myat Thaw" },
-		{ id: "mem005", name: "Ma Su Hlaing" },
-		{ id: "mem006", name: "Mg Kyaw Zayar" },
+		{ id: "20", name: "Mg Ye Min Aung" },
+		{ id: "21", name: "Mg Khant Zaw Phyo" },
+		{ id: "22", name: "Mg Aung Paing Min" },
+		{ id: "23", name: "Mg Min Myat Thaw" },
+		{ id: "24", name: "Ma Su Hlaing" },
+		{ id: "25", name: "Mg Kyaw Zayar" },
 	];
 
 	return (

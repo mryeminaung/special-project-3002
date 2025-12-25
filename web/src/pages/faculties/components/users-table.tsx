@@ -1,5 +1,3 @@
-import type React from "react";
-
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -20,9 +18,9 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import type { UsersData } from "@/types";
 import { IconDownload } from "@tabler/icons-react";
 import {
-	AlertCircle,
 	Briefcase,
 	ClipboardList,
 	MoreHorizontal,
@@ -33,318 +31,34 @@ import {
 	Users,
 	X,
 } from "lucide-react";
+import type React from "react";
 import { useMemo, useState } from "react";
 
-interface User {
-	id: string;
-	username: string;
-	name: string;
-	email: string;
-	role:
-		| "Instructor in-charge"
-		| "Student"
-		| "Student Affairs"
-		| "Faculty"
-		| "Supervisor";
-	rank:
-		| "Rector"
-		| "Pro-Rector"
-		| "Professor"
-		| "Associate Professor"
-		| "Lecturer"
-		| "Assistant Lecturer"
-		| "Tutor";
-	status: "Active" | "Inactive";
-	department: "Engineering" | "Science" | "Arts" | "Business" | "Medicine";
-}
-
 const ROLE_ICONS: Record<string, React.ReactNode> = {
-	"Instructor in-charge": <Briefcase className="h-4 w-4" />,
+	IC: <Briefcase className="h-4 w-4" />,
 	"Student Affairs": <ClipboardList className="h-4 w-4" />,
 	Faculty: <Users className="h-4 w-4" />,
 	Supervisor: <Shield className="h-4 w-4" />,
 };
 
-const MOCK_USERS: User[] = [
-	{
-		id: "1",
-		username: "k_aung_123",
-		name: "Ko Aung",
-		email: "k.aung@miit.edu.mm",
-		role: "Supervisor",
-		rank: "Tutor",
-		status: "Active",
-		department: "Engineering",
-	},
-	{
-		id: "2",
-		username: "ma_thin_456",
-		name: "Ma Thin",
-		email: "ma.thin@miit.edu.mm",
-		role: "Instructor in-charge",
-		rank: "Lecturer",
-		status: "Active",
-		department: "Science",
-	},
-	{
-		id: "3",
-		username: "dr_smith_789",
-		name: "Dr. James Smith",
-		email: "j.smith@miit.edu.mm",
-		role: "Faculty",
-		rank: "Professor",
-		status: "Active",
-		department: "Business",
-	},
-	{
-		id: "4",
-		username: "su_mya_012",
-		name: "Su Mya",
-		email: "su.mya@miit.edu.mm",
-		role: "Student Affairs",
-		rank: "Assistant Lecturer",
-		status: "Active",
-		department: "Arts",
-	},
-	{
-		id: "5",
-		username: "prof_lee_345",
-		name: "Prof. Michael Lee",
-		email: "m.lee@miit.edu.mm",
-		role: "Supervisor",
-		rank: "Associate Professor",
-		status: "Active",
-		department: "Engineering",
-	},
-	{
-		id: "6",
-		username: "tun_zaw_678",
-		name: "Tun Zaw",
-		email: "tun.zaw@miit.edu.mm",
-		role: "Supervisor",
-		rank: "Tutor",
-		status: "Active",
-		department: "Science",
-	},
-	{
-		id: "7",
-		username: "nay_lin_901",
-		name: "Nay Lin",
-		email: "nay.lin@miit.edu.mm",
-		role: "Faculty",
-		rank: "Associate Professor",
-		status: "Active",
-		department: "Medicine",
-	},
-	{
-		id: "8",
-		username: "soe_thein_234",
-		name: "Soe Thein",
-		email: "soe.thein@miit.edu.mm",
-		role: "Supervisor",
-		rank: "Assistant Lecturer",
-		status: "Active",
-		department: "Business",
-	},
-	{
-		id: "9",
-		username: "hla_win_567",
-		name: "Hla Win",
-		email: "hla.win@miit.edu.mm",
-		role: "Instructor in-charge",
-		rank: "Pro-Rector",
-		status: "Active",
-		department: "Engineering",
-	},
-	{
-		id: "10",
-		username: "kyi_mon_890",
-		name: "Kyi Mon",
-		email: "kyi.mon@miit.edu.mm",
-		role: "Supervisor",
-		rank: "Rector",
-		status: "Active",
-		department: "Arts",
-	},
-	{
-		id: "11",
-		username: "aye_min_111",
-		name: "Aye Min",
-		email: "aye.min@miit.edu.mm",
-		role: "Faculty",
-		rank: "Lecturer",
-		status: "Active",
-		department: "Science",
-	},
-	{
-		id: "12",
-		username: "zaw_moe_222",
-		name: "Zaw Moe",
-		email: "zaw.moe@miit.edu.mm",
-		role: "Instructor in-charge",
-		rank: "Professor",
-		status: "Active",
-		department: "Medicine",
-	},
-	{
-		id: "13",
-		username: "win_naung_333",
-		name: "Win Naung",
-		email: "win.naung@miit.edu.mm",
-		role: "Supervisor",
-		rank: "Assistant Lecturer",
-		status: "Active",
-		department: "Business",
-	},
-	{
-		id: "14",
-		username: "thida_444",
-		name: "Thida",
-		email: "thida@miit.edu.mm",
-		role: "Supervisor",
-		rank: "Associate Professor",
-		status: "Active",
-		department: "Engineering",
-	},
-	{
-		id: "15",
-		username: "myint_555",
-		name: "Myint",
-		email: "myint@miit.edu.mm",
-		role: "Student Affairs",
-		rank: "Lecturer",
-		status: "Active",
-		department: "Arts",
-	},
-	{
-		id: "16",
-		username: "phyo_666",
-		name: "Phyo",
-		email: "phyo@miit.edu.mm",
-		role: "Faculty",
-		rank: "Professor",
-		status: "Active",
-		department: "Science",
-	},
-	{
-		id: "17",
-		username: "lynn_777",
-		name: "Lynn",
-		email: "lynn@miit.edu.mm",
-		role: "Supervisor",
-		rank: "Tutor",
-		status: "Active",
-		department: "Business",
-	},
-	{
-		id: "18",
-		username: "kaung_888",
-		name: "Kaung",
-		email: "kaung@miit.edu.mm",
-		role: "Instructor in-charge",
-		rank: "Lecturer",
-		status: "Active",
-		department: "Medicine",
-	},
-	{
-		id: "19",
-		username: "mina_999",
-		name: "Mina",
-		email: "mina@miit.edu.mm",
-		role: "Faculty",
-		rank: "Associate Professor",
-		status: "Active",
-		department: "Engineering",
-	},
-	{
-		id: "20",
-		username: "david_001",
-		name: "David Chen",
-		email: "david@miit.edu.mm",
-		role: "Supervisor",
-		rank: "Professor",
-		status: "Active",
-		department: "Science",
-	},
-	{
-		id: "21",
-		username: "sophia_002",
-		name: "Sophia Martinez",
-		email: "sophia@miit.edu.mm",
-		role: "Supervisor",
-		rank: "Assistant Lecturer",
-		status: "Active",
-		department: "Arts",
-	},
-	{
-		id: "22",
-		username: "alex_003",
-		name: "Alex Johnson",
-		email: "alex@miit.edu.mm",
-		role: "Faculty",
-		rank: "Lecturer",
-		status: "Active",
-		department: "Business",
-	},
-	{
-		id: "23",
-		username: "emma_004",
-		name: "Emma Wilson",
-		email: "emma@miit.edu.mm",
-		role: "Instructor in-charge",
-		rank: "Pro-Rector",
-		status: "Active",
-		department: "Medicine",
-	},
-	{
-		id: "24",
-		username: "james_005",
-		name: "James Brown",
-		email: "james@miit.edu.mm",
-		role: "Student Affairs",
-		rank: "Rector",
-		status: "Active",
-		department: "Engineering",
-	},
-	{
-		id: "25",
-		username: "lisa_006",
-		name: "Lisa Anderson",
-		email: "lisa@miit.edu.mm",
-		role: "Supervisor",
-		rank: "Tutor",
-		status: "Active",
-		department: "Science",
-	},
-];
-
-export function UserTable() {
+export default function UsersTable({
+	facultyData,
+}: {
+	facultyData: UsersData[];
+}) {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [selectedRoles, setSelectedRoles] = useState<Set<string>>(new Set());
 	const [selectedRanks, setSelectedRanks] = useState<Set<string>>(new Set());
 	const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
 	const [currentPage, setCurrentPage] = useState(1);
 	const [visibleColumns, setVisibleColumns] = useState<Set<string>>(
-		new Set([
-			"username",
-			"name",
-			"email",
-			"role",
-			"rank",
-			"status",
-			"department",
-		]),
+		new Set(["name", "email", "role", "rank", "status", "department"]),
 	);
 	const [sortColumn, setSortColumn] = useState<string | null>(null);
 	const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 	const itemsPerPage = 10;
 
-	const allRoles = [
-		"Instructor in-charge",
-		"Student Affairs",
-		"Faculty",
-		"Supervisor",
-	];
+	const allRoles = ["IC", "Student Affairs", "Faculty", "Supervisor"];
 	const allRanks = [
 		"Rector",
 		"Pro-Rector",
@@ -360,7 +74,7 @@ export function UserTable() {
 		allRoles.forEach((role) => {
 			counts[role] = 0;
 		});
-		MOCK_USERS.forEach((user) => {
+		facultyData.forEach((user) => {
 			counts[user.role]++;
 		});
 		return counts;
@@ -371,16 +85,15 @@ export function UserTable() {
 		allRanks.forEach((rank) => {
 			counts[rank] = 0;
 		});
-		MOCK_USERS.forEach((user) => {
-			counts[user.rank]++;
+		facultyData.forEach((user) => {
+			counts[user?.rank]++;
 		});
 		return counts;
 	}, []);
 
 	const filteredUsers = useMemo(() => {
-		const filtered = MOCK_USERS.filter((user) => {
+		const filtered = facultyData.filter((user) => {
 			const matchesSearch =
-				user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				user.email.toLowerCase().includes(searchTerm.toLowerCase());
 			const matchesRole =
@@ -392,8 +105,8 @@ export function UserTable() {
 
 		if (sortColumn) {
 			filtered.sort((a, b) => {
-				let aVal: any = a[sortColumn as keyof User];
-				let bVal: any = b[sortColumn as keyof User];
+				let aVal: any = a[sortColumn as keyof UsersData];
+				let bVal: any = b[sortColumn as keyof UsersData];
 
 				if (typeof aVal === "string") {
 					aVal = aVal.toLowerCase();
@@ -484,7 +197,7 @@ export function UserTable() {
 	};
 
 	return (
-		<div className="space-y-4">
+		<div className="space-y-4 mt-5">
 			{/* Search and Filters */}
 			<div className="flex flex-col gap-4">
 				<div className="flex gap-3">
@@ -688,7 +401,7 @@ export function UserTable() {
 			{/* Table */}
 			<div className="rounded-lg border border-border">
 				<Table>
-					<TableHeader>
+					<TableHeader className="bg-muted">
 						<TableRow>
 							{visibleColumns.has("name") && <TableHead>Name</TableHead>}
 							{visibleColumns.has("email") && (
@@ -706,18 +419,25 @@ export function UserTable() {
 							{visibleColumns.has("department") && (
 								<TableHead>Department</TableHead>
 							)}
-							<TableHead className="w-12">Actions</TableHead>
+							{/* <TableHead className="w-12">Actions</TableHead> */}
 						</TableRow>
 					</TableHeader>
 					<TableBody>
 						{paginatedUsers.length === 0 ? (
-							<TableRow>
+							<TableRow className="">
 								<TableCell
 									colSpan={Object.keys(visibleColumns).length + 2}
 									className="text-center py-8">
-									<div className="flex flex-col items-center gap-2 text-muted-foreground">
-										<AlertCircle className="h-5 w-5" />
-										<span>No users found</span>
+									<div className="flex flex-col items-center gap-3">
+										<Search className="h-12 w-12 text-muted-foreground opacity-50" />
+										<div>
+											<h3 className="font-semibold text-foreground">
+												No users found
+											</h3>
+											<p className="text-sm text-muted-foreground">
+												Try adjusting your search or filters
+											</p>
+										</div>
 									</div>
 								</TableCell>
 							</TableRow>
@@ -753,9 +473,9 @@ export function UserTable() {
 										</TableCell>
 									)}
 									{visibleColumns.has("department") && (
-										<TableCell>{user.department}</TableCell>
+										<TableCell>{user.departmentName}</TableCell>
 									)}
-									<TableCell>
+									<TableCell className="hidden">
 										<DropdownMenu>
 											<DropdownMenuTrigger asChild>
 												<Button

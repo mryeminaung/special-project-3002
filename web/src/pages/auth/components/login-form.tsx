@@ -103,7 +103,7 @@ export function LoginForm() {
 					</CardHeader>
 					<CardContent className="">
 						<form
-							autoComplete="off"
+							autoComplete="on"
 							onSubmit={handleSubmit(onSubmit)}>
 							<FieldGroup>
 								<Field>

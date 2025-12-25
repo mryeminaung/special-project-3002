@@ -16,11 +16,11 @@ interface Props {
 
 export default function SupervisorSelection({ control, error }: Props) {
 	const supervisors = [
-		{ id: "sup001", name: "Daw Khaine Aye San" },
-		{ id: "sup002", name: "Dr. Aye Aye Kyaw" },
-		{ id: "sup003", name: "Daw Saw Win" },
-		{ id: "sup004", name: "Dr. Sin Thira Myint" },
-		{ id: "sup005", name: "Daw Zarchi" },
+		{ id: "5", name: "Daw Khaine Aye San" },
+		{ id: "6", name: "Dr. Aye Aye Kyaw" },
+		{ id: "7", name: "Daw Saw Win" },
+		{ id: "8", name: "Dr. Sin Thira Myint" },
+		{ id: "9", name: "Daw Zarchi" },
 	];
 
 	return (
@@ -30,7 +30,7 @@ export default function SupervisorSelection({ control, error }: Props) {
 			</FieldLabel>
 
 			<Controller
-				name="supervisorId"
+				name="supervisor_id"
 				control={control}
 				rules={{ required: "Supervisor should not be empty" }}
 				render={({ field }) => (

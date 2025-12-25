@@ -16,9 +16,9 @@ class StudentResource extends JsonResource
     {
         return  [
             'major' => $this->major->name,
-            "phone_number" => $this->phone_number,
+            "phoneNumber" => $this->phone_number,
             'gpa' => $this->gpa,
-            'graduation_status' => $this->graduation_status
+            'graduationStatus' => $this->graduation_status
         ];;
     }
 }

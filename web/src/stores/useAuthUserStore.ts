@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
+import { persist } from "zustand/middleware";
 
 type AuthStoreProps = {
 	authUser: any;
@@ -14,7 +14,7 @@ export const useAuthUserStore = create<AuthStoreProps>(
 		}),
 		{
 			name: "authUser",
-			storage: createJSONStorage(() => sessionStorage),
+			// storage: createJSONStorage(() => sessionStorage),
 		},
 	) as any,
 );

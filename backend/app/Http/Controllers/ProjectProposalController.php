@@ -2,46 +2,38 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\ProposalRequest;
+use App\Http\Resources\ProjectProposalResource;
 use App\Models\ProjectProposal;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+use function Illuminate\Support\now;
 
 class ProjectProposalController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function index() {}
+
+    public function store(ProposalRequest $request)
     {
-        //
+        $request->merge([
+            'submitted_by' => fake()->randomElement([20, 21, 22, 23, 24]),
+            'status' => 'pending',
+            'submitted_at' => now()
+        ]);
+        ProjectProposal::create($request->all());
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function showProposalsList()
     {
-        return $request->all();
+        return ProjectProposalResource::collection(ProjectProposal::all());
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(ProjectProposal $projectProposal)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(Request $request, ProjectProposal $projectProposal)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(ProjectProposal $projectProposal)
     {
         //
