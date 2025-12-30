@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\auth\AuthController;
 use App\Http\Controllers\dashboard\DashboardController;
+use App\Http\Controllers\FacultyController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\ProjectProposalController;
 use App\Http\Resources\UserResource;
@@ -19,27 +20,18 @@ Route::controller(AuthController::class)->group(function () {
 });
 
 Route::middleware('auth:sanctum')->group(function () {
+
     Route::controller(DashboardController::class)->group(function () {
         Route::get("/dashboard", 'index');
-        Route::get("/faculty-data", function () {
-            $ranksWithCount = Rank::offset(2)->withCount('faculties')->get();
-            $facultyData = [];
+    });
 
-            foreach ($ranksWithCount as $data) {
-                $facultyData[] = [
-                    "id" => $data->id,
-                    "total" => $data->faculties_count,
-                    "title" => $data->name,
-                    "description" => $data->description,
-                ];
-            };
-
-            return response()->json($facultyData);
-        });
+    Route::controller(FacultyController::class)->group(function () {
+        Route::get("/faculties/lists", 'showFacultiesList');
     });
 
     Route::controller(ProjectProposalController::class)->group(function () {
         Route::post("/proposals/create", 'store');
+        // Route::get("/proposals/lists", 'showProposalsList');
     });
 
     Route::controller(FileController::class)->group(function () {
@@ -53,29 +45,34 @@ Route::middleware('auth:sanctum')->group(function () {
     })->middleware('role:IC');
 });
 
-Route::get("ranks", function () {
+Route::get('/test', function () {
+    $users = User::where('is_student', true)->get();
+    $students = $users->whereIn('id', [20, 21, 22]);
+    $studentsData = [];
+
+    foreach ($students as $student) {
+        $studentsData[] = [
+            'id' => $student->id,
+            'name' => $student->name,
+            'email' => $student->email
+        ];
+    }
+    return $studentsData;
+});
+Route::get("/proposals/lists", [ProjectProposalController::class, 'showProposalsList']);
+
+Route::get("/faculty-data", function () {
     $ranksWithCount = Rank::offset(2)->withCount('faculties')->get();
-    $rankLoadCount = Rank::find(3)->loadCount('faculties');
-    return $ranksWithCount;
-});
+    $facultyData = [];
 
-Route::post("project-proposals/submission", function () {
-    return Role::findByName('IC');
-});
+    foreach ($ranksWithCount as $data) {
+        $facultyData[] = [
+            "id" => $data->id,
+            "total" => $data->faculties_count,
+            "title" => $data->name,
+            "description" => $data->description,
+        ];
+    };
 
-Route::get('/faculties', function (Request $request) {
-    $adminUsers = User::where('is_student', false)->take(3)->get();
-    $facultyUsers = User::where('is_student', false)->offset(3)->take(100)->get();
-    return [
-        'admin' => $adminUsers,
-        'faculties' => $facultyUsers
-    ];
-});
-
-Route::get('/info', function (Request $request) {
-    $adminUsers = User::where('is_student', false)->take(3)->with([])->get();
-
-    $facultyUsers = User::where('is_student', false)->offset(3)->take(100)->with(['faculty.department', 'faculty.rank'])->get();
-
-    return UserResource::collection(User::with(['student', 'faculty'])->get());
+    return response()->json($facultyData);
 });

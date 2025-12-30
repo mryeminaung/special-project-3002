@@ -15,15 +15,26 @@ class UserResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
+            'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
-            'roles' => $this->roles->pluck('name'),
-            $this->mergeWhen($this->relationLoaded('student') && $this->student, [
-                'student_info' => new StudentResource($this->student),
-            ]),
-            $this->mergeWhen($this->relationLoaded('faculty') && $this->faculty, [
-                'faculty_info' => new FacultyResource($this->faculty),
-            ]),
+            'role' => $this->roles->pluck('name')->first(),
+            'status' => 'Active',
+            $this->mergeWhen($this->relationLoaded('student') && $this->student, function () use ($request) {
+                return (new StudentResource($this->student))->toArray($request);
+            }),
+
+            $this->mergeWhen($this->relationLoaded('faculty') && $this->faculty, function () use ($request) {
+                return (new FacultyResource($this->faculty))->toArray($request);
+            }),
+
+            // $this->mergeWhen($this->relationLoaded('student') && $this->student, [
+            //     'student_info' => new StudentResource($this->student),
+            // ]),
+            // $this->mergeWhen($this->relationLoaded('faculty') && $this->faculty, [
+            //     'faculty_info' => new FacultyResource($this->faculty),
+            // ]),
+
 
             // 'student_info' => new StudentResource($this->whenLoaded('student')),
             // 'faculty_info' => new FacultyResource($this->whenLoaded('faculty'))

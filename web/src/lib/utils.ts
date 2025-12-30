@@ -21,5 +21,5 @@ type UserRole = "IC" | "Supervisor" | "Faculty" | "Student" | "Student Affairs";
 export const useRoleCheck = (role: UserRole): boolean => {
 	const authUser = useAuthUserStore((state) => state.authUser);
 
-	return authUser?.roles?.[0] === role;
+	return authUser?.role === role;
 };

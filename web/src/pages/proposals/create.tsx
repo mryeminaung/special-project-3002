@@ -9,7 +9,7 @@ import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import RootLayout from "@/layouts/RootLayout";
 import { useRoleCheck } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IconSend } from "@tabler/icons-react";
+import { IconLoader, IconSend } from "@tabler/icons-react";
 import { useRef } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -22,21 +22,21 @@ const ProposalSchema = z.object({
 	title: z
 		.string()
 		.min(5, "Title must be at least 5 characters")
-		.max(100, "Title is too long"),
+		.max(150, "Title is too long"),
 
-	description: z.string().min(20, "Please provide a more detailed description"),
+	description: z
+		.string()
+		.min(20, "Please provide a more detailed description")
+		.max(500, "Please provide a clear and concise description"),
 
-	supervisorId: z.string().min(1, "Please select a project supervisor"),
+	supervisor_id: z.string().min(1, "Please select a project supervisor"),
 
 	members: z
 		.array(z.string())
 		.min(2, "Select at least 2 team members")
 		.max(5, "Maximum 5 members allowed"),
 
-	fileUrl: z
-		.string()
-		.url("Please enter a valid URL")
-		.min(1, "Proposal file URL is required"),
+	fileUrl: z.string().min(1, "Proposal file is required"),
 });
 
 export default function CreateProposalPage() {
@@ -49,17 +49,17 @@ export default function CreateProposalPage() {
 		handleSubmit,
 		control,
 		reset,
-		formState: { errors },
+		formState: { errors, isSubmitting },
 	} = useForm<z.infer<typeof ProposalSchema>>({
 		resolver: zodResolver(ProposalSchema),
 		defaultValues: {
 			title: "",
 			description: "",
-			supervisorId: "",
+			supervisor_id: "",
 			members: [],
 			fileUrl: "",
 		},
-		mode: "onTouched",
+		mode: "onSubmit",
 	});
 
 	type FileUploadHandle = { clear: () => Promise<void> };
@@ -105,17 +105,14 @@ export default function CreateProposalPage() {
 										placeholder="Enter your project name"
 										type="text"
 									/>
-									{errors.description && (
-										<ErrorMessage
-											className="hidden"
-											error="Project title is required"
-										/>
+									{errors.title && (
+										<ErrorMessage error="Project title is required" />
 									)}
 								</Field>
 
 								<SupervisorSelection
 									control={control}
-									error={errors.supervisorId?.message}
+									error={errors.supervisor_id?.message}
 								/>
 
 								<MembersSelection
@@ -136,10 +133,7 @@ export default function CreateProposalPage() {
 										placeholder="Describe your project, its objectives, scope, and expected outcomes"
 									/>
 									{errors.description && (
-										<ErrorMessage
-											className="hidden"
-											error={errors.description.message}
-										/>
+										<ErrorMessage error={errors.description.message} />
 									)}
 								</Field>
 							</div>
@@ -155,17 +149,28 @@ export default function CreateProposalPage() {
 						<div className="flex flex-col sm:flex-row items-center justify-end gap-3">
 							<Button
 								type="button"
+								disabled={isSubmitting}
 								className="hover:cursor-pointer w-full sm:w-fit order-2 sm:order-1"
-								onClick={clearForm} // wired to clearForm
+								onClick={clearForm}
 								variant={"outline"}>
 								<span>Clear Form</span>
 							</Button>
 							<Button
 								type="submit"
+								disabled={isSubmitting}
 								className="hover:cursor-pointer w-full sm:w-fit order-1 sm:order-2 bg-cherry-pie-950 hover:bg-cherry-pie-950/80 hover:text-white text-white"
 								variant={"outline"}>
-								<span>Submit Proposal</span>
-								<IconSend />
+								{isSubmitting ? (
+									<>
+										<span>Submitting...</span>
+										<IconLoader className="animate-spin" />
+									</>
+								) : (
+									<>
+										<span>Submit Proposal</span>
+										<IconSend />
+									</>
+								)}
 							</Button>
 						</div>
 					</form>

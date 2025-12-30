@@ -13,6 +13,14 @@ return new class extends Migration
     {
         Schema::create('project_proposals', function (Blueprint $table) {
             $table->id();
+            $table->string('title')->unique();
+            $table->text('description');
+            $table->string('fileUrl')->unique();
+            $table->enum('status', ["approved", 'pending', 'rejected'])->default("pending");
+            $table->string('members');
+            $table->timestamp('submitted_at');
+            $table->foreignId("submitted_by")->constrained('users');
+            $table->foreignId('supervisor_id')->constrained('users');
             $table->timestamps();
         });
     }

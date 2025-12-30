@@ -33,7 +33,7 @@ import {
 import api from "@/api/api";
 import { useRoleCheck } from "@/lib/utils";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { Shield } from "lucide-react";
+import { BarChart3, Shield } from "lucide-react";
 import { NavLink, useNavigate } from "react-router";
 import { NavUser } from "./nav-user";
 import { Button } from "./ui/button";
@@ -131,6 +131,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				title: "Dashboard",
 				url: "/dashboard",
 				icon: IconLayoutDashboard,
+			},
+			{
+				title: "My Proposal",
+				url: "/my-proposal",
+				icon: BarChart3,
 			},
 			{
 				title: "My Supervisor",
