@@ -8,6 +8,7 @@ import PermissionMatrix from "./pages/permissions/page";
 import ProjectsPage from "./pages/projects/page";
 import CreateProposalPage from "./pages/proposals/create";
 import ProjectsProposalPage from "./pages/proposals/page";
+import ProposalDetailPage from "./pages/proposals/proposal-detail";
 import ProtectedRoute from "./pages/ProtectedRoute";
 import SettingsPage from "./pages/settings/page";
 import SupervisorsPage from "./pages/supervisors/page";
@@ -19,7 +20,7 @@ const routes = [
 		Component: ProtectedRoute,
 		children: [
 			{
-				path: "project-proposal/create",
+				path: "project-proposals/create",
 				Component: CreateProposalPage,
 			},
 			{
@@ -33,6 +34,10 @@ const routes = [
 			{
 				path: "/project-proposals/submission",
 				Component: ProjectsProposalPage,
+			},
+			{
+				path: "/project-proposals/detail/:slug",
+				Component: ProposalDetailPage,
 			},
 			{
 				path: "/supervisors",

@@ -16,9 +16,9 @@ return new class extends Migration
             $table->string("phone_number");
             $table->string("gpa")->nullable();
             $table->enum("graduation_status", ["Active", "Graduated", "On Leave"]);
-            $table->foreignId("user_id")->constrained("users");
-            $table->foreignId("major_id")->constrained("majors");
-            // $table->timestamps();
+            $table->foreignId("user_id")->constrained("users")
+                ->cascadeOnDelete();
+            $table->foreignId("major_id")->constrained("majors")->cascadeOnDelete();
         });
     }
 

@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProjectProposal extends Model
 {
-    protected $fillable = ['title', 'description', 'supervisor_id', 'submitted_at', 'fileUrl', 'members', 'status', 'submitted_by'];
+    protected $fillable = ['title', 'description', 'slug', 'supervisor_id', 'submitted_at', 'fileUrl', 'members', 'status', 'submitted_by'];
 
     public function getSupervisor($supervisorId)
     {

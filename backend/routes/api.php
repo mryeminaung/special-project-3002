@@ -4,15 +4,12 @@ use App\Http\Controllers\auth\AuthController;
 use App\Http\Controllers\dashboard\DashboardController;
 use App\Http\Controllers\FacultyController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectProposalController;
 use App\Http\Resources\UserResource;
-use App\Models\Rank;
-use App\Models\User;
-use Illuminate\Http\Request;
+use App\Models\ProjectProposal;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
-use Spatie\Permission\Models\Role;
 
 Route::controller(AuthController::class)->group(function () {
     Route::post('/login', 'login')->middleware('guest');
@@ -31,7 +28,14 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::controller(ProjectProposalController::class)->group(function () {
         Route::post("/proposals/create", 'store');
-        // Route::get("/proposals/lists", 'showProposalsList');
+        // Route::get("/proposals/{title:slug}", 'show');
+        Route::get("/proposals/lists", 'showProposalsList');
+    });
+
+    Route::controller(ProjectController::class)->group(function () {
+        Route::post("/projects", 'index');
+        Route::post("/projects", 'store');
+        Route::get("/projects/lists", 'showProposalsList');
     });
 
     Route::controller(FileController::class)->group(function () {
@@ -46,33 +50,18 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::get('/test', function () {
-    $users = User::where('is_student', true)->get();
-    $students = $users->whereIn('id', [20, 21, 22]);
-    $studentsData = [];
+    return ProjectProposal::where('status', 'pending')->get();
 
-    foreach ($students as $student) {
-        $studentsData[] = [
-            'id' => $student->id,
-            'name' => $student->name,
-            'email' => $student->email
-        ];
-    }
-    return $studentsData;
-});
-Route::get("/proposals/lists", [ProjectProposalController::class, 'showProposalsList']);
+    // $users = User::where('is_student', true)->get();
+    // $students = $users->whereIn('id', [20, 21, 22]);
+    // $studentsData = [];
 
-Route::get("/faculty-data", function () {
-    $ranksWithCount = Rank::offset(2)->withCount('faculties')->get();
-    $facultyData = [];
-
-    foreach ($ranksWithCount as $data) {
-        $facultyData[] = [
-            "id" => $data->id,
-            "total" => $data->faculties_count,
-            "title" => $data->name,
-            "description" => $data->description,
-        ];
-    };
-
-    return response()->json($facultyData);
+    // foreach ($students as $student) {
+    //     $studentsData[] = [
+    //         'id' => $student->id,
+    //         'name' => $student->name,
+    //         'email' => $student->email
+    //     ];
+    // }
+    // return $studentsData;
 });
