@@ -25,7 +25,7 @@ export function NavMain({
 				{authUser.role === "Student" && (
 					<SidebarMenu className="mb-3">
 						<NavLink
-							to={"/project-proposal/create"}
+							to={"/project-proposals/create"}
 							className="bg-cherry-pie-950 rounded-2xl transition-transform active:scale-95 flex items-center px-6 gap-2 text-white py-2">
 							<IconCirclePlusFilled size={28} />
 							<span>Create Proposal</span>

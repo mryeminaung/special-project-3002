@@ -26,8 +26,10 @@ export default function FacultiesPage() {
 				<FacultyCards facultyData={facultyData} />
 			</div> */}
 			<div className="px-4 lg:px-6">
-				<h1 className="text-3xl font-bold text-foreground">Faculties List</h1>
-				<p className="text-muted-foreground">
+				<h1 className="text-2xl font-bold tracking-tight text-slate-900">
+					Faculties List
+				</h1>
+				<p className="text-sm text-slate-500">
 					Browse and manage project proposals with team assignments and
 					supervisors.
 				</p>

@@ -18,7 +18,7 @@ export const useHeader = () => {
 
 type UserRole = "IC" | "Supervisor" | "Faculty" | "Student" | "Student Affairs";
 
-export const useRoleCheck = (role: UserRole): boolean => {
+export const HasRole = (role: UserRole): boolean => {
 	const authUser = useAuthUserStore((state) => state.authUser);
 
 	return authUser?.role === role;

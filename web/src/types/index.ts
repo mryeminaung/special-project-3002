@@ -15,3 +15,21 @@ export interface UsersData {
 	rank: string;
 	departmentName?: string;
 }
+
+export interface User {
+	id: number;
+	name: string;
+	email: string;
+}
+export interface ProjectProposal {
+	id: string;
+	title: string;
+	description: string;
+	department: string;
+	file: string;
+	submittedBy: User;
+	supervisor: User;
+	students: User[];
+	status: "pending" | "approved" | "rejected";
+	submitted_at: string;
+}

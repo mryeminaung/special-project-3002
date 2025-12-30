@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/sidebar";
 
 import api from "@/api/api";
-import { useRoleCheck } from "@/lib/utils";
+import { HasRole } from "@/lib/utils";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { BarChart3, Shield } from "lucide-react";
 import { NavLink, useNavigate } from "react-router";
@@ -184,11 +184,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			avatar: adminAvatar,
 		},
 		navMain: [
-			...(useRoleCheck("IC") ? tabs.IC : []),
-			...(useRoleCheck("Student") ? tabs.Student : []),
-			...(useRoleCheck("Student Affairs") ? tabs.StudentAffairs : []),
-			...(useRoleCheck("Faculty") ? tabs.Faculty : []),
-			...(useRoleCheck("Supervisor") ? tabs.Supervisor : []),
+			...(HasRole("IC") ? tabs.IC : []),
+			...(HasRole("Student") ? tabs.Student : []),
+			...(HasRole("Student Affairs") ? tabs.StudentAffairs : []),
+			...(HasRole("Faculty") ? tabs.Faculty : []),
+			...(HasRole("Supervisor") ? tabs.Supervisor : []),
 		],
 
 		navClouds: [

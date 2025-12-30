@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import RootLayout from "@/layouts/RootLayout";
-import { useRoleCheck } from "@/lib/utils";
+import { HasRole } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader, IconSend } from "@tabler/icons-react";
 import { useRef } from "react";
@@ -40,7 +40,7 @@ const ProposalSchema = z.object({
 });
 
 export default function CreateProposalPage() {
-	if (!useRoleCheck("Student")) return <UnAuthorized />;
+	if (!HasRole("Student")) return <UnAuthorized />;
 
 	useHeaderInitializer("MIIT | Project Proposal", "Create Project Proposal");
 
@@ -79,7 +79,7 @@ export default function CreateProposalPage() {
 		<RootLayout>
 			<div className="mx-6">
 				<div className="space-y-1 mb-5">
-					<h3 className="text-xl font-semibold">
+					<h3 className="text-2xl font-semibold">
 						Submit Your Project Proposal
 					</h3>
 					<p className="text-base text-muted-foreground">

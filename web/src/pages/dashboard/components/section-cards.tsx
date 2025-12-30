@@ -24,7 +24,7 @@ type SectionCardProps = {
 	pageUrl: string;
 };
 
-export function SectionCards() {
+export function AdminCards() {
 	const navigate = useNavigate();
 
 	/*
@@ -46,7 +46,7 @@ export function SectionCards() {
 			description: "Project Proposals",
 			footerTop: "Project activity increasing this month",
 			footerBottom: "Overall workload remains stable",
-			pageUrl: "/project-proposals",
+			pageUrl: "/project-proposals/submission",
 		},
 		{
 			title: "0",
