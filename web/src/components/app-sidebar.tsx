@@ -306,11 +306,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 									to="/dashboard"
 									className="flex flex-row px-5 justify-center items-center gap-x-3 text-center">
 									<img
-										src="/logo_bg_rm.png"
+										src="/wordmark.png"
 										alt="Image"
-										className="w-full h-16 rounded-full"
+										className="w-full"
 									/>
-									<span className="text-[12px] font-mon hidden text-left font-semibold">
+									<span className="text-[12px] hidden text-left font-semibold">
 										Myanmar Institute of Information Technology
 									</span>
 								</NavLink>

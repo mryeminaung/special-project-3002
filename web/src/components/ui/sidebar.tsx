@@ -275,7 +275,7 @@ function SidebarTrigger({
 			data-slot="sidebar-trigger"
 			variant="default"
 			size="icon"
-			className={cn("size-9 bg-cherry-pie-950 hover:cursor-pointer", className)}
+			className={cn("size-9 bg-primary-950 hover:cursor-pointer", className)}
 			// className={cn("h-10 w-10 [&>svg]:size-96", className)}
 			onClick={(event) => {
 				onClick?.(event);
