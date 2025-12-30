@@ -16,7 +16,7 @@
 		"@dnd-kit/sortable": "^10.0.0",
 		"@dnd-kit/utilities": "^3.2.2",
 		"@fontsource-variable/geist-mono": "^5.2.7",
-		"@fontsource-variable/inter-tight": "^5.2.7",
+		"@fontsource-variable/hanken-grotesk": "^5.2.8",
 		"@fontsource/monaspace-neon": "^5.2.5",
 		"@hookform/resolvers": "^5.2.2",
 		"@radix-ui/react-avatar": "^1.1.11",
