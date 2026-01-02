@@ -25,7 +25,7 @@ export interface ProjectProposal {
 	id: string;
 	title: string;
 	description: string;
-	department: string;
+	// department: string;
 	file: string;
 	submittedBy: User;
 	supervisor: User;

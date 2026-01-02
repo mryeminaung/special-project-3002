@@ -16,13 +16,14 @@ export default function ProjectsProposalPage() {
 
 	const getProposalsData = async () => {
 		const res = await api.get("/proposals/lists");
-		setProposalsData(res.data);
+		console.log(res.data);
 	};
 
 	useEffect(() => {
 		getProposalsData();
 	}, []);
 
+	console.log(proposalsData);
 	return (
 		<RootLayout>
 			<div className="flex flex-col gap-5 px-6">
@@ -35,12 +36,7 @@ export default function ProjectsProposalPage() {
 						supervisors.
 					</p>
 				</div>
-				{proposalsData && (
-					<ProposalsList
-						getProposalsData={getProposalsData}
-						proposalsData={proposalsData}
-					/>
-				)}
+				{proposalsData && <ProposalsList proposalsData={proposalsData} />}
 			</div>
 		</RootLayout>
 	);
