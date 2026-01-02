@@ -158,7 +158,7 @@ export default function CreateProposalPage() {
 							<Button
 								type="submit"
 								disabled={isSubmitting}
-								className="hover:cursor-pointer w-full sm:w-fit order-1 sm:order-2 bg-cherry-pie-950 hover:bg-cherry-pie-950/80 hover:text-white text-white"
+								className="hover:cursor-pointer w-full sm:w-fit order-1 sm:order-2 bg-primary-950 hover:bg-cherry-pie-950/80 hover:text-white text-white"
 								variant={"outline"}>
 								{isSubmitting ? (
 									<>

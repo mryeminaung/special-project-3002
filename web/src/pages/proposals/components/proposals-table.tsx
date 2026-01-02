@@ -49,6 +49,7 @@ interface ProposalsListProp {
 }
 
 export function ProposalsList({ proposalsData }: ProposalsListProp) {
+	const displayData = proposalsData;
 	const [searchTerm, setSearchTerm] = useState("");
 	const [debouncedSearch, setDebouncedSearch] = useState("");
 	useEffect(() => {
@@ -77,19 +78,18 @@ export function ProposalsList({ proposalsData }: ProposalsListProp) {
 
 	const allStatuses = ["pending", "approved", "rejected"];
 
-	console.log(proposalsData);
 
 	const statusCounts = useMemo(() => {
 		const counts: Record<string, number> = {};
-		const list = proposalsData || [];
+		const list = displayData || [];
 		allStatuses.forEach((status) => {
 			counts[status] = list.filter((p) => p.status === status).length;
 		});
 		return counts;
-	}, [proposalsData]);
+	}, [displayData]);
 
 	const filteredProjects = useMemo(() => {
-		const list = proposalsData || [];
+		const list = displayData || [];
 		const filtered = list.filter((project) => {
 			const q = debouncedSearch.toLowerCase();
 			const matchesSearch =
@@ -120,7 +120,7 @@ export function ProposalsList({ proposalsData }: ProposalsListProp) {
 
 		return filtered;
 	}, [
-		proposalsData,
+		displayData,
 		debouncedSearch,
 		selectedStatuses,
 		sortColumn,
@@ -134,8 +134,6 @@ export function ProposalsList({ proposalsData }: ProposalsListProp) {
 	}, [filteredProjects, currentPage]);
 
 	const totalPages = Math.ceil((filteredProjects?.length || 0) / itemsPerPage);
-
-	console.log(paginatedProjects);
 
 	const handleStatusToggle = (status: string) => {
 		const newStatuses = new Set(selectedStatuses);
@@ -174,9 +172,9 @@ export function ProposalsList({ proposalsData }: ProposalsListProp) {
 
 	return (
 		<>
-			{proposalsData.length === 0 ? (
+			{displayData.length === 0 ? (
 				<div className="flex flex-col items-center justify-center py-20">
-					<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+					<Loader2 className="h-8 w-8 animate-spin text-primary-600" />
 					<div className="mt-3 text-sm text-muted-foreground">
 						Loading proposals...
 					</div>
@@ -288,7 +286,7 @@ export function ProposalsList({ proposalsData }: ProposalsListProp) {
 							</DropdownMenu>
 
 							<Button
-								className="hover:cursor-pointer bg-cherry-pie-950 hover:bg-cherry-pie-950/80 ml-auto hover:text-white text-white"
+								className="hover:cursor-pointer bg-primary-950 hover:bg-primary-950/80 ml-auto hover:text-white text-white"
 								onClick={() => alert("Downloading...")}
 								variant={"outline"}>
 								<IconDownload />
@@ -309,7 +307,7 @@ export function ProposalsList({ proposalsData }: ProposalsListProp) {
 									<button
 										key={status}
 										onClick={() => handleStatusToggle(status)}
-										className="bg-cherry-pie-950 px-2 rounded-full text-white hover:underline text-[12px]">
+										className="bg-primary-950 px-2 rounded-full text-white hover:underline text-[12px]">
 										{status}
 									</button>
 								))}
@@ -370,7 +368,7 @@ export function ProposalsList({ proposalsData }: ProposalsListProp) {
 							</TableHeader>
 
 							<TableBody>
-								{proposalsData && paginatedProjects.length === 0 ? (
+								{displayData && paginatedProjects.length === 0 ? (
 									<TableRow>
 										<TableCell
 											colSpan={visibleColumns.size + 1}
@@ -457,10 +455,11 @@ export function ProposalsList({ proposalsData }: ProposalsListProp) {
 												<Button
 													onClick={() =>
 														navigate(
-															`/project-proposals/detail/${"new-project-proposal"}`,
+															`/project-proposals/detail/${project.id}`,
+															{ state: { proposal: project } }
 														)
 													}
-													className="bg-cherry-pie-950 hover:cursor-pointer hover:bg-cherry-pie-950/80">
+													className="bg-primary-950 hover:cursor-pointer hover:bg-primary-950/80">
 													<Eye />
 													<span className="text-[12px]">View</span>
 												</Button>

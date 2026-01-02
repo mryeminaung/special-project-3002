@@ -129,7 +129,7 @@ const FileUpload = forwardRef<FileUploadHandle, Props>(
 					{/* Hide dropzone if a file is already uploaded or uploading */}
 					{!fileUrl && !isUploading && (
 						<div
-							className="border-2 w-full border-cherry-pie-950/50 border-dashed rounded-md p-8 flex flex-col items-center text-center cursor-pointer hover:bg-muted/50 transition-colors"
+							className="border-2 w-full border-primary-950/50 border-dashed rounded-md p-8 flex flex-col items-center text-center cursor-pointer hover:bg-muted/50 transition-colors"
 							onClick={() => fileInputRef.current?.click()}
 							onDragOver={(e) => e.preventDefault()}
 							onDrop={(e) => {
@@ -137,7 +137,7 @@ const FileUpload = forwardRef<FileUploadHandle, Props>(
 								handleFileSelect(e.dataTransfer.files);
 							}}>
 							<div className="mb-2 bg-muted rounded-full p-3">
-								<Upload className="h-5 w-5 text-cherry-pie-950" />
+								<Upload className="h-5 w-5 text-primary-950" />
 							</div>
 							<p className="text-sm font-medium text-foreground">
 								Upload project proposal
@@ -187,7 +187,7 @@ const FileUpload = forwardRef<FileUploadHandle, Props>(
 								<div className="flex items-center gap-3">
 									<div className="h-2 bg-muted rounded-full overflow-hidden flex-1">
 										<div
-											className="h-full bg-cherry-pie-950 transition-all duration-300"
+											className="h-full bg-primary-800 transition-all duration-300"
 											style={{ width: `${progress}%` }}></div>
 									</div>
 									<span className="text-xs text-muted-foreground">
