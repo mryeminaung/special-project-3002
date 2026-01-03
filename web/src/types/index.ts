@@ -24,8 +24,8 @@ export interface User {
 export interface ProjectProposal {
 	id: string;
 	title: string;
+	slug: string;
 	description: string;
-	// department: string;
 	file: string;
 	submittedBy: User;
 	supervisor: User;

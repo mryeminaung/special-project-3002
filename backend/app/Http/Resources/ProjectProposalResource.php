@@ -18,14 +18,15 @@ class ProjectProposalResource extends JsonResource
         return [
             'id' => $this->id,
             'title' => $this->title,
+            'slug' => $this->slug,
             'description' => $this->description,
             'supervisor' => $this->whenLoaded('supervisor', function ($supervisor) {
                 return [
                     'id'    => $supervisor->id,
                     'name'  => $supervisor->name,
                     'email' => $supervisor->email,
-                    'department' => $supervisor->faculty->department->name,
-                    'rank' => $supervisor->faculty->rank->name
+                    // 'department' => $supervisor->faculty->department->name,
+                    // 'rank' => $supervisor->faculty->rank->name
                 ];
             }),
             'submittedBy' => $this->whenLoaded('submitter', function ($submitter) {
@@ -33,8 +34,8 @@ class ProjectProposalResource extends JsonResource
                     'id'    => $submitter->id,
                     'name'  => $submitter->name,
                     'email' => $submitter->email,
-                    'major' => $submitter->student->major->name,
-                    'phone_number' => $submitter->student->phone_number,
+                    // 'major' => $submitter->student->major->name,
+                    // 'phone_number' => $submitter->student->phone_number,
                 ];
             }),
             'students' => $this->getMembers($this->members),

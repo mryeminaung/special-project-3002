@@ -33,14 +33,14 @@ import {
 import api from "@/api/api";
 import { HasRole } from "@/lib/utils";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { BarChart3, Shield } from "lucide-react";
+import { Shield } from "lucide-react";
 import { NavLink, useNavigate } from "react-router";
 import { NavUser } from "./nav-user";
 import { Button } from "./ui/button";
 import adminAvatar from "/avatar.png";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-	const { open, isMobile } = useSidebar();
+	const { isMobile } = useSidebar();
 	const navigate = useNavigate();
 	const setAuthToken = useAuthStore((state) => state.setAuthToken);
 
@@ -112,7 +112,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			},
 			{
 				title: "Browse Proposals",
-				url: "/project-proposals/submission/my",
+				url: "/project-proposals/my",
 				icon: IconDeviceTabletSearch,
 			},
 			{
@@ -133,14 +133,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				icon: IconLayoutDashboard,
 			},
 			{
-				title: "My Proposal",
-				url: "/my-proposal",
-				icon: BarChart3,
-			},
-			{
-				title: "My Supervisor",
-				url: "/my-supervisor",
-				icon: Shield,
+				title: "My Proposals",
+				url: "/project-proposals/my-proposal",
+				icon: IconFileDescription,
 			},
 			{
 				title: "My Tasks",

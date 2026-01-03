@@ -24,7 +24,7 @@ type SectionCardProps = {
 	pageUrl: string;
 };
 
-export function AdminCards() {
+export function AdminCards({ noOfProposals }: { noOfProposals: number }) {
 	const navigate = useNavigate();
 
 	/*
@@ -41,7 +41,7 @@ export function AdminCards() {
 			pageUrl: "/projects",
 		},
 		{
-			title: "0",
+			title: noOfProposals ?? 0,
 			cardIcon: IconFileDescription,
 			description: "Project Proposals",
 			footerTop: "Project activity increasing this month",

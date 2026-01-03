@@ -18,16 +18,15 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import type { ProjectProposal } from "@/types";
-import { IconDownload } from "@tabler/icons-react";
+import { IconDownload, IconRefresh } from "@tabler/icons-react";
 import { Eye, Loader2, Plus, Search, Settings2, Shield, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router";
+import { Link } from "react-router";
 
 interface Project {
 	id: string;
 	title: string;
 	description: string;
-	department: string;
 	submittedBy: string;
 	supervisor: string;
 	students: {
@@ -44,12 +43,15 @@ const STATUS_COLORS: Record<string, string> = {
 	rejected: "bg-red-100 text-red-800",
 };
 
-interface ProposalsListProp {
-	proposalsData: ProjectProposal[];
+interface ProposalsTableProp {
+	getProposalsData: () => void;
+	proposalData: ProjectProposal[];
 }
 
-export function ProposalsList({ proposalsData }: ProposalsListProp) {
-	const displayData = proposalsData;
+export default function ProposalTable({
+	proposalData,
+	getProposalsData,
+}: ProposalsTableProp) {
 	const [searchTerm, setSearchTerm] = useState("");
 	const [debouncedSearch, setDebouncedSearch] = useState("");
 	useEffect(() => {
@@ -74,21 +76,19 @@ export function ProposalsList({ proposalsData }: ProposalsListProp) {
 	const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 	const itemsPerPage = 6;
 
-	const navigate = useNavigate();
-
 	const allStatuses = ["pending", "approved", "rejected"];
 
 	const statusCounts = useMemo(() => {
 		const counts: Record<string, number> = {};
-		const list = displayData || [];
+		const list = proposalData || [];
 		allStatuses.forEach((status) => {
 			counts[status] = list.filter((p) => p.status === status).length;
 		});
 		return counts;
-	}, [displayData]);
+	}, [proposalData]);
 
 	const filteredProjects = useMemo(() => {
-		const list = displayData || [];
+		const list = proposalData || [];
 		const filtered = list.filter((project) => {
 			const q = debouncedSearch.toLowerCase();
 			const matchesSearch =
@@ -119,7 +119,7 @@ export function ProposalsList({ proposalsData }: ProposalsListProp) {
 
 		return filtered;
 	}, [
-		displayData,
+		proposalData,
 		debouncedSearch,
 		selectedStatuses,
 		sortColumn,
@@ -169,9 +169,20 @@ export function ProposalsList({ proposalsData }: ProposalsListProp) {
 		}
 	};
 
+	const [isRefreshing, setIsRefreshing] = useState(false);
+
+	const handleRefresh = async () => {
+		setIsRefreshing(true);
+		try {
+			getProposalsData();
+		} finally {
+			setTimeout(() => setIsRefreshing(false), 500);
+		}
+	};
+
 	return (
 		<>
-			{displayData.length === 0 ? (
+			{proposalData.length === 0 ? (
 				<div className="flex flex-col items-center justify-center py-20">
 					<Loader2 className="h-8 w-8 animate-spin text-primary-600" />
 					<div className="mt-3 text-sm text-muted-foreground">
@@ -284,13 +295,26 @@ export function ProposalsList({ proposalsData }: ProposalsListProp) {
 								</DropdownMenuContent>
 							</DropdownMenu>
 
-							<Button
-								className="hover:cursor-pointer bg-primary-950 hover:bg-primary-950/80 ml-auto hover:text-white text-white"
-								onClick={() => alert("Downloading...")}
-								variant={"outline"}>
-								<IconDownload />
-								<span>Export</span>
-							</Button>
+							<div className="flex gap-x-2 ml-auto">
+								<Button
+									className="hover:cursor-pointer bg-primary-950 hover:bg-primary-950/80 ml-auto hover:text-white text-white"
+									onClick={handleRefresh}
+									variant={"outline"}>
+									{isRefreshing ? (
+										<Loader2 className="h-4 w-4 animate-spin" />
+									) : (
+										<IconRefresh className="h-4 w-4" />
+									)}
+									<span>{isRefreshing ? "Refreshing..." : "Refresh"}</span>
+								</Button>
+								<Button
+									className="hover:cursor-pointer bg-primary-950 hover:bg-primary-950/80 ml-auto hover:text-white text-white"
+									onClick={() => alert("Downloading...")}
+									variant={"outline"}>
+									<IconDownload />
+									<span>Export</span>
+								</Button>
+							</div>
 						</div>
 
 						{/* Selected Filters Display */}
@@ -367,7 +391,7 @@ export function ProposalsList({ proposalsData }: ProposalsListProp) {
 							</TableHeader>
 
 							<TableBody>
-								{displayData && paginatedProjects.length === 0 ? (
+								{proposalData && paginatedProjects.length === 0 ? (
 									<TableRow>
 										<TableCell
 											colSpan={visibleColumns.size + 1}
@@ -451,17 +475,12 @@ export function ProposalsList({ proposalsData }: ProposalsListProp) {
 											)}
 
 											<TableCell className="border">
-												<Button
-													onClick={() =>
-														navigate(
-															`/project-proposals/detail/${project.id}`,
-															{ state: { proposal: project } },
-														)
-													}
-													className="bg-primary-950 hover:cursor-pointer hover:bg-primary-950/80">
-													<Eye />
+												<Link
+													to={`/project-proposals/detail/${project.slug}`}
+													className="bg-primary-950 hover:cursor-pointer hover:bg-primary-950/80 flex items-center text-white px-2 py-1.5 rounded-md gap-x-1">
+													<Eye className="size-4" />
 													<span className="text-[12px]">View</span>
-												</Button>
+												</Link>
 											</TableCell>
 										</TableRow>
 									))

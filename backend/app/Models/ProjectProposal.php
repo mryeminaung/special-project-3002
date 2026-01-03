@@ -19,8 +19,8 @@ class ProjectProposal extends Model
                 'id' => $member->id,
                 'name' => $member->name,
                 'email' => $member->email,
-                'major' => $member->student->major->name,
-                'phone_number' => $member->student->phone_number,
+                // 'major' => $member->student->major->name,
+                // 'phone_number' => $member->student->phone_number,
             ];
         }
         return $studentsData;

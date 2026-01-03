@@ -7,13 +7,17 @@ use App\Http\Resources\ProjectProposalResource;
 use App\Models\ProjectProposal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Number;
 use Illuminate\Support\Str;
 
 use function Illuminate\Support\now;
 
 class ProjectProposalController extends Controller
 {
-    public function index() {}
+    public function index()
+    {
+        return ProjectProposalResource::collection(ProjectProposal::with(['supervisor', 'submitter'])->get());
+    }
 
     public function store(ProposalRequest $request)
     {
@@ -26,15 +30,27 @@ class ProjectProposalController extends Controller
         ProjectProposal::create($request->all());
     }
 
-    public function showProposalsList()
+    public function show()
     {
-        return ProjectProposalResource::collection(ProjectProposal::with(['supervisor', 'submitter'])->get());
+        return Auth::id();
+
+        return ProjectProposal::with(['supervisor', 'submitter'])
+            ->where("submitted_by", Auth::id())
+            ->get();
     }
 
-    public function approveByIC(ProjectProposal $projectProposal) {}
+    public function detail(ProjectProposal $projectProposal)
+    {
+        $proposal = $projectProposal->load(['supervisor', 'submitter']);
+        return new ProjectProposalResource($proposal);
+    }
 
     public function destroy(ProjectProposal $projectProposal)
     {
-        //
+        $projectProposal->delete();
+
+        return response()->json([
+            'message' => 'Proposal deleted successfully'
+        ]);
     }
 }

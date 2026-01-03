@@ -10,7 +10,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 
-import { CheckCircle, Dot, XCircle } from "lucide-react";
+import { CheckCircle, XCircle } from "lucide-react";
 
 const MatrixWrapper = ({ children }: any) => {
 	return (
@@ -45,7 +45,9 @@ export default function PermissionMatrix() {
 		<div className="h-full m-3 md:mx-10 lg:mx-20">
 			<MatrixWrapper>
 				<div className="text-center py-8 bg-linear-to-r from-purple-500 to-blue-600 text-white space-y-3">
-					<h1 className="text-2xl md:text-3xl font-semibold">Permissions Matrix</h1>
+					<h1 className="text-2xl md:text-3xl font-semibold">
+						Permissions Matrix
+					</h1>
 					<p className="text-base md:text-lg">
 						Special Projects Management System - Role-Based Access Control
 					</p>

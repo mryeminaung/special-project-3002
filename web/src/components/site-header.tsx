@@ -20,12 +20,6 @@ export function SiteHeader() {
 
 	const authUser = useAuthUserStore((state) => state.authUser);
 
-	// let email = "";
-
-	// if (authUser.roles[0] === "Student Affairs") email = authUser.email;
-	// else if (authUser.roles[0] === "Student") email = "Student";
-	// else if (authUser.faculty_info.rank) email = authUser.faculty_info.rank;
-
 	const data = {
 		user: {
 			name: authUser.name,
@@ -46,7 +40,7 @@ export function SiteHeader() {
 					orientation="vertical"
 					className="mx-1 data-[orientation=vertical]:h-4"
 				/>
-				<h1 className="text-lg font-medium">{siteHeader}</h1>
+				<h1 className="text-lg font-medium line-clamp-1">{siteHeader}</h1>
 				<div className="ml-auto flex items-center gap-2">
 					<NavUser user={data.user} />
 				</div>

@@ -5,7 +5,7 @@ import { HasRole } from "@/lib/utils";
 import type { ProjectProposal } from "@/types";
 import { useEffect, useState } from "react";
 import UnAuthorized from "../UnAuthorized";
-import { ProposalsList } from "./components/proposals-table";
+import ProposalTable from "./components/proposals-table";
 
 export default function ProjectsProposalPage() {
 	if (!HasRole("IC")) return <UnAuthorized />;
@@ -15,19 +15,18 @@ export default function ProjectsProposalPage() {
 	const [proposalsData, setProposalsData] = useState<ProjectProposal[]>([]);
 
 	const getProposalsData = async () => {
-		const res = await api.get("/proposals/lists");
-		console.log(res.data);
+		const res = await api.get("/proposals");
+		setProposalsData(res.data);
 	};
 
 	useEffect(() => {
 		getProposalsData();
 	}, []);
 
-	console.log(proposalsData);
 	return (
 		<RootLayout>
-			<div className="flex flex-col gap-5 px-6">
-				<div>
+			<div className="flex flex-col mx-auto max-w-7xl gap-3 px-2">
+				<div className="">
 					<h1 className="text-2xl font-bold tracking-tight text-slate-900">
 						Project Proposals
 					</h1>
@@ -36,7 +35,7 @@ export default function ProjectsProposalPage() {
 						supervisors.
 					</p>
 				</div>
-				{proposalsData && <ProposalsList proposalsData={proposalsData} />}
+				{proposalsData && <ProposalTable getProposalsData={getProposalsData} proposalData={proposalsData} />}
 			</div>
 		</RootLayout>
 	);
