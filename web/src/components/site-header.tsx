@@ -2,16 +2,13 @@ import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useAuthUserStore } from "@/stores/useAuthUserStore";
 import { useSiteHeaderStore } from "@/stores/useSiteHeaderStore";
-import { useTheme } from "@/hooks/use-theme";
 import { useEffect, useState } from "react";
-import { IconMoon, IconSun } from "@tabler/icons-react";
-import { Button } from "@/components/ui/button";
 import { NavUser } from "./nav-user";
+import { ThemeToggle } from "./theme-toggle";
 
 export function SiteHeader() {
 	const siteHeader = useSiteHeaderStore((state) => state.siteHeader);
 	const [isScrolled, setIsScrolled] = useState(false);
-	const { theme, toggleTheme } = useTheme();
 
 	useEffect(() => {
 		const handleScroll = () => {
@@ -46,18 +43,7 @@ export function SiteHeader() {
 				/>
 				<h1 className="text-lg font-medium line-clamp-1">{siteHeader}</h1>
 				<div className="ml-auto flex items-center gap-2">
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={toggleTheme}
-						className="h-9 w-9 rounded-md"
-						aria-label="Toggle theme">
-						{theme === "dark" ? (
-							<IconSun className="h-5 w-5" />
-						) : (
-							<IconMoon className="h-5 w-5" />
-						)}
-					</Button>
+					<ThemeToggle />
 					<NavUser user={data.user} />
 				</div>
 			</div>
