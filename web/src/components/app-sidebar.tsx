@@ -38,9 +38,11 @@ import { NavLink, useNavigate } from "react-router";
 import { NavUser } from "./nav-user";
 import { Button } from "./ui/button";
 import adminAvatar from "/avatar.png";
+import { useTheme } from "@/hooks/use-theme";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const { isMobile } = useSidebar();
+	const { theme } = useTheme();
 	const navigate = useNavigate();
 	const setAuthToken = useAuthStore((state) => state.setAuthToken);
 
@@ -301,8 +303,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 									to="/dashboard"
 									className="flex flex-row px-5 justify-center items-center gap-x-3 text-center">
 									<img
-										src="/wordmark.png"
-										alt="Image"
+										key={theme}
+										src={theme === "dark" ? "/wordmark_light_text.png" : "/wordmark.png"}
+										alt="MIIT SPMS Logo"
 										className="w-full"
 									/>
 									<span className="text-[12px] hidden text-left font-semibold">
@@ -326,7 +329,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				{!isMobile ? (
 					<Button
 						onClick={handleLogout}
-						className="border border-red-500 bg-white text-red-500 hover:cursor-pointer rounded-xl py-5 hover:bg-gray-100  mt-3 absolute bottom-5 right-5 text-[14px] left-5 justify-center">
+						variant="outline"
+						className="gap-2 rounded-xl px-6 py-6 text-sm font-medium transition-all duration-200
+    border-2 border-red-200 dark:border-red-800
+    text-red-600 dark:text-red-400
+    bg-white dark:bg-neutral-900
+    hover:bg-red-50 dark:hover:bg-red-950/30
+    hover:border-red-300 dark:hover:border-red-700
+    hover:text-red-700 dark:hover:text-red-300
+    active:bg-red-100 dark:active:bg-red-950/50
+    shadow-sm hover:shadow
+    absolute bottom-5 right-5 left-5
+    justify-center items-center"
+					>
 						<IconLogout size={18} />
 						<span>Log Out</span>
 					</Button>

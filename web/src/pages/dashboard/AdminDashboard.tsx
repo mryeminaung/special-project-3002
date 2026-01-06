@@ -32,10 +32,10 @@ export default function AdminDashboard() {
 			<div className="max-w-7xl mx-auto">
 				<div className="space-y-4 mb-8 ">
 					<div className="mx-6">
-						<h2 className="text-2xl font-bold tracking-tight text-slate-900">
+						<h2 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
 							Project Overview
 						</h2>
-						<p className="text-sm text-slate-500">
+						<p className="text-sm text-neutral-500">
 							Monitoring student proposals, supervisor assignments, and system
 							progress.
 						</p>
@@ -47,15 +47,15 @@ export default function AdminDashboard() {
 
 				<div className="flex flex-row items-center justify-between px-6">
 					<div className="space-y-1">
-						<h3 className="text-2xl font-bold tracking-tight text-slate-900">
+						<h3 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
 							Projects Progress
 						</h3>
-						<p className="text-sm text-slate-500">
+						<p className="text-sm text-neutral-500">
 							Overview of all projects completion status
 						</p>
 					</div>
 					<Button
-						className="hover:cursor-pointer bg-cherry-pie-950 hover:bg-cherry-pie-950/80 hover:text-white text-white"
+						className="hover:cursor-pointer bg-primary-950 hover:bg-primary-950/80 hover:text-white text-white"
 						onClick={() => alert("Downloading...")}
 						variant={"outline"}>
 						<IconDownload />

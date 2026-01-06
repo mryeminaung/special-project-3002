@@ -11,6 +11,7 @@ import { useAuthStore } from "@/stores/useAuthStore";
 import { IconMail, IconQuestionMark } from "@tabler/icons-react";
 import { Navigate } from "react-router";
 import { LoginForm } from "./components/login-form";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function LoginPage() {
 	const authToken = useAuthStore((state) => state.authToken);
@@ -19,6 +20,7 @@ export default function LoginPage() {
 		<>
 			{!authToken ? (
 				<div className="bg-[url(/main-bg.jpg)] bg-center bg-cover flex min-h-svh flex-col items-center justify-center p-6 md:p-10 relative">
+					<ThemeToggle variant="floating" />
 					<LoginForm />
 					<DropdownMenu>
 						<DropdownMenuTrigger asChild>

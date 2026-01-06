@@ -17,6 +17,7 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useHeaderInitializer } from '@/hooks/use-header-initializer';
+import { useTheme } from '@/hooks/use-theme';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useAuthUserStore } from '@/stores/useAuthUserStore';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -37,6 +38,7 @@ const LoginSchema = z.object({
 export function LoginForm() {
   const navigate = useNavigate();
   const [showPwd, setShowPwd] = useState(false);
+  const { theme } = useTheme();
   const setAuthToken = useAuthStore((state) => state.setAuthToken);
   const setAuthUser = useAuthUserStore((state) => state.setAuthUser);
   useHeaderInitializer('MIIT | Log In to the site', '');
@@ -98,8 +100,9 @@ export function LoginForm() {
         <Card className='overflow-hidden p-3 rounded-3xl px-1 sm:px-3 md:px-8 py-8'>
           <CardHeader className='flex justify-center items-center'>
             <img
-              src='/wordmark.png'
-              alt='Image'
+              key={theme}
+              src={theme === 'dark' ? '/wordmark_light_text.png' : '/wordmark.png'}
+              alt='MIIT SPMS Logo'
               className='max-h-36 w-full md:max-w-3xl object-contain'
             />
           </CardHeader>
@@ -182,7 +185,7 @@ export function LoginForm() {
                   <Field orientation='horizontal' className='flex-1'>
                     <Checkbox
                       id='checkBox'
-                      className='h-5 w-5 border-2 border-primary-900 data-[state=checked]:bg-primary-900 data-[state=checked]:border-primary-900 transition-all duration-200'
+                      className='size-4 border-2 border-primary-500 data-[state=checked]:bg-primary-700 data-[state=checked]:border-primary-700 transition-all duration-200'
                     />
                     <FieldLabel htmlFor='checkBox' className='font-medium'>
                       Remember Me
@@ -191,13 +194,13 @@ export function LoginForm() {
                   <Link
                     to='#'
                     onClick={() => alert('Still working on!!!')}
-                    className='md:ml-auto text-blue-900 text-sm underline-offset-3 hover:text-blue-900/90 font-medium hover:underline'
+                    className='md:ml-auto text-blue-900 dark:text-blue-400 text-sm underline-offset-3 hover:text-blue-900/90 dark:hover:text-blue-400/90 font-medium hover:underline'
                   >
                     Forgot your password?
                   </Link>
                 </div>
                 <Button
-                  className='bg-primary-900 hover:cursor-pointer rounded-full py-[22px] hover:bg-primary-800 mt-3 text-[15px]'
+                  className='bg-primary-900 hover:cursor-pointer rounded-full py-[22px] hover:bg-primary-800 mt-3 text-[15px] text-white dark:text-neutral-100'
                   type='submit'
                   disabled={isSubmitting}
                 >

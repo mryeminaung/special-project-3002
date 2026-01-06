@@ -186,9 +186,9 @@ export default function UsersTable({
 		<>
 			{facultyData.length === 0 ? (
 				<div className="flex flex-col items-center justify-center py-20">
-					<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+					<Loader2 className="h-8 w-8 animate-spin text-primary-600" />
 					<div className="mt-3 text-sm text-muted-foreground">
-						Loading users...
+						Loading faculties...
 					</div>
 				</div>
 			) : (
