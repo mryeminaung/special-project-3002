@@ -24,13 +24,13 @@ class UserSeeder extends Seeder
 
         $admin_data = [
             [
-                'name' => 'Daw Win Aye',
+                'name' => 'Dr. Win Aye',
                 'email' => 'win_aye@miit.edu.mm',
                 'is_student' => false,
                 'password' => $adminPassword,
             ],
             [
-                'name' => 'Daw Myat Thuzar Tun',
+                'name' => 'Dr. Myat Thuzar Tun',
                 'email' => 'myat_thuzar_tun@miit.edu.mm',
                 'is_student' => false,
                 'password' => $adminPassword,

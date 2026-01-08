@@ -35,7 +35,12 @@ export default function ProjectsProposalPage() {
 						supervisors.
 					</p>
 				</div>
-				{proposalsData && <ProposalTable getProposalsData={getProposalsData} proposalData={proposalsData} />}
+				{proposalsData && (
+					<ProposalTable
+						getProposalsData={getProposalsData}
+						proposalData={proposalsData}
+					/>
+				)}
 			</div>
 		</RootLayout>
 	);

@@ -12,17 +12,14 @@ import { Controller } from "react-hook-form";
 interface Props {
 	control: any;
 	error?: string;
+	supervisors: { id: number; name: string }[];
 }
 
-export default function SupervisorSelection({ control, error }: Props) {
-	const supervisors = [
-		{ id: "5", name: "Daw Khaine Aye San" },
-		{ id: "6", name: "Dr. Aye Aye Kyaw" },
-		{ id: "7", name: "Daw Saw Win" },
-		{ id: "8", name: "Dr. Sin Thira Myint" },
-		{ id: "9", name: "Daw Zarchi" },
-	];
-
+export default function SupervisorSelection({
+	control,
+	error,
+	supervisors,
+}: Props) {
 	return (
 		<Field>
 			<FieldLabel htmlFor="supervisor">
@@ -46,7 +43,7 @@ export default function SupervisorSelection({ control, error }: Props) {
 							{supervisors.map((supervisor) => (
 								<SelectItem
 									key={supervisor.id}
-									value={supervisor.id}>
+									value={supervisor.id.toString()}>
 									{supervisor.name}
 								</SelectItem>
 							))}

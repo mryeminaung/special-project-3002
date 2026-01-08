@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/sidebar";
 
 import api from "@/api/api";
+import { useTheme } from "@/hooks/use-theme";
 import { HasRole } from "@/lib/utils";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { Shield } from "lucide-react";
@@ -38,7 +39,6 @@ import { NavLink, useNavigate } from "react-router";
 import { NavUser } from "./nav-user";
 import { Button } from "./ui/button";
 import adminAvatar from "/avatar.png";
-import { useTheme } from "@/hooks/use-theme";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const { isMobile } = useSidebar();
@@ -304,7 +304,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 									className="flex flex-row px-5 justify-center items-center gap-x-3 text-center">
 									<img
 										key={theme}
-										src={theme === "dark" ? "/wordmark_light_text.png" : "/wordmark.png"}
+										src={
+											theme === "dark"
+												? "/wordmark_light_text.png"
+												: "/wordmark.png"
+										}
 										alt="MIIT SPMS Logo"
 										className="w-full"
 									/>
@@ -340,8 +344,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     active:bg-red-100 dark:active:bg-red-950/50
     shadow-sm hover:shadow
     absolute bottom-5 right-5 left-5
-    justify-center items-center"
-					>
+    justify-center items-center">
 						<IconLogout size={18} />
 						<span>Log Out</span>
 					</Button>

@@ -21,6 +21,9 @@ export interface User {
 	name: string;
 	email: string;
 }
+
+type ProposalStatus = "pending" | "approved" | "rejected";
+
 export interface ProjectProposal {
 	id: string;
 	title: string;
@@ -30,6 +33,17 @@ export interface ProjectProposal {
 	submittedBy: User;
 	supervisor: User;
 	students: User[];
-	status: "pending" | "approved" | "rejected";
+	status: ProposalStatus;
 	submitted_at: string;
 }
+
+export type Comment = {
+	id: number;
+	author: {
+		id: number;
+		name: string;
+		role: "Student" | "Supervisor" | "IC";
+	};
+	description: string;
+	updatedAt: string;
+};
