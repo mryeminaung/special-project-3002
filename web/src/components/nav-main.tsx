@@ -5,8 +5,8 @@ import {
 } from "@/components/ui/sidebar";
 import { useAuthUserStore } from "@/stores/useAuthUserStore";
 import { PlusCircleIcon } from "@heroicons/react/24/solid";
-import { NavLink } from "react-router";
 import type { ComponentType } from "react";
+import { NavLink } from "react-router";
 
 export function NavMain({
 	items,

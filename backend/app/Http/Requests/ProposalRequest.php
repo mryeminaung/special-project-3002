@@ -28,14 +28,15 @@ class ProposalRequest extends FormRequest
             'description' => 'required',
             'fileUrl' => 'required',
             'members' => 'required',
-            // 'submitted_by' => [
-            //     'required',
-            //     function ($attribute, $value, $fail) {
-            //         $user = User::find($value);
-            //         if (!$user || !$user->roles()->where('name', 'Student')->exists()) {
-            //             $fail('The selected user must be a Student.');
-            //         }
-            //     },
+            'submitted_by' => [
+                'required',
+                function ($attribute, $value, $fail) {
+                    $user = User::find($value);
+                    if (!$user || !$user->roles()->where('name', 'Student')->exists()) {
+                        $fail('The selected user must be a Student.');
+                    }
+                },
+            ],
             'supervisor_id' => [
                 'required',
                 function ($attribute, $value, $fail) {

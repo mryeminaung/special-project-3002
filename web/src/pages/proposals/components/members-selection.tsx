@@ -12,18 +12,10 @@ import { Controller } from "react-hook-form";
 interface Props {
 	control: any;
 	error?: string;
+	members: { id: number; name: string }[];
 }
 
-export default function MembersSelection({ control, error }: Props) {
-	const members = [
-		{ id: "20", name: "Mg Ye Min Aung" },
-		{ id: "21", name: "Mg Khant Zaw Phyo" },
-		{ id: "22", name: "Mg Aung Paing Min" },
-		{ id: "23", name: "Mg Min Myat Thaw" },
-		{ id: "24", name: "Ma Su Hlaing" },
-		{ id: "25", name: "Mg Kyaw Zayar" },
-	];
-
+export default function MembersSelection({ control, error, members }: Props) {
 	return (
 		<Field>
 			<FieldLabel htmlFor="members">
@@ -48,14 +40,14 @@ export default function MembersSelection({ control, error }: Props) {
 						<MultiSelectTrigger
 							id="members"
 							className="w-full py-2.5">
-							<MultiSelectValue placeholder="Select 4-5 team members..." />
+							<MultiSelectValue placeholder="Select 2-4 team members..." />
 						</MultiSelectTrigger>
 						<MultiSelectContent className="overflow-auto">
 							<MultiSelectGroup>
 								{members.map((member) => (
 									<MultiSelectItem
 										key={member.id}
-										value={member.id}>
+										value={member.id.toString()}>
 										{member.name}
 									</MultiSelectItem>
 								))}

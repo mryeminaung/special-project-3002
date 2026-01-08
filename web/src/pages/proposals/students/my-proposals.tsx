@@ -17,18 +17,16 @@ import RootLayout from "@/layouts/RootLayout";
 import type { ProjectProposal } from "@/types";
 import { IconUsersGroup } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import CommentBox from "../components/comment-box";
 
 export default function MyProposalsPage() {
 	const navitate = useNavigate();
-	const location = useLocation();
 	const [proposal, setProposal] = useState<ProjectProposal | null>();
 
 	const fetchProposalDetail = async () => {
 		const res = await api.get(`/proposals/my`);
-		console.log(res.data);
-		// setProposal(res.data);
+		setProposal(res.data);
 	};
 
 	useEffect(() => {
@@ -46,9 +44,13 @@ export default function MyProposalsPage() {
 		}
 	};
 
+	const navigate = useNavigate();
+
 	const handleDelete = async (projectId: number) => {
 		const res = await api.delete(`/proposals/${projectId}/delete`);
-		console.log(res.data);
+		if (res.status === 200) {
+			navigate("/dashboard");
+		}
 	};
 
 	return (
@@ -59,7 +61,8 @@ export default function MyProposalsPage() {
 						<Card className="border-gray-200 shadow-sm">
 							<CardContent className="py-12 text-center">
 								<p className="text-gray-500">
-									No proposal data found. Please go back and select a proposal.
+									No proposal data found. Please go back and create your
+									proposal.
 								</p>
 							</CardContent>
 						</Card>
@@ -85,7 +88,7 @@ export default function MyProposalsPage() {
 													Edit
 												</Button>
 												<Button
-													onClick={() => handleDelete(3)}
+													onClick={() => handleDelete(Number(proposal.id))}
 													className="flex-1 gap-2 hover:cursor-pointer bg-red-300 font-semibold text-red-900 hover:bg-red-500 hover:text-white">
 													<Trash className="size-4 stroke-2" />
 													Delete
@@ -162,7 +165,10 @@ export default function MyProposalsPage() {
 											</div>
 										</CardContent>
 									</Card>
-									<CommentBox />
+									<CommentBox
+										proposalStatus={proposal.status}
+										proposalId={Number(proposal.id)}
+									/>
 								</div>
 
 								<div className="space-y-6">

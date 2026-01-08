@@ -23,7 +23,6 @@ class ProjectProposalController extends Controller
     {
         $request->merge([
             'slug' => Str::slug($request->title, '-'),
-            'submitted_by' => fake()->randomElement([20, 21, 22, 23, 24]),
             'status' => 'pending',
             'submitted_at' => now()
         ]);
@@ -32,11 +31,9 @@ class ProjectProposalController extends Controller
 
     public function show()
     {
-        return Auth::id();
-
-        return ProjectProposal::with(['supervisor', 'submitter'])
-            ->where("submitted_by", Auth::id())
-            ->get();
+        $proposal = ProjectProposal::where("submitted_by", Auth::id())
+            ->first();
+        return new ProjectProposalResource($proposal->load(['supervisor', 'submitter']));
     }
 
     public function detail(ProjectProposal $projectProposal)

@@ -8,10 +8,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import RootLayout from "@/layouts/RootLayout";
 import { HasRole } from "@/lib/utils";
+import { useAuthUserStore } from "@/stores/useAuthUserStore";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader, IconSend } from "@tabler/icons-react";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router";
 import * as z from "zod";
 import UnAuthorized from "../UnAuthorized";
 import FileUpload from "./components/file-upload";
@@ -31,18 +33,47 @@ const ProposalSchema = z.object({
 
 	supervisor_id: z.string().min(1, "Please select a project supervisor"),
 
+	submitted_by: z.number(),
+
 	members: z
 		.array(z.string())
 		.min(2, "Select at least 2 team members")
-		.max(5, "Maximum 5 members allowed"),
+		.max(3, "Maximum 3 members allowed"),
 
 	fileUrl: z.string().min(1, "Proposal file is required"),
 });
+
+type User = {
+	id: number;
+	name: string;
+};
 
 export default function CreateProposalPage() {
 	if (!HasRole("Student")) return <UnAuthorized />;
 
 	useHeaderInitializer("MIIT | Proposal Submission", "Create New Proposal");
+
+	const [faculties, setFaculties] = useState<User[]>([]);
+	const [students, setStudents] = useState<User[]>([]);
+
+	const loadInitialData = async () => {
+		try {
+			const [facultiesRes, studentsRes] = await Promise.all([
+				api.get("faculties-for-proposal"),
+				api.get("students-for-proposal"),
+			]);
+			setFaculties(facultiesRes.data);
+			setStudents(studentsRes.data);
+		} catch (error) {
+			console.error("Failed to load proposal data", error);
+		}
+	};
+
+	useEffect(() => {
+		loadInitialData();
+	}, []);
+
+	const authUser = useAuthUserStore((state) => state.authUser);
 
 	const {
 		register,
@@ -56,18 +87,28 @@ export default function CreateProposalPage() {
 			title: "",
 			description: "",
 			supervisor_id: "",
+			submitted_by: authUser.id,
 			members: [],
 			fileUrl: "",
 		},
-		mode: "onSubmit",
+		mode: "onChange",
 	});
 
 	type FileUploadHandle = { clear: () => Promise<void> };
 	const fileUploadRef = useRef<FileUploadHandle | null>(null);
 
+	const navigate = useNavigate();
+
 	const onSubmit = async (data: z.infer<typeof ProposalSchema>) => {
-		const res = await api.post("/proposals/create", data);
-		console.log(res);
+		const formattedData = {
+			...data,
+			members: [...data.members.map((id) => parseInt(id, 10)), authUser.id],
+			supervisor_id: parseInt(data.supervisor_id, 10),
+		};
+		const res = await api.post("/proposals/create", formattedData);
+		if (res.status === 200) {
+			navigate("/dashboard");
+		}
 	};
 
 	const clearForm = async () => {
@@ -77,7 +118,7 @@ export default function CreateProposalPage() {
 
 	return (
 		<RootLayout>
-			<div className="mx-6">
+			<div className="mx-auto max-w-7xl px-4">
 				<div className="space-y-1 mb-5">
 					<h3 className="text-2xl font-semibold">
 						Submit Your Project Proposal
@@ -88,7 +129,7 @@ export default function CreateProposalPage() {
 					</p>
 				</div>
 
-				<Card className="shadow-2xs px-6 pb-6">
+				<Card className="px-6 pb-6 border-gray-200 shadow-sm">
 					<form
 						autoComplete="off"
 						onSubmit={handleSubmit(onSubmit)}>
@@ -112,11 +153,13 @@ export default function CreateProposalPage() {
 
 								<SupervisorSelection
 									control={control}
+									supervisors={faculties}
 									error={errors.supervisor_id?.message}
 								/>
 
 								<MembersSelection
 									control={control}
+									members={students}
 									error={errors.members?.message}
 								/>
 							</div>

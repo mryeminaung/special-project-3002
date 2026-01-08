@@ -80,10 +80,8 @@ export default function ProposalDetail() {
 							<Card className="mb-6 border-gray-200 shadow-sm">
 								<CardContent className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
 									<div>
-										<h1 className="text-2xl font-bold text-gray-900">
-											{proposal.title}
-										</h1>
-										<div className="mt-2 flex flex-wrap items-center gap-3 text-sm text-gray-500">
+										<h1 className="text-2xl font-bold ">{proposal.title}</h1>
+										<div className="mt-2 flex flex-wrap items-center gap-3 text-sm  ">
 											<Badge className={getStatusColor(proposal.status)}>
 												<span className="font-mono">
 													{proposal.status.toUpperCase()}
@@ -122,16 +120,14 @@ export default function ProposalDetail() {
 											</CardTitle>
 										</CardHeader>
 										<CardContent>
-											<div className="flex flex-col gap-4 rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4 sm:flex-row sm:items-center sm:justify-between">
+											<div className="flex flex-col gap-4 rounded-lg border border-dashed border-gray-300  p-4 sm:flex-row sm:items-center sm:justify-between">
 												<div className="flex items-center gap-4">
 													<div className="rounded-lg bg-primary-100 p-3">
 														<DocumentTextIcon className="size-7 text-primary-600" />
 													</div>
 													<div>
-														<p className="font-medium text-gray-900">
-															Proposal.pdf
-														</p>
-														<p className="text-sm text-gray-500">
+														<p className="font-medium ">Proposal.pdf</p>
+														<p className="text-sm  ">
 															Submitted on {proposal.submitted_at}
 														</p>
 													</div>
@@ -152,7 +148,10 @@ export default function ProposalDetail() {
 											</div>
 										</CardContent>
 									</Card>
-									<CommentBox />
+									<CommentBox
+										proposalStatus={proposal.status}
+										proposalId={Number(proposal.id)}
+									/>
 								</div>
 
 								<div className="space-y-6">
@@ -209,7 +208,7 @@ export default function ProposalDetail() {
 												{proposal.students.map((student) => (
 													<div key={student.id}>
 														<p className="font-medium">{student.name}</p>
-														<p className="flex items-center gap-1.5 truncate text-sm text-gray-500">
+														<p className="flex items-center gap-1.5 truncate text-sm  ">
 															<EnvelopeIcon className="h-3.5 w-3.5" />
 															{student.email}
 														</p>

@@ -36,6 +36,11 @@ class ProjectProposal extends Model
         return $this->belongsTo(User::class, 'submitted_by', 'id');
     }
 
+    public function comments()
+    {
+        return $this->hasMany(ProposalComment::class, "proposal_id", "id");
+    }
+
     protected $casts = [
         'members' => 'array',
         'submitted_at' => 'datetime',

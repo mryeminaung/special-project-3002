@@ -2,14 +2,16 @@
 
 use App\Http\Controllers\auth\AuthController;
 use App\Http\Controllers\dashboard\DashboardController;
-use App\Http\Controllers\FacultyController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProjectProposalController;
-use App\Http\Resources\ProjectProposalResource;
+use App\Http\Controllers\ProposalCommentController;
+use App\Http\Controllers\UserController;
+use App\Http\Resources\CommentResource;
 use App\Http\Resources\UserResource;
-use App\Models\ProjectProposal;
+use App\Models\ProposalComment;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(AuthController::class)->group(function () {
@@ -23,7 +25,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get("/dashboard", 'index');
     });
 
-    Route::controller(FacultyController::class)->group(function () {
+    Route::controller(UserController::class)->group(function () {
+        Route::get("/faculties-for-proposal", "getFacultiesForProposal");
+        Route::get("/students-for-proposal", "getStudentsForProposal");
         Route::get("/faculties/lists", 'showFacultiesList');
     });
 
@@ -33,6 +37,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get("/proposals/my", 'show');
         Route::get("/proposals/{project_proposal:slug}/detail", 'detail');
         Route::delete("/proposals/{projectProposal}/delete", 'destroy');
+    });
+
+    Route::controller(ProposalCommentController::class)->group(function () {
+        Route::post("/comments/create", 'store');
+        Route::get("/comments/{project_proposal:id}", 'show');
+        Route::delete("/comments/{proposal_comment}", 'destroy');
     });
 
     Route::controller(ProjectController::class)->group(function () {
@@ -50,4 +60,10 @@ Route::middleware('auth:sanctum')->group(function () {
         $user = Auth::user();
         return new UserResource($user);
     })->middleware('role:IC');
+});
+
+
+Route::get("/test", function () {
+    return ProposalComment::with("author")->where('proposal_id', 34)->get();
+    return CommentResource::collection(ProposalComment::with("author")->get());
 });
