@@ -25,7 +25,7 @@ export function SiteHeader() {
 		user: {
 			name: authUser.name,
 			email: authUser.email,
-			avatar: "/avatars/shadcn.jpg",
+			avatar: "/avatar.jpg",
 		},
 	};
 

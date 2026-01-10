@@ -67,7 +67,7 @@ export function NavUser({
 							className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground hover:cursor-pointer">
 							<Avatar className="h-10 w-10 rounded-full">
 								<AvatarImage
-									src="/avatar_v1.png"
+									src="/avatar.jpg"
 									alt={user.name}
 								/>
 								<AvatarFallback className="rounded-lg">MT</AvatarFallback>

@@ -13,6 +13,7 @@ export default function FacultiesPage() {
 	const getFacultyData = async () => {
 		const res = await api.get("/faculties/lists");
 		setFacultyData(res.data);
+		console.log(res.data)
 	};
 
 	useEffect(() => {

@@ -19,11 +19,11 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import type { UsersData } from "@/types";
+import { Loader2 } from "lucide-react";
 import { IconDownload, IconRefresh } from "@tabler/icons-react";
 import {
 	Briefcase,
 	ClipboardList,
-	Loader2,
 	MoreHorizontal,
 	Plus,
 	Search,
@@ -34,6 +34,7 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useMemo, useState } from "react";
+import Loading from "@/components/loading";
 
 const ROLE_ICONS: Record<string, React.ReactNode> = {
 	IC: <Briefcase className="h-4 w-4" />,
@@ -185,12 +186,7 @@ export default function UsersTable({
 	return (
 		<>
 			{facultyData.length === 0 ? (
-				<div className="flex flex-col items-center justify-center py-20">
-					<Loader2 className="h-8 w-8 animate-spin text-primary-600" />
-					<div className="mt-3 text-sm text-muted-foreground">
-						Loading faculties...
-					</div>
-				</div>
+				<Loading message="faculties data" />
 			) : (
 				<div className="space-y-4 mt-5">
 					{/* Search and Filters */}
@@ -265,7 +261,6 @@ export default function UsersTable({
 												className="flex items-center gap-2 py-2 cursor-pointer hover:bg-muted rounded px-2">
 												<Checkbox
 													checked={selectedRanks.has(rank)}
-													readOnly
 												/>
 												<span className="flex-1 text-sm">{rank}</span>
 												<span className="text-xs text-muted-foreground">
@@ -327,14 +322,14 @@ export default function UsersTable({
 
 							<div className="flex items-center ml-auto gap-x-3">
 								<Button
-									className="hover:cursor-pointer bg-cherry-pie-950 hover:bg-cherry-pie-950/80 ml-auto hover:text-white text-white"
+									className="hover:cursor-pointer bg-primary-800 hover:bg-primary-800/80 ml-auto hover:text-white text-white"
 									onClick={() => alert("Refreshing...")}
 									variant={"outline"}>
 									<IconRefresh />
 									<span>Refresh</span>
 								</Button>
 								<Button
-									className="hover:cursor-pointer bg-cherry-pie-950 hover:bg-cherry-pie-950/80 ml-auto hover:text-white text-white"
+									className="hover:cursor-pointer bg-primary-800 hover:bg-primary-800/80 ml-auto hover:text-white text-white"
 									onClick={() => alert("Downloading...")}
 									variant={"outline"}>
 									<IconDownload />
@@ -358,7 +353,7 @@ export default function UsersTable({
 									<button
 										key={role}
 										onClick={() => handleRoleToggle(role)}
-										className="bg-cherry-pie-950 px-2 rounded-full text-white hover:underline text-[12px]">
+										className="bg-primary-950 px-2 rounded-full text-white hover:underline text-[12px]">
 										{role}
 									</button>
 								))}
@@ -368,7 +363,7 @@ export default function UsersTable({
 									<button
 										key={rank}
 										onClick={() => handleRankToggle(rank)}
-										className="bg-cherry-pie-950 px-2 rounded-full text-white hover:underline text-[12px]">
+										className="bg-primary-950 px-2 rounded-full text-white hover:underline text-[12px]">
 										{rank}
 									</button>
 								))}
@@ -473,7 +468,7 @@ export default function UsersTable({
 											)}
 											{visibleColumns.has("status") && (
 												<TableCell>
-													<span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+													<span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
 														{user.status}
 													</span>
 												</TableCell>

@@ -1,3 +1,4 @@
+import Loading from "@/components/loading";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -183,12 +184,7 @@ export default function ProposalTable({
 	return (
 		<>
 			{proposalData.length === 0 ? (
-				<div className="flex flex-col items-center justify-center py-20">
-					<Loader2 className="h-8 w-8 animate-spin text-primary-600" />
-					<div className="mt-3 text-sm text-muted-foreground">
-						Loading proposals...
-					</div>
-				</div>
+				<Loading message="project proposals" />
 			) : (
 				<div className="space-y-4">
 					{/* Search and Filters */}
@@ -297,7 +293,7 @@ export default function ProposalTable({
 
 							<div className="flex gap-x-2 ml-auto">
 								<Button
-									className="hover:cursor-pointer bg-primary-950 hover:bg-primary-950/80 ml-auto hover:text-white text-white"
+									className="hover:cursor-pointer bg-primary-800 hover:bg-primary-800/80 ml-auto hover:text-white text-white"
 									onClick={handleRefresh}
 									variant={"outline"}>
 									{isRefreshing ? (
@@ -308,7 +304,7 @@ export default function ProposalTable({
 									<span>{isRefreshing ? "Refreshing..." : "Refresh"}</span>
 								</Button>
 								<Button
-									className="hover:cursor-pointer bg-primary-950 hover:bg-primary-950/80 ml-auto hover:text-white text-white"
+									className="hover:cursor-pointer bg-primary-800 hover:bg-primary-800/80 ml-auto hover:text-white text-white"
 									onClick={() => alert("Downloading...")}
 									variant={"outline"}>
 									<IconDownload />
@@ -477,7 +473,7 @@ export default function ProposalTable({
 											<TableCell className="border">
 												<Link
 													to={`/project-proposals/detail/${project.slug}`}
-													className="bg-primary-950 hover:cursor-pointer hover:bg-primary-950/80 flex items-center text-white px-2 py-1.5 rounded-md gap-x-1">
+													className="bg-primary-800 hover:cursor-pointer hover:bg-primary-800/80 flex items-center text-white px-2 py-1.5 rounded-md gap-x-1">
 													<Eye className="size-4" />
 													<span className="text-[12px]">View</span>
 												</Link>
