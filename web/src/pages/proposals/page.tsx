@@ -6,12 +6,11 @@ import type { ProjectProposal } from '@/types';
 import { useEffect, useState } from 'react';
 import UnAuthorized from '../UnAuthorized';
 import ProposalTable from './components/proposals-table';
-import CommentBox from './components/comment-box';
 
 export default function ProjectsProposalPage() {
   if (!HasRole('IC')) return <UnAuthorized />;
 
-  useHeaderInitializer('MIIT| Proposals', 'Project Proposals');
+  useHeaderInitializer('MIIT | Proposals', 'Project Proposals');
 
   const [proposalsData, setProposalsData] = useState<ProjectProposal[]>([]);
   const getProposalsData = async () => {

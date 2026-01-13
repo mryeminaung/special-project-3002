@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import UsersTable from "./components/faculties-table";
 
 export default function FacultiesPage() {
-	useHeaderInitializer("MIIT| Faculties", "Faculties List");
+	useHeaderInitializer("MIIT | Faculties", "Faculties List");
 
 	const [facultyData, setFacultyData] = useState<UsersData[]>([]);
 

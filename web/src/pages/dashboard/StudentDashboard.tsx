@@ -3,7 +3,7 @@ import RootLayout from "@/layouts/RootLayout";
 import { StudentCards } from "./components/student-card";
 
 export default function StudentDashboard() {
-	useHeaderInitializer("MIIT| Student Dashboard", "Dashboard");
+	useHeaderInitializer("MIIT | Student Dashboard", "Dashboard");
 
 	return (
 		<RootLayout>
