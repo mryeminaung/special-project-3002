@@ -2,7 +2,7 @@ import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import RootLayout from "@/layouts/RootLayout";
 
 export default function StudentAffairsDashboard() {
-	useHeaderInitializer("MIIT| Student Affairs Dashboard", "Dashboard");
+	useHeaderInitializer("MIIT | Student Affairs Dashboard", "Dashboard");
 
 	return (
 		<RootLayout>
