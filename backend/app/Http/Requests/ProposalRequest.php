@@ -23,11 +23,11 @@ class ProposalRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|min:10|max:100',
-            'description' => 'required|min:10|max:300',
+            'title' => 'required',
+            'description' => 'required',
             'fileUrl' => 'required',
             'members' => 'required',
-            'submitted_by' => 'required|exists:users,id',
+            'student_id' => 'required|exists:users,id',
             'supervisor_id' => 'required|exists:users,id'
         ];
     }

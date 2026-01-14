@@ -4,15 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\CommentRequest;
 use App\Http\Resources\CommentResource;
+use App\Models\Comment;
 use App\Models\Proposal;
-use App\Models\ProposalComment;
 
 class CommentController extends Controller
 {
     public function store(CommentRequest $request)
     {
         try {
-            ProposalComment::create($request->all());
+            Comment::create($request->all());
             return response()->json(['message' => 'Comment added successfully'], 201);
         } catch (\Exception $e) {
             return response()->json([
@@ -22,10 +22,10 @@ class CommentController extends Controller
         }
     }
 
-    public function show(Proposal $projectProposal)
+    public function show(Proposal $proposal)
     {
         try {
-            $comments = $projectProposal->comments()->with('author')->latest()->get();
+            $comments = $proposal->comments()->with('author')->latest()->get();
             return CommentResource::collection($comments);
         } catch (\Exception $e) {
             return response()->json([
@@ -35,10 +35,10 @@ class CommentController extends Controller
         }
     }
 
-    public function update(Proposal $projectProposal)
+    public function update(Proposal $proposal)
     {
         try {
-            $comments = $projectProposal->comments()->with('author')->latest()->get();
+            $comments = $proposal->comments()->with('author')->latest()->get();
             return CommentResource::collection($comments);
         } catch (\Exception $e) {
             return response()->json([
@@ -48,10 +48,10 @@ class CommentController extends Controller
         }
     }
 
-    public function destroy(ProposalComment $proposalComment)
+    public function destroy(Comment $comment)
     {
         try {
-            $proposalComment->delete();
+            $comment->delete();
             return response()->json(['message' => 'Comment deleted successfully'], 204);
         } catch (\Exception $e) {
             return response()->json([

@@ -3,10 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\UserResource;
-use App\Models\ProjectProposal;
+use App\Models\Proposal;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -26,7 +25,7 @@ class UserController extends Controller
     public function getStudentsForProposal()
     {
         // Get all student IDs that are already in a team
-        $assignedStudentIds = ProjectProposal::pluck('members')->flatten()->unique()->toArray();
+        $assignedStudentIds = Proposal::pluck('members')->flatten()->unique()->toArray();
 
         // Query users who are students, have the role, and ARE NOT in the assigned list
         $students = User::select('id', 'name')

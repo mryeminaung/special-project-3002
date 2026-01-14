@@ -18,38 +18,18 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { cn } from "@/lib/utils";
 import type { UsersData } from "@/types";
 import { IconDownload, IconRefresh } from "@tabler/icons-react";
-import {
-	Briefcase,
-	ClipboardList,
-	Eye,
-	Plus,
-	Search,
-	Settings2,
-	Shield,
-	Users,
-	X,
-} from "lucide-react";
-import type React from "react";
+import { Eye, Plus, Search, Settings2, Shield, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
 
-const ROLE_ICONS: Record<string, React.ReactNode> = {
-	IC: <Briefcase className="h-4 w-4" />,
-	"Student Affairs": <ClipboardList className="h-4 w-4" />,
-	Faculty: <Users className="h-4 w-4" />,
-	Supervisor: <Shield className="h-4 w-4" />,
-};
-
-export default function UsersTable({
-	facultyData,
+export default function SupervisorsTable({
+	supervisorData,
 }: {
-	facultyData: UsersData[];
+	supervisorData: UsersData[];
 }) {
 	const [searchTerm, setSearchTerm] = useState("");
-	const [selectedRoles, setSelectedRoles] = useState<Set<string>>(new Set());
 	const [selectedRanks, setSelectedRanks] = useState<Set<string>>(new Set());
 	const [currentPage, setCurrentPage] = useState(1);
 	const [visibleColumns, setVisibleColumns] = useState<Set<string>>(
@@ -59,7 +39,6 @@ export default function UsersTable({
 	const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 	const itemsPerPage = 10;
 
-	const allRoles = ["IC", "Student Affairs", "Faculty", "Supervisor"];
 	const allRanks = [
 		"Rector",
 		"Pro-Rector",
@@ -70,38 +49,25 @@ export default function UsersTable({
 		"Tutor",
 	];
 
-	const roleCounts = useMemo(() => {
-		const counts: Record<string, number> = {};
-		allRoles.forEach((role) => {
-			counts[role] = 0;
-		});
-		facultyData.forEach((user) => {
-			counts[user.role] = (counts[user.role] ?? 0) + 1;
-		});
-		return counts;
-	}, [facultyData]);
-
 	const rankCounts = useMemo(() => {
 		const counts: Record<string, number> = {};
 		allRanks.forEach((rank) => {
 			counts[rank] = 0;
 		});
-		facultyData.forEach((user) => {
+		supervisorData.forEach((user) => {
 			counts[user?.rank] = (counts[user?.rank] ?? 0) + 1;
 		});
 		return counts;
-	}, [facultyData]);
+	}, [supervisorData]);
 
 	const filteredUsers = useMemo(() => {
-		const filtered = facultyData.filter((user) => {
+		const filtered = supervisorData.filter((user) => {
 			const matchesSearch =
 				user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				user.email.toLowerCase().includes(searchTerm.toLowerCase());
-			const matchesRole =
-				selectedRoles.size === 0 ? true : selectedRoles.has(user.role);
 			const matchesRank =
 				selectedRanks.size === 0 ? true : selectedRanks.has(user.rank);
-			return matchesSearch && matchesRole && matchesRank;
+			return matchesSearch && matchesRank;
 		});
 
 		if (sortColumn) {
@@ -120,14 +86,7 @@ export default function UsersTable({
 		}
 
 		return filtered;
-	}, [
-		facultyData,
-		searchTerm,
-		selectedRoles,
-		selectedRanks,
-		sortColumn,
-		sortDirection,
-	]);
+	}, [supervisorData, searchTerm, selectedRanks, sortColumn, sortDirection]);
 
 	const paginatedUsers = useMemo(() => {
 		const start = (currentPage - 1) * itemsPerPage;
@@ -135,16 +94,6 @@ export default function UsersTable({
 	}, [filteredUsers, currentPage]);
 
 	const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-
-	const handleRoleToggle = (role: string) => {
-		const newRoles = new Set(selectedRoles);
-		if (newRoles.has(role)) {
-			newRoles.delete(role);
-		} else {
-			newRoles.add(role);
-		}
-		setSelectedRoles(newRoles);
-	};
 
 	const handleRankToggle = (rank: string) => {
 		const newRanks = new Set(selectedRanks);
@@ -154,10 +103,6 @@ export default function UsersTable({
 			newRanks.add(rank);
 		}
 		setSelectedRanks(newRanks);
-	};
-
-	const handleResetRoles = () => {
-		setSelectedRoles(new Set());
 	};
 
 	const handleResetRanks = () => {
@@ -185,8 +130,8 @@ export default function UsersTable({
 
 	return (
 		<>
-			{facultyData.length === 0 ? (
-				<Loading message="faculties data" />
+			{supervisorData.length === 0 ? (
+				<Loading message="supervisors" />
 			) : (
 				<div className="space-y-4 mt-5">
 					{/* Search and Filters */}
@@ -204,40 +149,6 @@ export default function UsersTable({
 									}}
 								/>
 							</div>
-							{/* Role Filter Button */}
-							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<Button
-										variant="outline"
-										className="gap-2 bg-transparent hidden">
-										<Plus className="h-4 w-4" />
-										<span>Role</span>
-									</Button>
-								</DropdownMenuTrigger>
-								<DropdownMenuContent
-									align="start"
-									className="w-56">
-									<DropdownMenuLabel>Filter by Role</DropdownMenuLabel>
-									<DropdownMenuSeparator />
-									<div className="p-2">
-										{allRoles.map((role) => (
-											<div
-												key={role}
-												onClick={() => handleRoleToggle(role)}
-												className="flex items-center gap-2 py-2 cursor-pointer hover:bg-muted rounded px-2">
-												<div className="flex items-center justify-center">
-													{ROLE_ICONS[role]}
-												</div>
-												<span className="flex-1 text-sm">{role}</span>
-												<span className="text-xs text-muted-foreground">
-													{roleCounts[role]}
-												</span>
-											</div>
-										))}
-									</div>
-								</DropdownMenuContent>
-							</DropdownMenu>
-
 							{/* Rank Filter Button */}
 							<DropdownMenu>
 								<DropdownMenuTrigger asChild>
@@ -296,7 +207,6 @@ export default function UsersTable({
 										Email
 									</DropdownMenuCheckboxItem>
 									<DropdownMenuCheckboxItem
-										className="hidden"
 										checked={visibleColumns.has("role")}
 										onCheckedChange={() => handleColumnToggle("role")}>
 										Role
@@ -341,21 +251,11 @@ export default function UsersTable({
 							{/* Combined selected filters and controls */}
 							<div className="flex flex-wrap items-center gap-2">
 								{/* Count badge for selected filters */}
-								{(selectedRoles.size > 0 || selectedRanks.size > 0) && (
+								{selectedRanks.size > 0 && (
 									<span className="text-sm text-muted-foreground ">
-										{selectedRoles.size + selectedRanks.size} selected
+										{selectedRanks.size} selected
 									</span>
 								)}
-
-								{/* Selected role pills */}
-								{Array.from(selectedRoles).map((role) => (
-									<button
-										key={role}
-										onClick={() => handleRoleToggle(role)}
-										className="bg-primary-950 px-2 rounded-full text-white hover:underline text-[12px]">
-										{role}
-									</button>
-								))}
 
 								{/* Selected rank pills */}
 								{Array.from(selectedRanks).map((rank) => (
@@ -368,13 +268,12 @@ export default function UsersTable({
 								))}
 
 								{/* Reset and Close buttons */}
-								{(selectedRoles.size > 0 || selectedRanks.size > 0) && (
+								{selectedRanks.size > 0 && (
 									<>
 										<Button
 											variant="ghost"
 											size="sm"
 											onClick={() => {
-												handleResetRoles();
 												handleResetRanks();
 											}}
 											className="h-auto py-0 px-0 text-sm text-muted-foreground hover:text-foreground">
@@ -384,7 +283,6 @@ export default function UsersTable({
 											variant="ghost"
 											size="sm"
 											onClick={() => {
-												handleResetRoles();
 												handleResetRanks();
 											}}
 											className="h-auto py-0 px-0 text-muted-foreground hover:text-foreground">
@@ -411,9 +309,7 @@ export default function UsersTable({
 												(sortDirection === "asc" ? "↑" : "↓")}
 										</TableHead>
 									)}
-									{visibleColumns.has("role") && (
-										<TableHead className="hidden">Role</TableHead>
-									)}
+									{visibleColumns.has("role") && <TableHead>Role</TableHead>}
 									{visibleColumns.has("rank") && <TableHead>Rank</TableHead>}
 									{visibleColumns.has("status") && (
 										<TableHead>Status</TableHead>
@@ -428,7 +324,7 @@ export default function UsersTable({
 								{paginatedUsers.length === 0 ? (
 									<TableRow className="">
 										<TableCell
-											colSpan={Object.keys(visibleColumns).length + 2}
+											colSpan={visibleColumns.size + 1}
 											className="text-center py-8">
 											<div className="flex flex-col items-center gap-3">
 												<Search className="h-12 w-12 text-muted-foreground opacity-50" />
@@ -457,9 +353,9 @@ export default function UsersTable({
 												</TableCell>
 											)}
 											{visibleColumns.has("role") && (
-												<TableCell className="hidden">
+												<TableCell>
 													<div className="flex items-center gap-2">
-														{ROLE_ICONS[user.role]}
+														<Shield className="h-4 w-4 text-primary-700" />
 														<span className="text-sm">{user.role}</span>
 													</div>
 												</TableCell>
@@ -513,10 +409,6 @@ export default function UsersTable({
 											key={pageNum}
 											variant={currentPage === pageNum ? "default" : "outline"}
 											size="sm"
-											className={cn(
-												currentPage === pageNum &&
-													"bg-primary-800 hover:cursor-pointer hover:bg-primary-800/80",
-											)}
 											onClick={() => setCurrentPage(pageNum)}>
 											{pageNum}
 										</Button>

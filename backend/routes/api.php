@@ -7,7 +7,8 @@ use App\Http\Controllers\FileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\UserController;
-use App\Models\Student;
+use App\Http\Resources\ProposalResource;
+use App\Models\Proposal;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(AuthController::class)->group(function () {
@@ -32,9 +33,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post("/proposals/create", 'store');
         Route::get("/proposals/my", 'show');
         Route::get("/proposals/{proposal:slug}/detail", 'detail');
-        Route::post("/proposals/{proposal:slug}/approve", 'approveByIc');
-        Route::post("/proposals/{proposal:slug}/reject", 'rejectByIc');
         Route::delete("/proposals/{proposal}/delete", 'destroy');
+        Route::post("/proposals/{proposal}/approve", 'approveByIc');
+        Route::post("/proposals/{proposal}/reject", 'rejectByIc');
     });
 
     Route::controller(CommentController::class)->group(function () {
@@ -56,7 +57,6 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::get("/test", function () {
-    $stu = Student::with(['user', 'major'])->get();
-
-    return $stu;
+    $proposal = Proposal::find(1);
+    return new ProposalResource($proposal->load('members'));
 });

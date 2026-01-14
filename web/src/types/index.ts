@@ -32,7 +32,7 @@ export interface ProjectProposal {
 	file: string;
 	submittedBy: User;
 	supervisor: User;
-	students: User[];
+	members: User[];
 	status: ProposalStatus;
 	submitted_at: string;
 }
