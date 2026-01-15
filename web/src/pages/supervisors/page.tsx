@@ -4,7 +4,7 @@ import { HasRole } from "@/lib/utils";
 import type { UsersData } from "@/types";
 import { useState } from "react";
 import UnAuthorized from "../UnAuthorized";
-import UsersTable from "./components/users-table";
+import UsersTable from "./components/supervisors-table";
 
 const demoSupervisorData: UsersData[] = [
 	{

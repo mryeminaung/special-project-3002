@@ -6,22 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Proposal extends Model
 {
-    protected $fillable = ['title', 'description', 'slug', 'supervisor_id', 'submitted_at', 'fileUrl', 'members', 'status', 'student_id'];
+    protected $fillable = ['title', 'description', 'slug', 'supervisor_id', 'submitted_at', 'fileUrl', 'status', 'student_id'];
 
-    public function getMembers($members)
+    public function leader()
     {
-        $users = User::where('is_student', true)->get();
-        $members = $users->whereIn('id', $members);
-        $studentsData = [];
+        return $this->belongsTo(User::class, 'student_id');
+    }
 
-        foreach ($members as $member) {
-            $studentsData[] = [
-                'id' => $member->id,
-                'name' => $member->name,
-                'email' => $member->email,
-            ];
-        }
-        return $studentsData;
+    public function members()
+    {
+        return $this->belongsToMany(User::class, 'proposal_student', 'proposal_id', 'user_id');
     }
 
     public function supervisor()
@@ -29,14 +23,9 @@ class Proposal extends Model
         return $this->belongsTo(User::class, 'supervisor_id', 'id');
     }
 
-    public function submitter()
-    {
-        return $this->belongsTo(User::class, 'student_id', 'id');
-    }
-
     public function comments()
     {
-        return $this->hasMany(ProposalComment::class, "proposal_id", "id");
+        return $this->hasMany(Comment::class, "proposal_id", "id");
     }
 
     protected $casts = [

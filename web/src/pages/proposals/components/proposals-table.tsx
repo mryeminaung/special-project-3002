@@ -24,20 +24,6 @@ import { Eye, Loader2, Plus, Search, Settings2, Shield, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
 
-interface Project {
-	id: string;
-	title: string;
-	description: string;
-	submittedBy: string;
-	supervisor: string;
-	students: {
-		id: number;
-		name: string;
-		email: string;
-	}[];
-	status: "pending" | "approved" | "rejected";
-	submitted_at: string;
-}
 const STATUS_COLORS: Record<string, string> = {
 	pending: "bg-yellow-100 text-yellow-800",
 	approved: "bg-green-100 text-green-800",
@@ -68,7 +54,7 @@ export default function ProposalTable({
 			"title",
 			"supervisor",
 			"submittedBy",
-			"students",
+			"members",
 			"status",
 			"submitted_at",
 		]),
@@ -96,7 +82,7 @@ export default function ProposalTable({
 				project.title.toLowerCase().includes(q) ||
 				project.description.toLowerCase().includes(q) ||
 				(project.supervisor?.name || "").toLowerCase().includes(q) ||
-				project.students.some((s) => s.name.toLowerCase().includes(q));
+				project.members.some((s) => s.name.toLowerCase().includes(q));
 
 			const matchesStatus =
 				selectedStatuses.size === 0
@@ -264,9 +250,9 @@ export default function ProposalTable({
 										Title
 									</DropdownMenuCheckboxItem>
 									<DropdownMenuCheckboxItem
-										checked={visibleColumns.has("students")}
-										onCheckedChange={() => handleColumnToggle("students")}>
-										Students
+										checked={visibleColumns.has("members")}
+										onCheckedChange={() => handleColumnToggle("members")}>
+										Members
 									</DropdownMenuCheckboxItem>
 									<DropdownMenuCheckboxItem
 										checked={visibleColumns.has("submittedBy")}
@@ -373,8 +359,8 @@ export default function ProposalTable({
 									{visibleColumns.has("submittedBy") && (
 										<TableHead>Submitted By</TableHead>
 									)}
-									{visibleColumns.has("students") && (
-										<TableHead>Students</TableHead>
+									{visibleColumns.has("members") && (
+										<TableHead>Members</TableHead>
 									)}
 									{visibleColumns.has("submitted_at") && (
 										<TableHead>Submitted At</TableHead>
@@ -437,19 +423,19 @@ export default function ProposalTable({
 													{project.submittedBy.name}
 												</TableCell>
 											)}
-											{visibleColumns.has("students") && (
+											{visibleColumns.has("members") && (
 												<TableCell>
 													<div className="flex flex-wrap gap-1">
-														{project.students.slice(0, 2).map((student) => (
+														{project.members.slice(0, 2).map((student) => (
 															<Badge
 																key={student.id}
 																variant="secondary">
 																{student.name}
 															</Badge>
 														))}
-														{project.students.length > 2 && (
+														{project.members.length > 2 && (
 															<Badge variant="secondary">
-																+{project.students.length - 2}
+																+{project.members.length - 2}
 															</Badge>
 														)}
 													</div>

@@ -33,7 +33,7 @@ const ProposalSchema = z.object({
 
 	supervisor_id: z.string().min(1, "Please select a project supervisor"),
 
-	submitted_by: z.number(),
+	student_id: z.number(),
 
 	members: z
 		.array(z.string())
@@ -49,8 +49,6 @@ type User = {
 };
 
 export default function CreateProposalPage() {
-	if (!HasRole("Student")) return <UnAuthorized />;
-
 	useHeaderInitializer("MIIT | Proposal Submission", "Create New Proposal");
 
 	const [faculties, setFaculties] = useState<User[]>([]);
@@ -86,10 +84,10 @@ export default function CreateProposalPage() {
 		defaultValues: {
 			title: "",
 			description: "",
-			supervisor_id: "",
-			submitted_by: authUser.id,
-			members: [],
 			fileUrl: "",
+			members: [],
+			student_id: authUser.id,
+			supervisor_id: "",
 		},
 		mode: "onChange",
 	});
@@ -115,6 +113,8 @@ export default function CreateProposalPage() {
 		reset();
 		await fileUploadRef.current?.clear();
 	};
+
+	if (!HasRole("Student")) return <UnAuthorized />;
 
 	return (
 		<RootLayout>

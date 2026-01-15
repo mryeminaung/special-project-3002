@@ -12,7 +12,7 @@ class ProposalController extends Controller
     public function index()
     {
         try {
-            $proposals = Proposal::with(['supervisor', 'submitter'])->get();
+            $proposals = Proposal::with(['supervisor', 'leader', 'members'])->get();
             return ProposalResource::collection($proposals);
         } catch (\Exception $e) {
             return response()->json([
@@ -25,7 +25,10 @@ class ProposalController extends Controller
     public function store(ProposalRequest $request)
     {
         try {
-            Proposal::create($request->all());
+            $proposal = Proposal::create($request->except('members'));
+            if ($request->has('members')) {
+                $proposal->members()->attach($request->members);
+            }
             return response()->json([
                 'message' => 'Proposal created successfully'
             ], 201);
@@ -39,7 +42,7 @@ class ProposalController extends Controller
 
     public function show()
     {
-        $proposal = Proposal::where("submitted_by", Auth::id())
+        $proposal = Proposal::where("student_id", Auth::id())
             ->first();
 
         if (!$proposal) {
@@ -48,31 +51,37 @@ class ProposalController extends Controller
             ], 404);
         }
 
-        return new ProposalResource($proposal->load(['supervisor', 'submitter']));
+        return new ProposalResource($proposal->load(['supervisor', 'leader', 'members']));
     }
 
-    public function approveByIc(Proposal $projectProposal)
+    public function approveByIc(Proposal $proposal)
     {
-        $projectProposal->update([
+        $proposal->update([
             'status' => 'approved'
         ]);
 
-        return $projectProposal;
+        return $proposal;
     }
 
-    public function rejectByIc(Proposal $projectProposal)
+    public function rejectByIc(Proposal $proposal)
     {
-        $projectProposal->update([
+        $proposal->update([
             'status' => 'rejected'
         ]);
 
-        return $projectProposal;
+        return $proposal;
     }
 
-    public function detail(Proposal $projectProposal)
+    public function detail(Proposal $proposal)
     {
         try {
-            $proposal = $projectProposal->load(['supervisor', 'submitter']);
+            if (!$proposal) {
+                return response()->json([
+                    'message' => 'Proposal not found'
+                ], 404);
+            }
+
+            $proposal = $proposal->load(['supervisor', 'leader', 'members']);
             return new ProposalResource($proposal);
         } catch (\Exception $e) {
             return response()->json([
@@ -82,10 +91,10 @@ class ProposalController extends Controller
         }
     }
 
-    public function destroy(Proposal $projectProposal)
+    public function destroy(Proposal $proposal)
     {
         try {
-            $projectProposal->delete();
+            $proposal->delete();
             return response()->json([
                 'message' => 'Proposal deleted successfully'
             ], 204);
