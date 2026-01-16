@@ -14,11 +14,15 @@ return new class extends Migration
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('slug');
             $table->text('description');
-            $table->enum('status', ['active', 'in_progress', 'completed'])->default('in_progress');
+            $table->text('mid_report');
+            $table->text('final_report');
+            $table->enum('status', ['active', 'completed', 'under review'])->default('active');
             $table->timestamp('start_date');
             $table->timestamp('end_date');
-            $table->foreignId('proposal_id')->constrained('project_proposals')->cascadeOnDelete();
+            $table->foreignId('leader_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignId('proposal_id')->constrained('proposals')->cascadeOnDelete();
             $table->foreignId('supervisor_id')->constrained('users')->cascadeOnDelete();
         });
     }

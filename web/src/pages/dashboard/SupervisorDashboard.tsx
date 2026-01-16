@@ -1,8 +1,11 @@
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
-import RootLayout from "@/layouts/RootLayout";
+import { HasRole } from "@/lib/utils";
+import UnAuthorized from "../UnAuthorized";
 
 export default function SupervisorDashboard() {
-	useHeaderInitializer("MIIT| Supervisor Dashboard", "Dashboard");
+	useHeaderInitializer("MIIT | Supervisor Dashboard", "Dashboard");
 
-	return <RootLayout>SupervisorDashboard</RootLayout>;
+	if (HasRole("Student")) return <UnAuthorized />;
+
+	return <>SupervisorDashboard</>;
 }

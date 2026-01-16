@@ -17,6 +17,8 @@ class FacultySeeder extends Seeder
         $faculty_data = [];
 
         $adminUsers = User::where('is_student', false)->take(3)->get();
+        $stuAffair = User::where('email', "student_affairs@miit.edu.mm")->first();
+        $facultyUsers = User::where('is_student', false)->take(3)->get();
         $facultyUsers = User::where('is_student', false)->offset(4)->take(100)->get();
 
         $rector = $adminUsers->first();
@@ -27,6 +29,13 @@ class FacultySeeder extends Seeder
             'user_id' => $rector->id,
             'rank_id' => 1,
             'department_id' => 1
+        ];
+
+        $faculty_data[] = [
+            'phone_number' => $this->generateMyanmarPhoneNumber(),
+            'user_id' => $stuAffair->id,
+            'rank_id' => 6,
+            'department_id' => 2
         ];
 
         foreach ($proRectors as $proRector) {
@@ -43,12 +52,11 @@ class FacultySeeder extends Seeder
                 'phone_number' => $this->generateMyanmarPhoneNumber(),
                 'user_id' => $facultyUser->id,
                 'rank_id' => fake()->numberBetween(3, 7),
-                'department_id' => fake()->numberBetween(1, 5)
+                'department_id' => fake()->numberBetween(3, 5)
             ];
         }
         Faculty::insert($faculty_data);
     }
-
 
     private function generateMyanmarPhoneNumber(): string
     {

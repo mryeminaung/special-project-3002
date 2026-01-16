@@ -11,16 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('project_proposals', function (Blueprint $table) {
+        Schema::create('proposals', function (Blueprint $table) {
             $table->id();
             $table->string('title')->unique();
             $table->string('slug')->unique();
             $table->text('description');
             $table->string('fileUrl')->unique();
             $table->enum('status', ["approved", 'pending', 'rejected'])->default("pending");
-            $table->string('members');
             $table->timestamp('submitted_at');
-            $table->foreignId("submitted_by")->constrained('users')->cascadeOnDelete();
+            $table->foreignId("student_id")->constrained('users')->cascadeOnDelete();
             $table->foreignId('supervisor_id')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
         });
@@ -31,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('project_proposals');
+        Schema::dropIfExists('proposals');
     }
 };

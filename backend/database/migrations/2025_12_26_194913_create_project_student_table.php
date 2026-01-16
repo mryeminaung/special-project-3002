@@ -12,8 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('project_student', function (Blueprint $table) {
-            $table->primary(['user_id', 'project_id']);
-            $table->boolean('is_active')->default(true);
+            $table->id();
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('project_id')->constrained('projects')->cascadeOnDelete();
         });

@@ -34,7 +34,7 @@ import api from "@/api/api";
 import { useTheme } from "@/hooks/use-theme";
 import { HasRole } from "@/lib/utils";
 import { useAuthStore } from "@/stores/useAuthStore";
-import { Shield } from "lucide-react";
+import { Shield, ShieldCheckIcon } from "lucide-react";
 import { NavLink, useNavigate } from "react-router";
 import { NavUser } from "./nav-user";
 import { Button } from "./ui/button";
@@ -55,13 +55,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			},
 			{
 				title: "Project Proposals",
-				url: "/project-proposals/submission",
+				url: "/project-proposals",
 				icon: IconFileDescription,
 			},
 			{
 				title: "Supervisors",
 				url: "/supervisors",
-				icon: Shield,
+				icon: ShieldCheckIcon,
 			},
 			{
 				title: "Projects",
@@ -84,28 +84,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				icon: IconSettings,
 			},
 		],
-		Supervisor: [
-			{
-				title: "Dashboard",
-				url: "/dashboard",
-				icon: IconLayoutDashboard,
-			},
-			{
-				title: "Project Requests",
-				url: "/my-tasks",
-				icon: IconListCheck,
-			},
-			{
-				title: "My Teams",
-				url: "/teams",
-				icon: IconUsers,
-			},
-			{
-				title: "Settings",
-				url: "/settings",
-				icon: IconSettings,
-			},
-		],
 		Faculty: [
 			{
 				title: "Dashboard",
@@ -118,8 +96,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				icon: IconDeviceTabletSearch,
 			},
 			{
-				title: "Projects",
-				url: "/projects",
+				title: "My Projects",
+				url: "/my-projects",
+				icon: IconListDetails,
+			},
+			{
+				title: "My Teams",
+				url: "/my-teams",
 				icon: IconListDetails,
 			},
 			{
@@ -135,8 +118,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				icon: IconLayoutDashboard,
 			},
 			{
-				title: "My Proposals",
-				url: "/project-proposals/my-proposal",
+				title: "Project Proposals",
+				url: "/project-proposals/my-proposals",
 				icon: IconFileDescription,
 			},
 			{
@@ -145,8 +128,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				icon: IconListCheck,
 			},
 			{
-				title: "My Team",
-				url: "/my-team",
+				title: "My Teams",
+				url: "/teams/my-teams",
 				icon: IconUsersGroup,
 			},
 			{
@@ -162,9 +145,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				icon: IconLayoutDashboard,
 			},
 			{
+				title: "Project Proposals",
+				url: "/project-proposals/submission",
+				icon: IconFileDescription,
+			},
+			{
+				title: "Supervisors",
+				url: "/supervisors",
+				icon: ShieldCheckIcon,
+			},
+			{
 				title: "Projects",
-				url: "/my-tasks",
-				icon: IconListCheck,
+				url: "/projects",
+				icon: IconListDetails,
+			},
+			{
+				title: "Teams",
+				url: "/teams",
+				icon: IconUsersGroup,
 			},
 			{
 				title: "Settings",
@@ -184,8 +182,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			...(HasRole("IC") ? tabs.IC : []),
 			...(HasRole("Student") ? tabs.Student : []),
 			...(HasRole("Student Affairs") ? tabs.StudentAffairs : []),
-			...(HasRole("Faculty") ? tabs.Faculty : []),
-			...(HasRole("Supervisor") ? tabs.Supervisor : []),
+			...(HasRole("Faculty") || HasRole("Supervisor") ? tabs.Faculty : []),
 		],
 
 		navClouds: [

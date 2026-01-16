@@ -27,13 +27,9 @@ type SectionCardProps = {
 export function StudentCards() {
 	const navigate = useNavigate();
 
-	/*
-	<div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-6 px-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs lg:px-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
-	*/
-
 	const sectionCardData = [
 		{
-			title: "13",
+			title: "2",
 			cardIcon: IconListDetails,
 			description: "Total Projects",
 			footerTop: "Project activity increasing this month",
@@ -51,7 +47,7 @@ export function StudentCards() {
 		{
 			title: "10",
 			cardIcon: IconListCheck,
-			description: "Total Tasks",
+			description: "My Tasks",
 			footerTop: "Project activity increasing this month",
 			footerBottom: "Overall workload remains stable",
 			pageUrl: "/supervisors",

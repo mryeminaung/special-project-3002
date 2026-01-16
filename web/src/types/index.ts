@@ -16,6 +16,17 @@ export interface UsersData {
 	departmentName?: string;
 }
 
+type TeamStatus = "active";
+
+export interface TeamsData {
+	id: number;
+	title: string;
+	leader: User;
+	members: User[];
+	status: TeamStatus;
+	started_at: string;
+}
+
 export interface User {
 	id: number;
 	name: string;
@@ -32,9 +43,24 @@ export interface ProjectProposal {
 	file: string;
 	submittedBy: User;
 	supervisor: User;
-	students: User[];
+	members: User[];
 	status: ProposalStatus;
 	submitted_at: string;
+}
+
+type ProjectStatus = "active" | "competed" | "under review";
+
+export interface Project {
+	id: string;
+	name: string;
+	slug: string;
+	description: string;
+	leader: string;
+	supervisor: string;
+	members: User[];
+	memberCount: number;
+	status: ProjectStatus;
+	started_at: string;
 }
 
 export type Comment = {

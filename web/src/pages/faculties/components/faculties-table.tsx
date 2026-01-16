@@ -1,10 +1,11 @@
+import Loading from "@/components/loading";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
 	DropdownMenuContent,
-	DropdownMenuItem,
 	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
@@ -18,13 +19,13 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import { cn, STATUS_COLOR } from "@/lib/utils";
 import type { UsersData } from "@/types";
-import { Loader2 } from "lucide-react";
 import { IconDownload, IconRefresh } from "@tabler/icons-react";
 import {
 	Briefcase,
 	ClipboardList,
-	MoreHorizontal,
+	Eye,
 	Plus,
 	Search,
 	Settings2,
@@ -34,7 +35,7 @@ import {
 } from "lucide-react";
 import type React from "react";
 import { useMemo, useState } from "react";
-import Loading from "@/components/loading";
+import { Link } from "react-router";
 
 const ROLE_ICONS: Record<string, React.ReactNode> = {
 	IC: <Briefcase className="h-4 w-4" />,
@@ -209,7 +210,7 @@ export default function UsersTable({
 								<DropdownMenuTrigger asChild>
 									<Button
 										variant="outline"
-										className="gap-2 bg-transparent">
+										className="gap-2 bg-transparent hidden">
 										<Plus className="h-4 w-4" />
 										<span>Role</span>
 									</Button>
@@ -259,9 +260,7 @@ export default function UsersTable({
 												key={rank}
 												onClick={() => handleRankToggle(rank)}
 												className="flex items-center gap-2 py-2 cursor-pointer hover:bg-muted rounded px-2">
-												<Checkbox
-													checked={selectedRanks.has(rank)}
-												/>
+												<Checkbox checked={selectedRanks.has(rank)} />
 												<span className="flex-1 text-sm">{rank}</span>
 												<span className="text-xs text-muted-foreground">
 													{rankCounts[rank]}
@@ -298,6 +297,7 @@ export default function UsersTable({
 										Email
 									</DropdownMenuCheckboxItem>
 									<DropdownMenuCheckboxItem
+										className="hidden"
 										checked={visibleColumns.has("role")}
 										onCheckedChange={() => handleColumnToggle("role")}>
 										Role
@@ -412,7 +412,9 @@ export default function UsersTable({
 												(sortDirection === "asc" ? "↑" : "↓")}
 										</TableHead>
 									)}
-									{visibleColumns.has("role") && <TableHead>Role</TableHead>}
+									{visibleColumns.has("role") && (
+										<TableHead className="hidden">Role</TableHead>
+									)}
 									{visibleColumns.has("rank") && <TableHead>Rank</TableHead>}
 									{visibleColumns.has("status") && (
 										<TableHead>Status</TableHead>
@@ -420,7 +422,7 @@ export default function UsersTable({
 									{visibleColumns.has("department") && (
 										<TableHead>Department</TableHead>
 									)}
-									{/* <TableHead className="w-12">Actions</TableHead> */}
+									<TableHead className="w-12 hidden">Action</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
@@ -456,7 +458,7 @@ export default function UsersTable({
 												</TableCell>
 											)}
 											{visibleColumns.has("role") && (
-												<TableCell>
+												<TableCell className="hidden">
 													<div className="flex items-center gap-2">
 														{ROLE_ICONS[user.role]}
 														<span className="text-sm">{user.role}</span>
@@ -468,29 +470,25 @@ export default function UsersTable({
 											)}
 											{visibleColumns.has("status") && (
 												<TableCell>
-													<span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200">
+													<Badge
+														className={cn(
+															STATUS_COLOR("active"),
+															"px-3 font-mono rounded-md capitalize",
+														)}>
 														{user.status}
-													</span>
+													</Badge>
 												</TableCell>
 											)}
 											{visibleColumns.has("department") && (
 												<TableCell>{user.departmentName}</TableCell>
 											)}
-											<TableCell className="hidden">
-												<DropdownMenu>
-													<DropdownMenuTrigger asChild>
-														<Button
-															variant="ghost"
-															size="icon"
-															className="h-8 w-8">
-															<MoreHorizontal className="h-4 w-4" />
-														</Button>
-													</DropdownMenuTrigger>
-													<DropdownMenuContent align="end">
-														<DropdownMenuItem>Edit</DropdownMenuItem>
-														<DropdownMenuItem>Delete</DropdownMenuItem>
-													</DropdownMenuContent>
-												</DropdownMenu>
+											<TableCell className="border hidden">
+												<Link
+													to={`/supervisors/detail/${user.id}`}
+													className="bg-primary-800 hover:cursor-pointer hover:bg-primary-800/80 flex items-center text-white px-2 py-1.5 rounded-md gap-x-1">
+													<Eye className="size-4" />
+													<span className="text-[12px]">View</span>
+												</Link>
 											</TableCell>
 										</TableRow>
 									))
@@ -520,6 +518,10 @@ export default function UsersTable({
 											key={pageNum}
 											variant={currentPage === pageNum ? "default" : "outline"}
 											size="sm"
+											className={cn(
+												currentPage === pageNum &&
+													"bg-primary-800 hover:cursor-pointer hover:bg-primary-800/80",
+											)}
 											onClick={() => setCurrentPage(pageNum)}>
 											{pageNum}
 										</Button>

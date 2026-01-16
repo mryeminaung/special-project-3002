@@ -3,11 +3,13 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
-body {
-  /* display: none; */
-  /* scrollbar-width: none; */
-  /* scrollbar-width: thin; */
-  /* scrollbar-color: #f8f9fa #300050; */
+/* display: none; */
+/* scrollbar-width: none; */
+/* scrollbar-width: thin; */
+/* scrollbar-color: #f8f9fa #300050; */
+
+body::-webkit-scrollbar {
+  display: none;
 }
 
 @custom-variant dark (&:is(.dark *));

@@ -1,3 +1,4 @@
+import RootLayout from "@/layouts/RootLayout";
 import { useAuthStore } from "@/stores/useAuthStore";
 import { Navigate, Outlet, useLocation } from "react-router";
 
@@ -23,5 +24,9 @@ export default function ProtectedRoute() {
 			/>
 		);
 
-	return <Outlet />;
+	return (
+		<RootLayout>
+			<Outlet />
+		</RootLayout>
+	);
 }

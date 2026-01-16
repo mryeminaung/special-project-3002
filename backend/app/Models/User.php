@@ -61,4 +61,14 @@ class User extends Authenticatable
     {
         return $this->hasOne(Faculty::class, 'user_id');
     }
+
+    public function proposals()
+    {
+        return $this->hasMany(Proposal::class, 'student_id');
+    }
+
+    public function teamProposals()
+    {
+        return $this->belongsToMany(Proposal::class, 'proposal_student', 'user_id', 'proposal_id');
+    }
 }

@@ -3,12 +3,8 @@
 namespace App\Http\Controllers\dashboard;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\UserResource;
-use App\Models\ProjectProposal;
-use App\Models\Rank;
-use Illuminate\Http\Request;
+use App\Models\Proposal;
 use Illuminate\Support\Facades\Auth;
-use Spatie\Permission\Models\Role;
 
 class DashboardController extends Controller
 {
@@ -37,7 +33,7 @@ class DashboardController extends Controller
 
     private function getICDashboardData()
     {
-        $noOfProposals = ProjectProposal::all()->count();
+        $noOfProposals = Proposal::all()->count();
         return response()->json(
             ['noOfProposals' => $noOfProposals]
         );

@@ -4,9 +4,8 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
-use Illuminate\Support\Facades\Date;
 
-class ProjectProposalResource extends JsonResource
+class ProposalResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -25,20 +24,16 @@ class ProjectProposalResource extends JsonResource
                     'id'    => $supervisor->id,
                     'name'  => $supervisor->name,
                     'email' => $supervisor->email,
-                    // 'department' => $supervisor->faculty->department->name,
-                    // 'rank' => $supervisor->faculty->rank->name
                 ];
             }),
-            'submittedBy' => $this->whenLoaded('submitter', function ($submitter) {
+            'submittedBy' => $this->whenLoaded('leader', function ($leader) {
                 return [
-                    'id'    => $submitter->id,
-                    'name'  => $submitter->name,
-                    'email' => $submitter->email,
-                    // 'major' => $submitter->student->major->name,
-                    // 'phone_number' => $submitter->student->phone_number,
+                    'id'    => $leader->id,
+                    'name'  => $leader->name,
+                    'email' => $leader->email,
                 ];
             }),
-            'students' => $this->getMembers($this->members),
+            'members' => MemberResource::collection($this->getRelation('members')),
             'file' => $this->fileUrl,
             'status' => $this->status,
             'submitted_at' => $this->submitted_at->format('d-m-Y')

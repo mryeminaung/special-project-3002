@@ -22,4 +22,9 @@ class Faculty extends Model
     {
         return $this->belongsTo(Rank::class);
     }
+
+    public function projects()
+    {
+        return $this->hasMany(Project::class, "supervisor_id");
+    }
 }

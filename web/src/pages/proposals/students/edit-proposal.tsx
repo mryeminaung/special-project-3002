@@ -6,19 +6,17 @@ import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
-import RootLayout from "@/layouts/RootLayout";
 import { HasRole } from "@/lib/utils";
-import { useAuthUserStore } from "@/stores/useAuthUserStore";
+import type { User } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IconLoader, IconSend } from "@tabler/icons-react";
+import { IconLoader, IconPencilCheck } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router";
 import * as z from "zod";
-import UnAuthorized from "../UnAuthorized";
-import FileUpload from "./components/file-upload";
-import MembersSelection from "./components/members-selection";
-import SupervisorSelection from "./components/supervisor-selection";
+import UnAuthorized from "../../UnAuthorized";
+import FileUpload from "../components/file-upload";
+import MembersSelection from "../components/members-selection";
+import SupervisorSelection from "../components/supervisor-selection";
 
 const ProposalSchema = z.object({
 	title: z
@@ -33,25 +31,16 @@ const ProposalSchema = z.object({
 
 	supervisor_id: z.string().min(1, "Please select a project supervisor"),
 
-	submitted_by: z.number(),
-
 	members: z
 		.array(z.string())
 		.min(2, "Select at least 2 team members")
-		.max(3, "Maximum 3 members allowed"),
+		.max(5, "Maximum 5 members allowed"),
 
 	fileUrl: z.string().min(1, "Proposal file is required"),
 });
 
-type User = {
-	id: number;
-	name: string;
-};
-
-export default function CreateProposalPage() {
-	if (!HasRole("Student")) return <UnAuthorized />;
-
-	useHeaderInitializer("MIIT | Proposal Submission", "Create New Proposal");
+export default function EditProposalPage() {
+	useHeaderInitializer("MIIT | Proposal Editing", "Edit Proposal");
 
 	const [faculties, setFaculties] = useState<User[]>([]);
 	const [students, setStudents] = useState<User[]>([]);
@@ -73,8 +62,6 @@ export default function CreateProposalPage() {
 		loadInitialData();
 	}, []);
 
-	const authUser = useAuthUserStore((state) => state.authUser);
-
 	const {
 		register,
 		handleSubmit,
@@ -87,28 +74,18 @@ export default function CreateProposalPage() {
 			title: "",
 			description: "",
 			supervisor_id: "",
-			submitted_by: authUser.id,
 			members: [],
 			fileUrl: "",
 		},
-		mode: "onChange",
+		mode: "onSubmit",
 	});
 
 	type FileUploadHandle = { clear: () => Promise<void> };
 	const fileUploadRef = useRef<FileUploadHandle | null>(null);
 
-	const navigate = useNavigate();
-
 	const onSubmit = async (data: z.infer<typeof ProposalSchema>) => {
-		const formattedData = {
-			...data,
-			members: [...data.members.map((id) => parseInt(id, 10)), authUser.id],
-			supervisor_id: parseInt(data.supervisor_id, 10),
-		};
-		const res = await api.post("/proposals/create", formattedData);
-		if (res.status === 200) {
-			navigate("/dashboard");
-		}
+		const res = await api.post("/proposals/create", data);
+		console.log(res);
 	};
 
 	const clearForm = async () => {
@@ -116,9 +93,11 @@ export default function CreateProposalPage() {
 		await fileUploadRef.current?.clear();
 	};
 
+	if (!HasRole("Student")) return <UnAuthorized />;
+
 	return (
-		<RootLayout>
-			<div className="mx-auto max-w-7xl px-4">
+		<>
+			<div className="mx-6">
 				<div className="space-y-1 mb-5">
 					<h3 className="text-2xl font-semibold">
 						Submit Your Project Proposal
@@ -129,7 +108,7 @@ export default function CreateProposalPage() {
 					</p>
 				</div>
 
-				<Card className="px-6 pb-6 border-gray-200 shadow-sm">
+				<Card className="shadow-2xs px-6 pb-6">
 					<form
 						autoComplete="off"
 						onSubmit={handleSubmit(onSubmit)}>
@@ -158,8 +137,8 @@ export default function CreateProposalPage() {
 								/>
 
 								<MembersSelection
-									control={control}
 									members={students}
+									control={control}
 									error={errors.members?.message}
 								/>
 							</div>
@@ -210,8 +189,8 @@ export default function CreateProposalPage() {
 									</>
 								) : (
 									<>
-										<span>Submit Proposal</span>
-										<IconSend />
+										<span>Update Proposal</span>
+										<IconPencilCheck />
 									</>
 								)}
 							</Button>
@@ -219,6 +198,6 @@ export default function CreateProposalPage() {
 					</form>
 				</Card>
 			</div>
-		</RootLayout>
+		</>
 	);
 }
