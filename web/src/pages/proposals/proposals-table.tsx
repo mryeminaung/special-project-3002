@@ -266,7 +266,7 @@ export default function ProposalTable({
 									<DropdownMenuCheckboxItem
 										checked={visibleColumns.has("submitted_at")}
 										onCheckedChange={() => handleColumnToggle("submitted_at")}>
-										Submitted Date
+										Submitted At
 									</DropdownMenuCheckboxItem>
 								</DropdownMenuContent>
 							</DropdownMenu>
@@ -294,7 +294,7 @@ export default function ProposalTable({
 							</Button>
 						</div>
 					</div>
-					
+
 					{/* Selected Filters Display */}
 					<div className="flex flex-wrap items-center gap-3 pt-2 border-t border-border ">
 						<div className="flex flex-wrap items-center gap-2">
@@ -357,11 +357,11 @@ export default function ProposalTable({
 									{visibleColumns.has("members") && (
 										<TableHead>Members</TableHead>
 									)}
-									{visibleColumns.has("submitted_at") && (
-										<TableHead>Submitted At</TableHead>
-									)}
 									{visibleColumns.has("status") && (
 										<TableHead>Status</TableHead>
+									)}
+									{visibleColumns.has("submitted_at") && (
+										<TableHead>Submitted At</TableHead>
 									)}
 									<TableHead className="w-12">Action</TableHead>
 								</TableRow>
@@ -393,13 +393,13 @@ export default function ProposalTable({
 												<TableCell>
 													<div>
 														<div className="font-semibold text-foreground">
-															{project.title.length > 30
-																? project.title.substring(0, 30) + "..."
+															{project.title.length > 50
+																? project.title.substring(0, 50) + "..."
 																: project.title}
 														</div>
 														<div className="text-xs text-muted-foreground line-clamp-1">
-															{project.description.length > 30
-																? project.description.substring(0, 30) + "..."
+															{project.description.length > 50
+																? project.description.substring(0, 50) + "..."
 																: project.description}
 														</div>
 													</div>
@@ -437,12 +437,6 @@ export default function ProposalTable({
 												</TableCell>
 											)}
 
-											{visibleColumns.has("submitted_at") && (
-												<TableCell className="text-sm">
-													{project.submitted_at}
-												</TableCell>
-											)}
-
 											{visibleColumns.has("status") && (
 												<TableCell>
 													<Badge
@@ -452,6 +446,12 @@ export default function ProposalTable({
 														)}>
 														{project.status}
 													</Badge>
+												</TableCell>
+											)}
+
+											{visibleColumns.has("submitted_at") && (
+												<TableCell className="text-sm">
+													{project.submitted_at}
 												</TableCell>
 											)}
 

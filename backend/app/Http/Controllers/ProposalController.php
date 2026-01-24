@@ -8,6 +8,7 @@ use App\Models\Project;
 use App\Models\Proposal;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class ProposalController extends Controller
 {
@@ -45,9 +46,6 @@ class ProposalController extends Controller
     public function myProposals()
     {
         $proposals = Auth::user()->teamProposals()->with(['supervisor', 'leader', 'members'])->get();
-        return $proposals;
-
-        return ProposalResource::collection($proposals->load(['supervisor', 'leader', 'members']));
 
         if ($proposals->isEmpty()) {
             return response()->json([
@@ -64,14 +62,16 @@ class ProposalController extends Controller
             $proposal->update(['status' => 'approved']);
 
             $project = Project::create([
-                'title'         => $proposal->title,
+                'name'          => $proposal->title,
+                'slug'          => Str::slug($proposal->title),
                 'description'   => $proposal->description,
                 'leader_id'     => $proposal->student_id,
                 'supervisor_id' => $proposal->supervisor_id,
                 'proposal_id'   => $proposal->id,
+                'start_date' => now(),
             ]);
 
-            // Sync Team Members from Proposal Pivot to Project Pivot
+            // // Sync Team Members from Proposal Pivot to Project Pivot
             $memberIds = $proposal->members()->pluck('user_id');
             $project->members()->attach($memberIds);
 

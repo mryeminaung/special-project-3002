@@ -43,7 +43,7 @@ export function AdminCards({ noOfProposals }: { noOfProposals: number }) {
 			description: "Total Proposals",
 			footerTop: "Project activity increasing this month",
 			footerBottom: "Overall workload remains stable",
-			pageUrl: "/project-proposals/submission",
+			pageUrl: "/project-proposals",
 		},
 		{
 			title: "20",

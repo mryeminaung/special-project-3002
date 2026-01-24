@@ -12,7 +12,6 @@ export default function ProjectsProposalPage() {
 	const [proposalsData, setProposalsData] = useState<ProjectProposal[]>([]);
 	const getProposalsData = async () => {
 		const res = await api.get("/proposals");
-		console.log(res.data);
 		setProposalsData(res.data);
 	};
 

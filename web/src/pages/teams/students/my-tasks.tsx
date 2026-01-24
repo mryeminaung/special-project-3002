@@ -6,7 +6,7 @@ export default function MyTasksPage() {
 	useHeaderInitializer("MIIT | My Tasks", "My Tasks");
 
 	return (
-		<div className="flex flex-col mx-auto max-w-7xl gap-3 px-4">
+		<div className="mx-auto max-w-7xl">
 			<div>
 				<h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
 					My Tasks

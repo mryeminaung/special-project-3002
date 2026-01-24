@@ -36,9 +36,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get("/proposals/my-proposals", 'myProposals');
         Route::get("/proposals/browse-proposals", 'browseProposals');
         Route::get("/proposals/{proposal:slug}/detail", 'detail');
-        Route::delete("/proposals/{proposal}/delete", 'destroy');
-        Route::post("/proposals/{proposal}/approve", 'approveByIC');
-        Route::post("/proposals/{proposal}/reject", 'rejectByIC');
+        Route::delete("/proposals/{proposal:slug}/delete", 'destroy');
+        Route::post("/proposals/{proposal:slug}/approve", 'approveByIC');
+        Route::post("/proposals/{proposal:slug}/reject", 'rejectByIC');
     });
 
     Route::controller(CommentController::class)->group(function () {

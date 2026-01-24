@@ -52,10 +52,12 @@ export function TeamCard({ team }: TeamCardProps) {
 	return (
 		<Link to={`/teams/detail/${team.id}`}>
 			<Card className="border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
+				{/* Project Title and Status */}
 				<CardContent>
-					{/* Project Title and Status */}
 					<div className="flex items-start justify-between">
-						<CardTitle className="text-lg line-clamp-2">{team.name}</CardTitle>
+						<CardTitle className="text-base line-clamp-2 mr-2">
+							{team.name}
+						</CardTitle>
 						<Badge
 							variant="secondary"
 							className={cn(STATUS_COLORS[team.status], "mt-1 capitalize")}>
@@ -67,30 +69,32 @@ export function TeamCard({ team }: TeamCardProps) {
 					</CardDescription>
 				</CardContent>
 
+				{/* Team Supervisor */}
 				<CardContent className="space-y-2">
-					{/* Team Supervisor */}
 					<div className="space-y-2">
 						<div className="flex flex-row gap-2 text-sm">
 							<div className="flex gap-x-2 items-center">
 								<ShieldCheckIcon className="h-5 w-5 text-primary-600" />
-
-								<span>Supervisor . </span>
+								<p className="flex flex-row gap-x-2">
+									<span>Supervisor</span>
+									<span>{team.supervisor.name}</span>
+								</p>
 							</div>
-							<p>{team.supervisor.name}</p>
 						</div>
 					</div>
+
 					{/* Team Members */}
 					<div className="space-y-2">
 						<div className="flex items-center gap-x-3 text-sm">
-							<Users className="w-4 h-4" />
+							<Users className="w-4 h-4 text-primary-600" />
 							<p className="flex items-center gap-x-3">
-								<span>Team Members</span>
-								<Badge className="bg-primary-600 text-xs">
+								<span>{team.members.length} Members</span>
+								<Badge className="bg-primary-600 text-xs hidden">
 									{team.members.length}
 								</Badge>
 							</p>
 						</div>
-						<div className="flex -space-x-1 overflow-hidden">
+						<div className="-space-x-1 flex overflow-hidden">
 							{team.members.slice(0, 4).map((member) => (
 								<Avatar
 									key={member.id}

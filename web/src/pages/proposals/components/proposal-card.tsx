@@ -29,7 +29,7 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
 	if (!proposal) return null;
 
 	return (
-		<Link to={`/project-proposals/detail/${proposal.slug}`}>
+		<Link to={`/project-proposals/${proposal.slug}/detail`}>
 			<Card className="flex flex-col justify-between border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
 				<CardHeader>
 					<div className="flex items-start justify-between gap-x-3">
@@ -54,7 +54,7 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
 					</div>
 					<div className="flex items-center gap-x-2 mt-3">
 						<UserCircleIcon className="h-5 w-5 text-primary-600" />
-						<p>Submitted By Ye Min Aung</p>
+						<p>Submitted By {proposal.submittedBy.name}</p>
 					</div>
 				</CardContent>
 			</Card>

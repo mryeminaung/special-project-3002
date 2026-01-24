@@ -45,6 +45,7 @@ const ProposalSchema = z.object({
 type User = {
 	id: number;
 	name: string;
+	email: string;
 };
 
 export default function CreateProposalPage() {
@@ -103,8 +104,9 @@ export default function CreateProposalPage() {
 			supervisor_id: parseInt(data.supervisor_id, 10),
 		};
 		const res = await api.post("/proposals/create", formattedData);
-		if (res.status === 200) {
-			navigate("/dashboard");
+		console.log(res);
+		if (res.status === 201) {
+			navigate("/project-proposals/my-proposals");
 		}
 	};
 
@@ -117,7 +119,7 @@ export default function CreateProposalPage() {
 
 	return (
 		<>
-			<div className="mx-auto max-w-7xl px-4">
+			<div className="mx-auto max-w-7xl">
 				<div className="space-y-1 mb-5">
 					<h3 className="text-2xl font-semibold">
 						Submit Your Project Proposal
@@ -134,6 +136,7 @@ export default function CreateProposalPage() {
 						onSubmit={handleSubmit(onSubmit)}>
 						<div className="grid grid-cols-1 @xl/main:grid-cols-2 @5xl/main:grid-cols-2 gap-6">
 							<div className="space-y-5">
+								{/* project name */}
 								<Field>
 									<FieldLabel htmlFor="title">
 										Project Name <span className="text-red-500">*</span>
@@ -150,12 +153,14 @@ export default function CreateProposalPage() {
 									)}
 								</Field>
 
+								{/* supervisor selection */}
 								<SupervisorSelection
 									control={control}
 									supervisors={faculties}
 									error={errors.supervisor_id?.message}
 								/>
 
+								{/* team member selection */}
 								<MembersSelection
 									control={control}
 									members={students}
@@ -200,7 +205,7 @@ export default function CreateProposalPage() {
 							<Button
 								type="submit"
 								disabled={isSubmitting}
-								className="hover:cursor-pointer w-full sm:w-fit order-1 sm:order-2 bg-primary-950 hover:bg-cherry-pie-950/80 hover:text-white text-white"
+								className="hover:cursor-pointer w-full sm:w-fit order-1 sm:order-2 bg-primary-700 hover:bg-primary-700/80 hover:text-white text-white"
 								variant={"outline"}>
 								{isSubmitting ? (
 									<>

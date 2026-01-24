@@ -40,7 +40,7 @@ export interface ProjectProposal {
 	title: string;
 	slug: string;
 	description: string;
-	file: string;
+	fileUrl: string;
 	submittedBy: User;
 	supervisor: User;
 	members: User[];

@@ -43,7 +43,7 @@ export default function MyTeams() {
 				role: "Supervisor",
 			},
 			projectCount: 3,
-			status: "rejected",
+			status: "approved",
 			createdAt: "2023-11-01",
 		},
 		{
@@ -63,7 +63,7 @@ export default function MyTeams() {
 				role: "Supervisor",
 			},
 			projectCount: 7,
-			status: "pending",
+			status: "approved",
 			createdAt: "2024-03-20",
 		},
 		{
@@ -83,12 +83,12 @@ export default function MyTeams() {
 				role: "Supervisor",
 			},
 			projectCount: 7,
-			status: "pending",
+			status: "approved",
 			createdAt: "2024-03-20",
 		},
 	];
 	return (
-		<div className="flex flex-col mx-auto max-w-7xl gap-3 px-4">
+		<div className="mx-auto max-w-7xl">
 			<div className="">
 				<h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
 					Team Workspace
@@ -98,7 +98,7 @@ export default function MyTeams() {
 					coordinate with supervisors.
 				</p>
 			</div>
-			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-5">
 				{mockTeams.map((team) => (
 					<TeamCard
 						key={team.id}

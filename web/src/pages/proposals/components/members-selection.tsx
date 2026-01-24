@@ -12,7 +12,7 @@ import { Controller } from "react-hook-form";
 interface Props {
 	control: any;
 	error?: string;
-	members: { id: number; name: string }[];
+	members: { id: number; name: string; email: string }[];
 }
 
 export default function MembersSelection({ control, error, members }: Props) {
@@ -48,7 +48,10 @@ export default function MembersSelection({ control, error, members }: Props) {
 									<MultiSelectItem
 										key={member.id}
 										value={member.id.toString()}>
-										{member.name}
+										<p className="flex flex-col justify-start items-start">
+											{member.name}
+											<span>{member.email}</span>
+										</p>
 									</MultiSelectItem>
 								))}
 							</MultiSelectGroup>

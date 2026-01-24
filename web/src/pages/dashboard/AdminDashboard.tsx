@@ -51,7 +51,7 @@ export default function AdminDashboard() {
 						<span>Export</span>
 					</Button>
 				</div>
-				{false ? (
+				{true ? (
 					<h2 className="text-center text-3xl my-5 font-bold">Coming Soon!</h2>
 				) : (
 					<ProjectsChart />
