@@ -1,7 +1,7 @@
 import api from "@/api/api";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useAuthStore } from "@/stores/use-auth-store";
 import { IconCamera, IconLoader2 } from "@tabler/icons-react";
 import { useRef, useState } from "react";
 import toast from "react-hot-toast";

@@ -1,3 +1,4 @@
+import PageWrapper from "@/components/page-wrapper";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,7 +19,7 @@ export default function ProjectDetailPage() {
 	const navigate = useNavigate();
 
 	return (
-		<div className="mx-auto max-w-7xl dark:bg-neutral-950">
+		<PageWrapper className="dark:bg-neutral-950">
 			<Button
 				onClick={() => navigate(-1)}
 				variant="ghost"
@@ -128,6 +129,6 @@ export default function ProjectDetailPage() {
 
 			{/* project activities */}
 			<ProjectActivity />
-		</div>
+		</PageWrapper>
 	);
 }

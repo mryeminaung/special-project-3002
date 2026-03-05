@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { HasRole } from "@/lib/utils";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useAuthStore } from "@/stores/use-auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader, IconSend } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";

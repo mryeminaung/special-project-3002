@@ -1,5 +1,5 @@
-import RootLayout from "@/layouts/RootLayout";
-import { useAuthStore } from "@/stores/useAuthStore";
+import AuthLayout from "@/layouts/auth-layout";
+import { useAuthStore } from "@/stores/use-auth-store";
 import { Navigate, Outlet, useLocation } from "react-router";
 
 export default function ProtectedRoute() {
@@ -25,8 +25,8 @@ export default function ProtectedRoute() {
 		);
 
 	return (
-		<RootLayout>
+		<AuthLayout>
 			<Outlet />
-		</RootLayout>
+		</AuthLayout>
 	);
 }

@@ -27,7 +27,7 @@ import { IconUsersGroup } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useAuthStore } from "@/stores/use-auth-store";
 import ApprovalModal from "./components/approval-modal";
 import CommentBox from "./components/comment-box";
 

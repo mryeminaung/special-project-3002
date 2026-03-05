@@ -8,7 +8,7 @@ import {
 	DropdownMenuShortcut,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import GuestLayout from "@/layouts/GuestLayout";
+import GuestLayout from "@/layouts/guest-layout";
 import { IconMail, IconQuestionMark } from "@tabler/icons-react";
 import { LoginForm } from "./components/login-form";
 

@@ -63,7 +63,7 @@ export default function ProjectActivity() {
 			id: 2,
 			title: "Midterm Seminar",
 			date: "15 Jan 2026",
-			status: "pending",
+			status: "completed",
 		},
 		{
 			id: 3,

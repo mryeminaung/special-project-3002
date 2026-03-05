@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/sidebar";
 
 import { HasRole } from "@/lib/utils";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useAuthStore } from "@/stores/use-auth-store";
 import { ShieldCheckIcon } from "lucide-react";
 import AppLogo from "./app-logo";
 
@@ -32,6 +32,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			title: "Dashboard",
 			url: "/dashboard",
 			icon: IconLayoutDashboard,
+		},
+		{
+			title: "Events",
+			url: "/events",
+			icon: IconListDetails,
 		},
 		{
 			title: "Project Proposals",

@@ -1,7 +1,7 @@
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { useAuthStore } from "@/stores/useAuthStore";
-import { useSiteHeaderStore } from "@/stores/useSiteHeaderStore";
+import { useAuthStore } from "@/stores/use-auth-store";
+import { useSiteHeaderStore } from "@/stores/use-site-header-store";
 import { useEffect, useState } from "react";
 import { NavUser } from "./nav-user";
 import { ThemeToggle } from "./theme-toggle";

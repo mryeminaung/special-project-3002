@@ -5,7 +5,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import Cookies from "js-cookie";
 import { useState } from "react";
 
-export default function RootLayout({ children }: any) {
+export default function AuthLayout({ children }: any) {
 	const [open, setOpen] = useState(
 		Cookies.get("sidebar_state") === "true" || !Cookies.get("sidebar_state"),
 	);

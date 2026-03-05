@@ -422,7 +422,7 @@ export default function UsersTable({
 									{visibleColumns.has("department") && (
 										<TableHead>Department</TableHead>
 									)}
-									<TableHead className="w-12 hidden">Action</TableHead>
+									<TableHead className="w-12">Action</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
@@ -480,7 +480,7 @@ export default function UsersTable({
 											{visibleColumns.has("department") && (
 												<TableCell>{user.departmentName}</TableCell>
 											)}
-											<TableCell className="border hidden">
+											<TableCell className="border">
 												<Link
 													to={`/supervisors/detail/${user.id}`}
 													className="bg-primary-800 hover:cursor-pointer hover:bg-primary-800/80 flex items-center text-white px-2 py-1.5 rounded-md gap-x-1">

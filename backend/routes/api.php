@@ -72,16 +72,3 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post("/delete-from-s3", 'deleteFromS3');
     });
 });
-
-Route::get('/test-mail', function () {
-    $project = "Special Project Management System";
-
-    Mail::raw(
-        "Hello, your project proposal titled '$project' has been approved.",
-        function ($message) {
-            $message->to('2019-miit-ece-050@miit.edu.mm')->subject('Project Approval Notification');
-        }
-    );
-
-    return 'Email is sent to Mailtrap Sandbox!';
-});
