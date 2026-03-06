@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Events\ProposalApproved;
@@ -19,7 +18,7 @@ class ProposalController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to retrieve proposals',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -32,10 +31,10 @@ class ProposalController extends Controller
             // Check if user is already in a team or as a leader in proposals
             if (
                 $user->teamProposals()->exists() ||
-                Proposal::where('leader_id', $user->id)->exists()
+                Proposal::where('student_id', $user->id)->exists()
             ) {
                 return response()->json([
-                    'message' => 'You have already submitted a proposal, are part of a team, or are a leader in another proposal.'
+                    'message' => 'You have already submitted a proposal, are part of a team, or are a leader in another proposal.',
                 ], 422);
             }
 
@@ -44,12 +43,12 @@ class ProposalController extends Controller
                 $proposal->members()->attach($request->members);
             }
             return response()->json([
-                'message' => 'Proposal created successfully'
+                'message' => 'Proposal created successfully',
             ], 201);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to create proposal',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -60,7 +59,7 @@ class ProposalController extends Controller
 
         if ($proposals->isEmpty()) {
             return response()->json([
-                'message' => 'Proposals not found'
+                'message' => 'Proposals not found',
             ], 404);
         }
 
@@ -85,7 +84,7 @@ class ProposalController extends Controller
     public function rejectByIC(Proposal $proposal)
     {
         $proposal->update([
-            'status' => 'rejected'
+            'status' => 'rejected',
         ]);
 
         return response()->json(['message' => 'Proposal Rejected!']);
@@ -94,9 +93,9 @@ class ProposalController extends Controller
     public function detail(Proposal $proposal)
     {
         try {
-            if (!$proposal) {
+            if (! $proposal) {
                 return response()->json([
-                    'message' => 'Proposal not found'
+                    'message' => 'Proposal not found',
                 ], 404);
             }
 
@@ -105,7 +104,7 @@ class ProposalController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to retrieve proposal details',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -117,7 +116,7 @@ class ProposalController extends Controller
 
             if ($proposals->isEmpty()) {
                 return response()->json([
-                    'message' => 'Proposals not found'
+                    'message' => 'Proposals not found',
                 ], 404);
             }
 
@@ -125,7 +124,7 @@ class ProposalController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to retrieve proposals',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }
@@ -135,12 +134,12 @@ class ProposalController extends Controller
         try {
             $proposal->delete();
             return response()->json([
-                'message' => 'Proposal deleted successfully'
+                'message' => 'Proposal deleted successfully',
             ], 204);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Failed to delete proposal',
-                'error' => $e->getMessage()
+                'error'   => $e->getMessage(),
             ], 500);
         }
     }

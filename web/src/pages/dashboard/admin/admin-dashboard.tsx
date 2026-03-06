@@ -6,9 +6,9 @@ import { Card } from "@/components/ui/card";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { IconDownload, IconRefresh } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import { AdminCards } from "./components/admin-cards";
-import ProjectProgressTable from "./components/project-progress-table";
-import ProjectsChart from "./components/projects-chart";
+import { AdminCards } from "../components/admin-cards";
+import ProjectProgressTable from "../components/project-progress-table";
+import ProjectsChart from "../components/projects-chart";
 
 export default function AdminDashboard() {
 	useHeaderInitializer("MIIT | IC Dashboard", "Dashboard");

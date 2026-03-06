@@ -44,7 +44,7 @@ const ROLE_ICONS: Record<string, React.ReactNode> = {
 	Supervisor: <Shield className="h-4 w-4" />,
 };
 
-export default function UsersTable({
+export default function FacultiesTable({
 	facultyData,
 }: {
 	facultyData: UsersData[];
@@ -58,7 +58,7 @@ export default function UsersTable({
 	);
 	const [sortColumn, setSortColumn] = useState<string | null>(null);
 	const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-	const itemsPerPage = 10;
+	const itemsPerPage = 7;
 
 	const allRoles = ["IC", "Student Affairs", "Faculty", "Supervisor"];
 	const allRanks = [
@@ -482,7 +482,7 @@ export default function UsersTable({
 											)}
 											<TableCell className="border">
 												<Link
-													to={`/supervisors/detail/${user.id}`}
+													to={`/supervisors/${user.id}/detail`}
 													className="bg-primary-800 hover:cursor-pointer hover:bg-primary-800/80 flex items-center text-white px-2 py-1.5 rounded-md gap-x-1">
 													<Eye className="size-4" />
 													<span className="text-[12px]">View</span>

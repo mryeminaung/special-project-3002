@@ -5,12 +5,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ProjectProgressResource;
 use App\Models\Project;
 use App\Models\Proposal;
+use App\Models\Task;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function __invoke()
     {
         $user = Auth::user();
 
@@ -33,11 +34,10 @@ class DashboardController extends Controller
 
     private function getICDashboardData()
     {
-        $noOfProposals   = Proposal::count();
-        $noOfProjects    = Project::count();
-        $noOfSupervisors = Project::distinct('supervisor_id')->count('supervisor_id');
-        $noOfFaculties   = User::where('is_student', false)->count();
-
+        $noOfProposals    = Proposal::count();
+        $noOfProjects     = Project::count();
+        $noOfSupervisors  = Project::distinct('supervisor_id')->count('supervisor_id');
+        $noOfFaculties    = User::where('is_student', false)->count();
         $projectsProgress = ProjectProgressResource::collection(Project::all());
 
         return response()->json(
@@ -68,10 +68,18 @@ class DashboardController extends Controller
             ->count();
         $noOfProjects = Project::where('leader_id', $userId)
             ->count();
+        $noOfTasks = Task::where('assigned_to', $userId)
+            ->count();
+        $completedTasks = Task::where('assigned_to', $userId)
+            ->where('status', 'completed')
+            ->count();
+        $completionRate = $noOfTasks > 0 ? ($completedTasks / $noOfTasks) * 100 : 0;
 
         return response()->json([
-            'noOfProposals' => $noOfProposals,
-            'noOfProjects'  => $noOfProjects,
+            'noOfProposals'  => $noOfProposals,
+            'noOfProjects'   => $noOfProjects,
+            'noOfTasks'      => $noOfTasks,
+            'completionRate' => $completionRate,
         ]);
     }
 }

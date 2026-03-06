@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -23,12 +22,13 @@ class ProposalRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title' => 'required|unique:proposals,title',
-            'description' => 'required',
-            'fileUrl' => 'required',
-            'members' => 'required',
-            'student_id' => 'required|exists:users,id',
-            'supervisor_id' => 'required|exists:users,id'
+            'title'         => 'required|unique:proposals,title',
+            'description'   => 'required',
+            'fileUrl'       => 'required',
+            'members'       => 'required',
+            'area_id'       => 'required|exists:project_areas,id',
+            'student_id'    => 'required|exists:users,id',
+            'supervisor_id' => 'required|exists:users,id',
         ];
     }
 
@@ -45,9 +45,9 @@ class ProposalRequest extends FormRequest
     protected function passedValidation(): void
     {
         $this->merge([
-            'slug' => Str::slug($this->title, '-'),
-            'status' => 'pending',
-            'submitted_at' => now()
+            'slug'         => Str::slug($this->title, '-'),
+            'status'       => 'pending',
+            'submitted_at' => now(),
         ]);
     }
 }

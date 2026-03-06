@@ -17,8 +17,10 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->text('description');
             $table->string('fileUrl')->unique();
+            $table->enum('project_type', ['special', 'capstone', 'master'])->default('special');
             $table->enum('status', ["approved", 'pending', 'rejected'])->default("pending");
             $table->timestamp('submitted_at');
+            $table->foreignId('area_id')->constrained('project_areas')->onDelete('set null');
             $table->foreignId("student_id")->constrained('users')->cascadeOnDelete();
             $table->foreignId('supervisor_id')->constrained('users')->cascadeOnDelete();
             $table->timestamps();

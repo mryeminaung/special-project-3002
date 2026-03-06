@@ -3,6 +3,7 @@ import Heading from "@/components/heading";
 import Loading from "@/components/loading";
 import PageWrapper from "@/components/page-wrapper";
 import { Badge } from "@/components/ui/badge";
+import { HasRole } from "@/lib/utils";
 import {
 	IconCalendarEvent,
 	IconInfoCircle,
@@ -54,18 +55,24 @@ export default function AnnouncementsPage() {
 
 	const hasAnnouncements = announcements.length > 0;
 
+	const isIC = HasRole("IC");
+
 	return (
 		<PageWrapper>
 			<div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
 				<Heading
 					title="Announcements"
-					description="Create and manage announcements for Special Project, Capstone, and Thesis events, including important updates and deadlines."
+					description={
+						isIC
+							? "Create and manage announcements for students and faculties."
+							: "View the latest announcements for students and faculties."
+					}
 				/>
-				<NewAnnouncement />
+				{isIC && <NewAnnouncement />}
 			</div>
 
 			{isLoading && (
-				<div className="mt-12 flex justify-center">
+				<div className="mt-5 flex justify-center">
 					<Loading message="announcements" />
 				</div>
 			)}
@@ -114,16 +121,18 @@ export default function AnnouncementsPage() {
 			)}
 
 			{!isLoading && !hasAnnouncements && (
-				<div className="mt-10 rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 px-6 py-12 text-center">
+				<div className="mt-5 rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 px-6 py-12 text-center">
 					<div className="mx-auto mb-4 flex size-14 items-center justify-center rounded-full bg-white text-neutral-500 shadow-sm">
 						<IconInfoCircle size={24} />
 					</div>
 					<p className="text-base font-semibold text-neutral-800">
 						No announcements yet
 					</p>
-					<p className="mt-1 text-sm text-neutral-600">
-						Create your first announcement to notify students and faculties.
-					</p>
+					{isIC && (
+						<p className="mt-1 text-sm text-neutral-600">
+							Create your first announcement to notify students and faculties.
+						</p>
+					)}
 				</div>
 			)}
 		</PageWrapper>

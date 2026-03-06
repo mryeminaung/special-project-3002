@@ -20,9 +20,11 @@ return new class extends Migration
             $table->boolean('mid_seminar')->nullable();
             $table->string('final_report')->nullable();
             $table->boolean('final_seminar')->nullable();
+            $table->enum('project_type', ['special', 'capstone', 'master'])->default('special');
             $table->enum('status', ['not started', 'active', 'completed', 'under review'])->default('not started');
             $table->timestamp('start_date');
             $table->timestamp('end_date')->nullable();
+            $table->foreignId('area_id')->constrained('project_areas')->onDelete('set null');
             $table->foreignId('leader_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('proposal_id')->constrained('proposals')->cascadeOnDelete();
             $table->foreignId('supervisor_id')->constrained('users')->cascadeOnDelete();

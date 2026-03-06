@@ -1,4 +1,6 @@
 import api from "@/api/api";
+import Heading from "@/components/heading";
+import PageWrapper from "@/components/page-wrapper";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import {
@@ -10,7 +12,7 @@ import {
 import { useEffect } from "react";
 
 export default function SupervisorDashboard() {
-	useHeaderInitializer("MIIT | Supervisor Dashboard", "Supervisor Dashboard");
+	useHeaderInitializer("MIIT | Supervisor Dashboard", "Dashboard");
 	const fetchDashboardData = async () => {
 		const res = await api.get("/dashboard");
 		console.log(res);
@@ -21,7 +23,11 @@ export default function SupervisorDashboard() {
 	}, []);
 
 	return (
-		<div className="max-w-7xl mx-auto">
+		<PageWrapper>
+			<Heading
+				title="Supervisor Dashboard"
+				description=""
+			/>
 			<div className="space-y-4 mb-8">
 				<div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 mb-6">
 					<Card>
@@ -83,6 +89,6 @@ export default function SupervisorDashboard() {
 					</Card>
 				</div>
 			</div>
-		</div>
+		</PageWrapper>
 	);
 }

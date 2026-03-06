@@ -1,5 +1,4 @@
 <?php
-
 namespace Database\Seeders;
 
 use App\Models\User;
@@ -10,7 +9,7 @@ use Spatie\Permission\PermissionRegistrar;
 class DatabaseSeeder extends Seeder
 {
     // The WithoutModelEvents trait is typically used at the class level
-    // use WithoutModelEvents; 
+    // use WithoutModelEvents;
 
     public function run(): void
     {
@@ -22,15 +21,16 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             FacultySeeder::class,
             StudentSeeder::class,
+            ProjectAreaSeeder::class,
         ]);
 
         app()->make(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        $icRole = Role::findByName('IC');
+        $icRole             = Role::findByName('IC');
         $studentAffairsRole = Role::findByName('Student Affairs');
-        $supervisorRole = Role::findByName('Supervisor');
-        $studentRole = Role::findByName('Student');
-        $facultyRole = Role::findByName('Faculty');
+        $supervisorRole     = Role::findByName('Supervisor');
+        $studentRole        = Role::findByName('Student');
+        $facultyRole        = Role::findByName('Faculty');
 
         $icRole->syncPermissions(['approve proposal', 'reject proposal']);
 
@@ -61,6 +61,6 @@ class DatabaseSeeder extends Seeder
             $student->assignRole($studentRole);
             $student->save();
             $student->refresh();
-        };
+        }
     }
 }

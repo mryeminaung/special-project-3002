@@ -55,7 +55,7 @@ export function NavUser({
 
 	const avatarFallbackName = user.name
 		?.split(" ")
-		.slice(1)
+		.slice(1, 3)
 		.map((name: string) => name[0])
 		.join("");
 

@@ -1,11 +1,8 @@
 <?php
-
 namespace App\Listeners;
 
 use App\Events\ProposalApproved;
 use App\Models\Project;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Support\Str;
 
 class CreateProjectFromProposal
@@ -30,6 +27,8 @@ class CreateProjectFromProposal
             'name'          => $proposal->title,
             'slug'          => Str::slug($proposal->title) . '-' . time(),
             'description'   => $proposal->description,
+            'area_id'       => $proposal->area_id,
+            'project_type'  => $proposal->project_type,
             'leader_id'     => $proposal->student_id,
             'supervisor_id' => $proposal->supervisor_id,
             'proposal_id'   => $proposal->id,
@@ -37,7 +36,7 @@ class CreateProjectFromProposal
         ]);
 
         // Supervisor Role Assignment
-        if (!$project->supervisor->hasRole('Supervisor')) {
+        if (! $project->supervisor->hasRole('Supervisor')) {
             $project->supervisor->assignRole('Supervisor');
         }
 

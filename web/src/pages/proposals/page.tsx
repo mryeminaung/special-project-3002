@@ -3,23 +3,22 @@ import Heading from "@/components/heading";
 import PageWrapper from "@/components/page-wrapper";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { HasRole } from "@/lib/utils";
-import type { ProjectProposal } from "@/types";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import UnAuthorized from "../auth/un-authorized";
 import ProposalTable from "./proposals-table";
 
 export default function ProjectsProposalPage() {
 	useHeaderInitializer("MIIT| Proposals", "Submitted Proposals");
 
-	const [proposalsData, setProposalsData] = useState<ProjectProposal[]>([]);
 	const getProposalsData = async () => {
 		const res = await api.get("/proposals");
-		setProposalsData(res.data);
+		return res.data;
 	};
 
-	useEffect(() => {
-		getProposalsData();
-	}, []);
+	const { data: proposalsData } = useQuery({
+		queryKey: ["proposals"],
+		queryFn: getProposalsData,
+	});
 
 	if (!HasRole("IC") && !HasRole("Student Affairs")) return <UnAuthorized />;
 

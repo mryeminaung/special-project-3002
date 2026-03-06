@@ -2,28 +2,22 @@ import api from "@/api/api";
 import Heading from "@/components/heading";
 import PageWrapper from "@/components/page-wrapper";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
-import type { ProjectProposal } from "@/types";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import ProposalTable from "../proposals-table";
 
 export default function BrowseProposalsPage() {
 	useHeaderInitializer("MIIT | Browse Proposals", "Browse Proposals");
 
-	const [proposals, setProposals] = useState<ProjectProposal[]>([]);
-
 	const fetchBrowseProposals = async () => {
-		try {
 			const res = await api.get("/proposals/browse-proposals");
-			console.log(res.data);
-			setProposals(res.data);
-		} catch (error) {
-			console.error("Error fetching browse proposals:", error);
-		}
+			return (res.data);
+	
 	};
 
-	useEffect(() => {
-		fetchBrowseProposals();
-	}, []);
+	const { data: proposals } = useQuery({
+		queryKey: ["browseProposals"],
+		queryFn: fetchBrowseProposals,
+	});
 
 	return (
 		<PageWrapper>

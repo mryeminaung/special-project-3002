@@ -1,5 +1,7 @@
 import api from "@/api/api";
 import ErrorMessage from "@/components/error-message";
+import Heading from "@/components/heading";
+import PageWrapper from "@/components/page-wrapper";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field, FieldLabel } from "@/components/ui/field";
@@ -10,7 +12,8 @@ import { HasRole } from "@/lib/utils";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader, IconSend } from "@tabler/icons-react";
-import { useEffect, useRef, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useRef } from "react";
 import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router";
@@ -18,6 +21,7 @@ import * as z from "zod";
 import UnAuthorized from "../../auth/un-authorized";
 import FileUpload from "./components/file-upload";
 import MembersSelection from "./components/members-selection";
+import { ProjectAreaSelection } from "./components/project-area-selection";
 import SupervisorSelection from "./components/supervisor-selection";
 
 const ProposalSchema = z.object({
@@ -34,6 +38,7 @@ const ProposalSchema = z.object({
 	supervisor_id: z.string().min(1, "Please select a project supervisor"),
 
 	student_id: z.number(),
+	area_id: z.number(),
 
 	members: z
 		.array(z.string())
@@ -49,30 +54,16 @@ type User = {
 	email: string;
 };
 
-type Faculty = User & { department: string };
-
 export default function CreateProposalPage() {
 	useHeaderInitializer("MIIT | Proposal Submission", "Create New Proposal");
 
-	const [faculties, setFaculties] = useState<Faculty[]>([]);
-	const [students, setStudents] = useState<User[]>([]);
-
-	const loadInitialData = async () => {
-		try {
-			const [facultiesRes, studentsRes] = await Promise.all([
-				api.get("faculties-for-proposal"),
-				api.get("students-for-proposal"),
-			]);
-			setFaculties(facultiesRes.data);
-			setStudents(studentsRes.data);
-		} catch (error) {
-			console.error("Failed to load proposal data", error);
-		}
-	};
-
-	useEffect(() => {
-		loadInitialData();
-	}, []);
+	const { data: students = [] } = useQuery<User[]>({
+		queryKey: ["students-for-proposal"],
+		queryFn: async () => {
+			const studentsRes = await api.get("students-for-proposal");
+			return studentsRes.data;
+		},
+	});
 
 	const authUser = useAuthStore((state) => state.authUser);
 
@@ -81,7 +72,6 @@ export default function CreateProposalPage() {
 		handleSubmit,
 		control,
 		setError,
-		reset,
 		formState: { errors, isSubmitting },
 	} = useForm<z.infer<typeof ProposalSchema>>({
 		resolver: zodResolver(ProposalSchema),
@@ -91,6 +81,7 @@ export default function CreateProposalPage() {
 			fileUrl: "",
 			members: [],
 			student_id: authUser?.id,
+			area_id: 1,
 			supervisor_id: "",
 		},
 		mode: "onChange",
@@ -126,23 +117,18 @@ export default function CreateProposalPage() {
 		}
 	};
 
-	const clearForm = async () => {
-		reset();
-		await fileUploadRef.current?.clear();
-	};
-
 	if (!HasRole("Student")) return <UnAuthorized />;
 
 	return (
 		<>
 			<Toaster />
-			<div className="mx-auto max-w-7xl">
+			<PageWrapper>
 				<div className="space-y-1 mb-5">
-					<h3 className="text-2xl font-semibold">Submit Your Proposal</h3>
-					<p className="text-base text-muted-foreground">
-						Complete the form below to submit your academic project proposal for
-						review
-					</p>
+					<Heading
+						title="Submit Your Proposal"
+						description="	Complete the form below to submit your academic project proposal for
+						review"
+					/>
 				</div>
 
 				<Card className="px-6 py-6 border-gray-200 shadow-sm">
@@ -150,47 +136,54 @@ export default function CreateProposalPage() {
 						autoComplete="off"
 						onSubmit={handleSubmit(onSubmit)}>
 						<div className="space-y-5">
-							{/* project name */}
-							<Field>
-								<FieldLabel
-									htmlFor="title"
-									className="md:text-base">
-									Project Name <span className="text-red-500">*</span>
-								</FieldLabel>
-								<Input
-									id="title"
-									{...register("title")}
-									className="py-5 md:text-base placeholder:font-normal  placeholder:text-muted-foreground/80"
-									placeholder="Enter your project name"
-									type="text"
-								/>
-								{errors.title && <ErrorMessage error={errors.title.message} />}
-							</Field>
-
+							<div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-5">
+								{/* project name */}
+								<Field>
+									<FieldLabel htmlFor="title">
+										Project Name <span className="text-red-500">*</span>
+									</FieldLabel>
+									<Input
+										id="title"
+										{...register("title")}
+										className="py-5"
+										placeholder="Enter your project name"
+										type="text"
+									/>
+									{errors.title && (
+										<ErrorMessage error={errors.title.message} />
+									)}
+								</Field>
+								{/* project area */}
+								<Field>
+									<FieldLabel htmlFor="area_id">
+										Project Area <span className="text-red-500">*</span>
+									</FieldLabel>
+									<ProjectAreaSelection
+										control={control}
+										error={errors.area_id?.message}
+									/>
+								</Field>
+							</div>
+							{/* supervisor selection */}
+							<SupervisorSelection
+								control={control}
+								error={errors.supervisor_id?.message}
+							/>
 							{/* project description */}
 							<Field>
-								<FieldLabel
-									htmlFor="description"
-									className="md:text-base">
+								<FieldLabel htmlFor="description">
 									Project Description <span className="text-red-500">*</span>
 								</FieldLabel>
 								<Textarea
 									id="description"
 									{...register("description")}
-									className="min-h-48 md:text-base placeholder:font-normal  placeholder:text-muted-foreground/80"
+									className="min-h-30 resize-none"
 									placeholder="Describe your project, its objectives, scope, and expected outcomes"
 								/>
 								{errors.description && (
 									<ErrorMessage error={errors.description.message} />
 								)}
 							</Field>
-
-							{/* supervisor selection */}
-							<SupervisorSelection
-								control={control}
-								supervisors={faculties}
-								error={errors.supervisor_id?.message}
-							/>
 
 							{/* team member selection */}
 							<MembersSelection
@@ -207,14 +200,6 @@ export default function CreateProposalPage() {
 						/>
 
 						<div className="flex flex-col sm:flex-row items-center justify-end gap-3 mt-5">
-							<Button
-								type="button"
-								disabled={isSubmitting}
-								className="hover:cursor-pointer w-full sm:w-fit order-2 sm:order-1"
-								onClick={clearForm}
-								variant={"outline"}>
-								<span>Clear Form</span>
-							</Button>
 							<Button
 								type="submit"
 								disabled={isSubmitting}
@@ -235,7 +220,7 @@ export default function CreateProposalPage() {
 						</div>
 					</form>
 				</Card>
-			</div>
+			</PageWrapper>
 		</>
 	);
 }

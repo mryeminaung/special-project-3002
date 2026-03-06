@@ -42,16 +42,11 @@ const ProposalSchema = z.object({
 export default function EditProposalPage() {
 	useHeaderInitializer("MIIT | Proposal Editing", "Edit Proposal");
 
-	const [faculties, setFaculties] = useState<User[]>([]);
 	const [students, setStudents] = useState<User[]>([]);
 
 	const loadInitialData = async () => {
 		try {
-			const [facultiesRes, studentsRes] = await Promise.all([
-				api.get("faculties-for-proposal"),
-				api.get("students-for-proposal"),
-			]);
-			setFaculties(facultiesRes.data);
+			const studentsRes = await api.get("students-for-proposal");
 			setStudents(studentsRes.data);
 		} catch (error) {
 			console.error("Failed to load proposal data", error);
@@ -132,7 +127,6 @@ export default function EditProposalPage() {
 
 								<SupervisorSelection
 									control={control}
-									supervisors={faculties}
 									error={errors.supervisor_id?.message}
 								/>
 

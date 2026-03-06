@@ -122,9 +122,7 @@ const FileUpload = forwardRef<FileUploadHandle, Props>(
 
 		return (
 			<Field className="mt-5">
-				<FieldLabel
-					htmlFor="proposal"
-					className="md:text-base">
+				<FieldLabel htmlFor="proposal">
 					Project Documents <span className="text-red-500">*</span>
 				</FieldLabel>
 

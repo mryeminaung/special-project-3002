@@ -1,12 +1,11 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
 class Proposal extends Model
 {
-    protected $fillable = ['title', 'description', 'slug', 'supervisor_id', 'submitted_at', 'fileUrl', 'status', 'student_id'];
+    protected $fillable = ['title', 'description', 'area_id', 'slug', 'supervisor_id', 'submitted_at', 'fileUrl', 'status', 'student_id', 'project_type'];
 
     public function leader()
     {
@@ -29,7 +28,7 @@ class Proposal extends Model
     }
 
     protected $casts = [
-        'members' => 'array',
+        'members'      => 'array',
         'submitted_at' => 'datetime',
     ];
 }

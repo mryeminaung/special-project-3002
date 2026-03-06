@@ -1,8 +1,8 @@
 import { HasRole } from "@/lib/utils";
-import AdminDashboard from "./AdminDashboard";
-import StudentAffairsDashboard from "./StudentAffairsDashboard";
-import StudentDashboard from "./StudentDashboard";
-import SupervisorDashboard from "./SupervisorDashboard";
+import AdminDashboard from "./admin/admin-dashboard";
+import StudentDashboard from "./student/student-dashboard";
+import StudentAffairsDashboard from "./student_affairs/student-affairs-dashboard";
+import SupervisorDashboard from "./supervisor-dashboard";
 
 export default function DashboardPage() {
 	if (HasRole("IC")) return <AdminDashboard />;

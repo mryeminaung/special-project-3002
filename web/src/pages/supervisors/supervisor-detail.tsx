@@ -1,3 +1,4 @@
+import PageWrapper from "@/components/page-wrapper";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -8,7 +9,7 @@ import {
 } from "@/components/ui/card";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { CheckCircleIcon, UserGroupIcon } from "@heroicons/react/24/outline";
-import { User } from "lucide-react";
+import { ArrowLeftIcon, User } from "lucide-react";
 import { useNavigate } from "react-router";
 
 export default function SupervisorDetail() {
@@ -52,8 +53,15 @@ export default function SupervisorDetail() {
 	};
 
 	return (
-		<div className="mx-auto max-w-7xl">
-			<div className="bg-white dark:bg-neutral-900 rounded-lg shadow-lg p-6 mb-8">
+		<PageWrapper>
+			<Button
+				onClick={() => navigate("/supervisors")}
+				variant="ghost"
+				className="mb-4 flex bg-primary-600 hover:bg-primary-500 text-white hover:cursor-pointer hover:text-white items-center gap-2">
+				<ArrowLeftIcon className="h-4 w-4" />
+				Back to Supervisors
+			</Button>
+			<div className="bg-white dark:bg-neutral-900 rounded-lg shadow-sm p-6 mb-8">
 				<div className="flex flex-col lg:flex-row items-center gap-6">
 					<div className="flex items-center gap-6">
 						<div className="h-28 w-28 rounded-2xl overflow-hidden bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center">
@@ -175,6 +183,6 @@ export default function SupervisorDetail() {
 					</Card>
 				</div>
 			</div>
-		</div>
+		</PageWrapper>
 	);
 }

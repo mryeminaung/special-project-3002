@@ -4,7 +4,6 @@ import {
 	IconTrendingUp,
 } from "@tabler/icons-react";
 
-import api from "@/api/api";
 import {
 	Card,
 	CardDescription,
@@ -13,43 +12,41 @@ import {
 } from "@/components/ui/card";
 import type { StudentDashboardCard } from "@/types/student";
 import { BarChart3 } from "lucide-react";
-import { useEffect } from "react";
 import { useNavigate } from "react-router";
 
-export function StudentCards() {
-	const navigate = useNavigate();
+type StudentCardProps = {
+	completionRate: number;
+	noOfProjects: number;
+	noOfProposals: number;
+	noOfTasks: number;
+};
 
-	useEffect(() => {
-		const fetchData = async () => {
-			const res = await api.get("/dashboard");
-			console.log(res);
-		};
-		fetchData();
-	});
+export function StudentCards({ data }: { data: StudentCardProps }) {
+	const navigate = useNavigate();
 
 	const sectionCardData: StudentDashboardCard<React.ElementType>[] = [
 		{
-			title: "2",
+			title: "Total Projects",
 			cardIcon: IconListDetails,
-			description: "Total Projects",
+			count: data.noOfProjects,
 			pageUrl: "/projects/my-projects",
 		},
 		{
-			title: "3",
+			title: "Total Proposals",
 			cardIcon: BarChart3,
-			description: "Total Proposals",
+			count: data.noOfProposals,
 			pageUrl: "/project-proposals/my-proposals",
 		},
 		{
-			title: "10",
+			title: "My Tasks",
 			cardIcon: IconListCheck,
-			description: "My Tasks",
+			count: data.noOfTasks,
 			pageUrl: "/my-tasks",
 		},
 		{
-			title: "20%",
+			title: "Tasks Completion Rate",
 			cardIcon: IconTrendingUp,
-			description: "Tasks Completion Rate",
+			count: data.completionRate + "%",
 			pageUrl: "/my-tasks",
 		},
 	];
@@ -57,18 +54,18 @@ export function StudentCards() {
 	return (
 		<div className="grid grid-cols-1 gap-6 @xl/main:grid-cols-2 @5xl/main:grid-cols-4">
 			{sectionCardData.length > 0 &&
-				sectionCardData.map((card) => (
+				sectionCardData.map((card, idx) => (
 					<Card
 						onClick={() => navigate(card.pageUrl)}
-						key={card.description}
+						key={idx}
 						className="@container/card hover:cursor-pointer">
 						<CardHeader>
 							<CardDescription className="font-medium text-base text-black dark:text-neutral-100 flex items-center justify-between">
-								{card.description}
+								{card.title}
 								{card.cardIcon && <card.cardIcon size={20} />}
 							</CardDescription>
 							<CardTitle className="mt-3 text-2xl font-mono font-semibold tabular-nums @[250px]/card:text-3xl">
-								{card.title}
+								{card.count}
 							</CardTitle>
 						</CardHeader>
 					</Card>

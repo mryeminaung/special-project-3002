@@ -79,6 +79,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			icon: IconLayoutDashboard,
 		},
 		{
+			title: "Events",
+			url: "/events",
+			icon: IconCalendarEvent,
+		},
+		{
+			title: "Announcements",
+			url: "/announcements",
+			icon: IconSend,
+		},
+		{
 			title: "Browse Proposals",
 			url: "/project-proposals/my",
 			icon: IconDeviceTabletSearch,
@@ -100,6 +110,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			title: "Dashboard",
 			url: "/dashboard",
 			icon: IconLayoutDashboard,
+		},
+		{
+			title: "Events",
+			url: "/events",
+			icon: IconCalendarEvent,
+		},
+		{
+			title: "Announcements",
+			url: "/announcements",
+			icon: IconSend,
 		},
 		{
 			title: "My Proposals",
