@@ -1,4 +1,5 @@
 import Account from "@/pages/settings/account";
+import Events from "@/pages/settings/events";
 import SettingsPage from "@/pages/settings/page";
 import Password from "@/pages/settings/password";
 import Preferences from "@/pages/settings/preferences";
@@ -16,6 +17,10 @@ export const settingsRoutes = [
 			{
 				path: "password",
 				Component: Password,
+			},
+			{
+				path: "events",
+				Component: Events,
 			},
 			{
 				path: "preferences",

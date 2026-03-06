@@ -1,8 +1,8 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ProjectProgressResource;
 use App\Models\Project;
 use App\Models\Proposal;
 use App\Models\User;
@@ -33,21 +33,20 @@ class DashboardController extends Controller
 
     private function getICDashboardData()
     {
-        $noOfProposals = Proposal::all()->count();
-        $noOfProjects = Project::all()->count();
+        $noOfProposals   = Proposal::count();
+        $noOfProjects    = Project::count();
         $noOfSupervisors = Project::distinct('supervisor_id')->count('supervisor_id');
-        $noOfFaculties = User::where('is_student', false)
-            ->whereDoesntHave('roles', function ($query) {
-                $query->where('name', 'Student Affairs');
-            })
-            ->count();
+        $noOfFaculties   = User::where('is_student', false)->count();
+
+        $projectsProgress = ProjectProgressResource::collection(Project::all());
 
         return response()->json(
             [
-                'noOfProposals' => $noOfProposals,
-                'noOfProjects' => $noOfProjects,
-                'noOfSupervisors' => $noOfSupervisors,
-                'noOfFaculties' => $noOfFaculties
+                'noOfProposals'    => $noOfProposals,
+                'noOfProjects'     => $noOfProjects,
+                'noOfSupervisors'  => $noOfSupervisors,
+                'noOfFaculties'    => $noOfFaculties,
+                'projectsProgress' => $projectsProgress,
             ]
         );
     }
@@ -64,7 +63,7 @@ class DashboardController extends Controller
 
     private function getStudentDashboardData()
     {
-        $userId = Auth::id();
+        $userId        = Auth::id();
         $noOfProposals = Proposal::where('student_id', $userId)
             ->count();
         $noOfProjects = Project::where('leader_id', $userId)
@@ -72,7 +71,7 @@ class DashboardController extends Controller
 
         return response()->json([
             'noOfProposals' => $noOfProposals,
-            'noOfProjects' => $noOfProjects,
+            'noOfProjects'  => $noOfProjects,
         ]);
     }
 }

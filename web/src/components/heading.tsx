@@ -11,7 +11,7 @@ export default function Heading({
 }: HeadingProps) {
 	const titleClass =
 		variant === "lg"
-			? "text-3xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100"
+			? "text-2xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100"
 			: "text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100";
 
 	return (

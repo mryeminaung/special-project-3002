@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\auth\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\DashboardController;
@@ -8,8 +9,6 @@ use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\SupervisorController;
 use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(AuthController::class)->group(function () {
@@ -71,4 +70,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post("/upload-to-s3", 'uploadToS3');
         Route::post("/delete-from-s3", 'deleteFromS3');
     });
+
+    Route::apiResource("/announcements", AnnouncementController::class)->except(['create', 'show', 'edit']);
 });

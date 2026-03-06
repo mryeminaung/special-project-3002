@@ -1,5 +1,6 @@
 import Heading from "@/components/heading";
 import PageWrapper from "@/components/page-wrapper";
+import { IconCalendarEvent } from "@tabler/icons-react";
 import { Lock, SlidersVertical, TriangleAlert, UserRound } from "lucide-react";
 import { Link, Navigate, useLocation } from "react-router";
 
@@ -18,6 +19,11 @@ export default function SettingsLayout({
 			title: "Security",
 			href: "/settings/password",
 			icon: Lock,
+		},
+		{
+			title: "Events",
+			href: "/settings/events",
+			icon: IconCalendarEvent,
 		},
 		{
 			title: "Preferences",

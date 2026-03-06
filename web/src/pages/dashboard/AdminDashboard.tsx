@@ -1,9 +1,11 @@
 import api from "@/api/api";
+import Heading from "@/components/heading";
+import PageWrapper from "@/components/page-wrapper";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
-import { IconDownload } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { IconDownload, IconRefresh } from "@tabler/icons-react";
+import { useQuery } from "@tanstack/react-query";
 import { AdminCards } from "./components/admin-cards";
 import ProjectProgressTable from "./components/project-progress-table";
 import ProjectsChart from "./components/projects-chart";
@@ -11,40 +13,61 @@ import ProjectsChart from "./components/projects-chart";
 export default function AdminDashboard() {
 	useHeaderInitializer("MIIT | IC Dashboard", "Dashboard");
 
-	const [dashboardData, setDashboardData] = useState<{
-		noOfProposals: number;
-		noOfProjects: number;
-		noOfSupervisors: number;
-		noOfFaculties: number;
-	}>();
-
 	const fetchDashboardData = async () => {
 		const res = await api.get("/dashboard");
-		setDashboardData(res.data);
+		return res.data;
 	};
 
-	useEffect(() => {
-		fetchDashboardData();
-	}, []);
+	const { data: dashboardData } = useQuery({
+		queryKey: ["dashboardData"],
+		queryFn: fetchDashboardData,
+	});
 
 	return (
-		<div className="max-w-7xl mx-auto">
-			<div className="space-y-4 mb-8">
+		<PageWrapper>
+			<div className="mb-5 space-y-3">
+				<Heading
+					title="IC Dashboard"
+					description="Overview of project management activities and statistics"
+				/>
 				{dashboardData && <AdminCards dashboardData={dashboardData} />}
 			</div>
 
-			<ProjectProgressTable />
-
-			<Card className="shadow-2xs px-6 mt-8">
-				<div className="flex flex-row items-center justify-between">
-					<div className="space-y-1">
-						<h3 className="text-xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
-							Projects Progress
-						</h3>
-						<p className="text-sm text-neutral-500">
-							Overview of all projects completion status
-						</p>
+			<div className="mb-5 space-y-3">
+				<div className="flex items-center justify-between">
+					<Heading
+						title="Projects Progress"
+						description="Overview of all projects completion status"
+					/>
+					<div className="flex items-center ml-auto gap-x-3">
+						<Button
+							className="hover:cursor-pointer bg-primary-600 hover:bg-primary-600/80 ml-auto hover:text-white text-white"
+							onClick={() => alert("Refreshing...")}
+							variant={"outline"}>
+							<IconRefresh />
+							<span>Refresh</span>
+						</Button>
+						<Button
+							className="hover:cursor-pointer bg-primary-600 hover:bg-primary-600/80 ml-auto hover:text-white text-white"
+							onClick={() => alert("Downloading...")}
+							variant={"outline"}>
+							<IconDownload />
+							<span>Export</span>
+						</Button>
 					</div>
+				</div>
+
+				{dashboardData && (
+					<ProjectProgressTable projects={dashboardData.projectsProgress} />
+				)}
+			</div>
+
+			<Card className="shadow-2xs px-6 mt-8 hidden">
+				<div className="flex flex-row items-center justify-between">
+					<Heading
+						title="Projects Progress"
+						description="Overview of all projects completion status"
+					/>
 					<Button
 						className="hover:cursor-pointer bg-primary-700 hover:bg-primary-700/80 hover:text-white text-white"
 						onClick={() => alert("Downloading...")}
@@ -59,6 +82,6 @@ export default function AdminDashboard() {
 					<ProjectsChart />
 				)}
 			</Card>
-		</div>
+		</PageWrapper>
 	);
 }

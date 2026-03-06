@@ -1,9 +1,11 @@
 import {
+	IconCalendarEvent,
 	IconDeviceTabletSearch,
 	IconFileDescription,
 	IconLayoutDashboard,
 	IconListCheck,
 	IconListDetails,
+	IconSend,
 	IconSettings,
 	IconUsersGroup,
 } from "@tabler/icons-react";
@@ -36,7 +38,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		{
 			title: "Events",
 			url: "/events",
-			icon: IconListDetails,
+			icon: IconCalendarEvent,
+		},
+		{
+			title: "Announcements",
+			url: "/announcements",
+			icon: IconSend,
 		},
 		{
 			title: "Project Proposals",

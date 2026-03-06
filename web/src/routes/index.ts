@@ -1,3 +1,4 @@
+import AnnouncementsPage from "@/pages/announcements/page";
 import LoginPage from "@/pages/auth/login";
 import NotFoundPage from "@/pages/auth/not-found";
 import ProtectedRoute from "@/pages/auth/protected-route";
@@ -23,6 +24,10 @@ export const routes = [
 			{
 				path: "events",
 				Component: EventsPage,
+			},
+			{
+				path: "announcements",
+				Component: AnnouncementsPage,
 			},
 			{
 				path: "/faculties",
