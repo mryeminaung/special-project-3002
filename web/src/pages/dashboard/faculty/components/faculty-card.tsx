@@ -1,7 +1,8 @@
 import {
-	IconListCheck,
-	IconListDetails,
-	IconTrendingUp,
+	IconCircleCheck,
+	IconClockPause,
+	IconFolderCheck,
+	IconUsers,
 } from "@tabler/icons-react";
 
 import {
@@ -11,42 +12,41 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import type { DashboardCard } from "@/types/student";
-import { BarChart3 } from "lucide-react";
 import { useNavigate } from "react-router";
 
-type StudentCardProps = {
+type FacultyCardProps = {
+	assignedProjects: number;
+	projectMembers: number;
+	pendingProposals: number;
 	completionRate: number;
-	noOfProjects: number;
-	noOfProposals: number;
-	noOfTasks: number;
 };
 
-export function StudentCards({ data }: { data: StudentCardProps }) {
+export function FacultyCards({ data }: { data: FacultyCardProps }) {
 	const navigate = useNavigate();
 
 	const sectionCardData: DashboardCard<React.ElementType>[] = [
 		{
-			title: "Total Projects",
-			cardIcon: IconListDetails,
-			count: data.noOfProjects,
-			pageUrl: "/projects/my-projects",
+			title: "Assigned Projects",
+			cardIcon: IconFolderCheck,
+			count: data.assignedProjects ?? 0,
+			pageUrl: "/assigned-projects",
 		},
 		{
-			title: "Total Proposals",
-			cardIcon: BarChart3,
-			count: data.noOfProposals,
-			pageUrl: "/project-proposals/my-proposals",
+			title: "Project Members",
+			cardIcon: IconUsers,
+			count: data.projectMembers ?? 0,
+			pageUrl: "/project-proposals/browse-proposals",
 		},
 		{
-			title: "My Tasks",
-			cardIcon: IconListCheck,
-			count: data.noOfTasks,
-			pageUrl: "/my-tasks",
+			title: "Pending Proposals",
+			cardIcon: IconClockPause,
+			count: data.pendingProposals ?? 0,
+			pageUrl: "/project-proposals/my",
 		},
 		{
-			title: "Tasks Completion Rate",
-			cardIcon: IconTrendingUp,
-			count: data.completionRate + "%",
+			title: "Completion Rate",
+			cardIcon: IconCircleCheck,
+			count: data.completionRate ?? 0 + "%",
 			pageUrl: "/my-tasks",
 		},
 	];

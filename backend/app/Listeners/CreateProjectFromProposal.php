@@ -1,9 +1,9 @@
 <?php
 namespace App\Listeners;
 
+use App\Enums\ProjectProgressStatus;
 use App\Events\ProposalApproved;
 use App\Models\Project;
-use Illuminate\Support\Str;
 
 class CreateProjectFromProposal
 {
@@ -25,7 +25,7 @@ class CreateProjectFromProposal
         // Transform Proposal to Project
         $project = Project::create([
             'name'          => $proposal->title,
-            'slug'          => Str::slug($proposal->title) . '-' . time(),
+            'slug'          => $proposal->slug,
             'description'   => $proposal->description,
             'area_id'       => $proposal->area_id,
             'project_type'  => $proposal->project_type,
@@ -33,6 +33,10 @@ class CreateProjectFromProposal
             'supervisor_id' => $proposal->supervisor_id,
             'proposal_id'   => $proposal->id,
             'start_date'    => now(),
+            'mid_report'    => ProjectProgressStatus::Not_Submitted,
+            'mid_seminar'   => ProjectProgressStatus::Not_Completed,
+            'final_report'  => ProjectProgressStatus::Not_Submitted,
+            'final_seminar' => ProjectProgressStatus::Not_Completed,
         ]);
 
         // Supervisor Role Assignment

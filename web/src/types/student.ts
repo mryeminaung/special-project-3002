@@ -1,6 +1,6 @@
 import type { ElementType } from "react";
 
-export type StudentDashboardCard<T = ElementType> = {
+export type DashboardCard<T = ElementType> = {
 	title: string;
 	cardIcon?: T;
 	count: number | string;
