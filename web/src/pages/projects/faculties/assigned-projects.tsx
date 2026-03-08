@@ -1,14 +1,16 @@
 import api from "@/api/api";
-import { useEffect, useState } from "react";
+import Heading from "@/components/heading";
+import PageWrapper from "@/components/page-wrapper";
+import { useQuery } from "@tanstack/react-query";
 import AssignedProjectsTable from "./components/assigned-projects-table";
 
-export interface User {
+type User = {
 	id: number;
 	name: string;
 	email: string;
-}
+};
 
-export interface ProjectData {
+type ProjectData = {
 	id: number;
 	name: string;
 	slug: string;
@@ -18,34 +20,29 @@ export interface ProjectData {
 	members: User[];
 	status: "active" | "completed" | "under review";
 	startedAt: string;
-}
+};
 
 export default function AssignedProjects() {
-	const [assignedProjects, setAssignedProjects] = useState<ProjectData>();
+	const fetchAssignedProjects = async () => {
+		const res = await api.get("/assigned-projects");
+		return res.data;
+	};
 
-	useEffect(() => {
-		const fetchPj = async () => {
-			const res = await api.get("/assigned-projects");
-			setAssignedProjects(res.data);
-		};
-		fetchPj();
-	}, []);
+	const { data: assignedProjects } = useQuery({
+		queryKey: ["assignedProjects"],
+		queryFn: fetchAssignedProjects,
+	});
 
 	return (
-		<div className="mx-auto max-w-7xl space-y-6">
-			<div className="flex flex-col gap-1">
-				<h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
-					Assigned Projects
-				</h1>
-				<p className="text-sm text-neutral-500">
-					Overview of project teams and student proposals currently under your
-					supervision.
-				</p>
-			</div>
+		<PageWrapper className="space-y-6">
+			<Heading
+				title="Assigned Projects"
+				description="Overview of project teams and student proposals currently under your supervision."
+			/>
 
 			{assignedProjects && (
 				<AssignedProjectsTable projects={assignedProjects} />
 			)}
-		</div>
+		</PageWrapper>
 	);
 }

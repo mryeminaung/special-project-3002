@@ -2,8 +2,9 @@
 namespace App\Enums;
 
 enum ProjectProgressStatus: string {
-    case SUBMITTED     = 'Submitted';
-    case COMPLETED     = 'Completed';
-    case NOT_SUBMITTED = 'Not Submitted';
-    case PENDING       = 'Pending';
+    case Completed     = 'completed';
+    case Not_Completed = 'not completed';
+    case Submitted     = 'submitted';
+    case Not_Submitted = 'not submitted';
+    case Pending       = 'pending';
 }
