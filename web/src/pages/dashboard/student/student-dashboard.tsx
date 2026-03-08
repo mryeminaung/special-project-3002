@@ -18,8 +18,6 @@ export default function StudentDashboard() {
 		queryFn: fetchStudentDashboardData,
 	});
 
-	console.log(studentDashboardData);
-
 	return (
 		<PageWrapper>
 			<div className="mb-5 space-y-3">

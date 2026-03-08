@@ -48,7 +48,6 @@ export default function ProposalDetail() {
 			const res = await api.get(`/proposals/${slug}/detail`);
 			if (res.status === 200) {
 				setLoading(false);
-				console.log(res.data);
 				setProposal(res.data);
 			} else if (res.status === 404) {
 				setLoading(false);
