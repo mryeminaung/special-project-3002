@@ -53,7 +53,18 @@ class DashboardController extends Controller
 
     private function getFacultyDashboardData()
     {
-        return "Hit";
+        $authId           = Auth::id();
+        $projectMembers   = Proposal::count();
+        $assignedProjects = Proposal::count();
+        $pendingProposals = Proposal::where('status', 'pending')->where('supervisor_id', $authId)->count();
+        $completionRate   = User::where('is_student', false)->count();
+
+        return response()->json([
+            'projectMembers'   => $projectMembers,
+            'assignedProjects' => $assignedProjects,
+            'pendingProposals' => $pendingProposals,
+            'completionRate'   => $completionRate,
+        ]);
     }
 
     private function getStudentAffairsDashboardData()

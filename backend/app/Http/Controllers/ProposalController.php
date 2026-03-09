@@ -7,6 +7,7 @@ use App\Http\Resources\ProposalResource;
 use App\Models\Proposal;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class ProposalController extends Controller
 {
@@ -25,32 +26,46 @@ class ProposalController extends Controller
 
     public function store(ProposalRequest $request)
     {
-        try {
-            $user = Auth::user();
+        $user                 = Auth::user();
+        $data                 = $request->validated();
+        $data['slug']         = Str::slug($data['title'], '-');
+        $data['submitted_at'] = now();
 
-            // Check if user is already in a team or as a leader in proposals
-            if (
-                $user->teamProposals()->exists() ||
-                Proposal::where('student_id', $user->id)->exists()
-            ) {
+        if ($data['type'] === 'student') {
+            $studentId = $user->id;
+            // Check if student is already a leader in another proposal
+            $isLeader = Proposal::where('student_id', $studentId)
+                ->whereNotNull('student_id')
+                ->exists();
+
+            // Check if student is already a member in another proposal
+            $isMember = DB::table('proposal_student')->where('user_id', $studentId)->exists();
+
+            if ($isLeader || $isMember) {
                 return response()->json([
-                    'message' => 'You have already submitted a proposal, are part of a team, or are a leader in another proposal.',
+                    'message' => 'Student is already part of another proposal as leader or member.',
                 ], 422);
             }
+        }
 
-            $proposal = Proposal::create($request->except('members'));
-            if ($request->has('members')) {
+        if ($data['type'] === 'student') {
+            $data['student_id'] = $user->id;
+        } else {
+            $data['student_id'] = null;
+        }
+
+        return DB::transaction(function () use ($data, $request) {
+            $proposal = Proposal::create($data);
+
+            if ($request->type === 'student' && $request->has('members')) {
                 $proposal->members()->attach($request->members);
             }
+
             return response()->json([
                 'message' => 'Proposal created successfully',
             ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to create proposal',
-                'error'   => $e->getMessage(),
-            ], 500);
-        }
+        });
+
     }
 
     public function myProposals()
