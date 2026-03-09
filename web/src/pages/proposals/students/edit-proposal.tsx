@@ -14,7 +14,7 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import UnAuthorized from "../../auth/un-authorized";
-import FileUpload from "./components/file-upload";
+import FileUpload from "../components/file-upload";
 import MembersSelection from "./components/members-selection";
 import SupervisorSelection from "./components/supervisor-selection";
 

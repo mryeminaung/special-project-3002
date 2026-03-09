@@ -22,13 +22,17 @@ class ProposalRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title'         => 'required|unique:proposals,title',
-            'description'   => 'required',
-            'fileUrl'       => 'required',
-            'members'       => 'required',
-            'area_id'       => 'required|exists:project_areas,id',
-            'student_id'    => 'required|exists:users,id',
-            'supervisor_id' => 'required|exists:users,id',
+            'title'           => 'required|unique:proposals,title',
+            'description'     => 'required',
+            'fileUrl'         => 'required',
+            'members'         => 'nullable|array|max:5',
+            'type'            => 'nullable|in:student,faculty',
+            'max_students'    => 'nullable|integer|min:1|max:10',
+            'project_type'    => 'nullable|in:special,capstone,master',
+            'eligible_majors' => 'nullable|in:cse,ece,both',
+            'area_id'         => 'required|exists:project_areas,id',
+            'student_id'      => 'nullable|exists:users,id',
+            'supervisor_id'   => 'required|exists:users,id',
         ];
     }
 
@@ -39,15 +43,4 @@ class ProposalRequest extends FormRequest
         ];
     }
 
-    /**
-     * Handle a passed validation attempt.
-     */
-    protected function passedValidation(): void
-    {
-        $this->merge([
-            'slug'         => Str::slug($this->title, '-'),
-            'status'       => 'pending',
-            'submitted_at' => now(),
-        ]);
-    }
 }
