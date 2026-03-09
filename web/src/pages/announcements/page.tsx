@@ -2,49 +2,17 @@ import api from "@/api/api";
 import Heading from "@/components/heading";
 import Loading from "@/components/loading";
 import PageWrapper from "@/components/page-wrapper";
-import { Badge } from "@/components/ui/badge";
+import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { HasRole } from "@/lib/utils";
-import {
-	IconCalendarEvent,
-	IconInfoCircle,
-	IconSpeakerphone,
-	IconUser,
-} from "@tabler/icons-react";
+import { IconInfoCircle } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
+import type { AnnouncementItem } from "./announcement.types";
+import AnnouncementCards from "./components/announcement-cards";
 import { NewAnnouncement } from "./components/new-announcement";
 
-type AnnouncementAudience = "students" | "faculties" | "both";
-
-type AnnouncementItem = {
-	id: number;
-	title: string;
-	description: string;
-	audience: AnnouncementAudience;
-	createdAt: string;
-	announcer: string;
-};
-
-function formatAnnouncementDate(value: string) {
-	const parsed = new Date(value);
-	if (Number.isNaN(parsed.getTime())) {
-		return value;
-	}
-
-	return parsed.toLocaleString();
-}
-
-function getAudienceBadgeClass(audience: AnnouncementAudience) {
-	switch (audience) {
-		case "students":
-			return "bg-blue-100 text-blue-700 border-blue-200";
-		case "faculties":
-			return "bg-amber-100 text-amber-700 border-amber-200";
-		default:
-			return "bg-emerald-100 text-emerald-700 border-emerald-200";
-	}
-}
-
 export default function AnnouncementsPage() {
+	useHeaderInitializer("MIIT | Announcements", "Announcements");
+
 	const { data: announcements = [], isLoading } = useQuery<AnnouncementItem[]>({
 		queryKey: ["announcements"],
 		queryFn: async () => {
@@ -78,46 +46,7 @@ export default function AnnouncementsPage() {
 			)}
 
 			{!isLoading && hasAnnouncements && (
-				<div className="mt-6 grid gap-4">
-					{announcements.map((announcement) => (
-						<article
-							key={announcement.id}
-							className="relative overflow-hidden rounded-xl border border-neutral-200 bg-white p-5 shadow-xs transition-all duration-300 hover:shadow-sm">
-							<div className="absolute left-0 top-0 h-full w-1 bg-linear-to-b from-primary-400 to-primary-600" />
-
-							<div className="flex flex-wrap items-start justify-between gap-3 pl-3">
-								<div>
-									<div className="flex items-center gap-2 text-primary-700">
-										<IconSpeakerphone size={16} />
-										<span className="text-sm font-semibold">
-											{announcement.title}
-										</span>
-									</div>
-								</div>
-
-								<Badge
-									className={`capitalize border ${getAudienceBadgeClass(announcement.audience)}`}>
-									{announcement.audience}
-								</Badge>
-							</div>
-
-							<div className="mt-4 flex flex-col gap-1.5 pl-3 text-xs text-neutral-600">
-								<div className="inline-flex items-center gap-1.5">
-									<IconCalendarEvent size={14} />
-									<span>{formatAnnouncementDate(announcement.createdAt)}</span>
-								</div>
-								<div className="inline-flex items-center gap-1.5">
-									<IconUser size={14} />
-									<span>By {announcement.announcer}</span>
-								</div>
-							</div>
-
-							<p className="mt-4 pl-3 text-sm leading-6 text-neutral-700">
-								{announcement.description}
-							</p>
-						</article>
-					))}
-				</div>
+				<AnnouncementCards announcements={announcements} />
 			)}
 
 			{!isLoading && !hasAnnouncements && (
