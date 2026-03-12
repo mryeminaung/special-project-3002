@@ -14,44 +14,50 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader, IconSend } from "@tabler/icons-react";
 import { useRef } from "react";
 import { useForm } from "react-hook-form";
-import toast, { Toaster } from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router";
+import { toast } from "sonner";
 import * as z from "zod";
 import UnAuthorized from "../../auth/un-authorized";
 import FileUpload from "../components/file-upload";
 import { ProjectAreaSelection } from "../components/project-area-selection";
+import { MajorsSelection } from "./majors-selection";
 import { ProjectTypeSelection } from "../components/project-type-selection";
-import MembersSelection from "./components/members-selection";
-import SupervisorSelection from "./components/supervisor-selection";
 
 const ProposalSchema = z.object({
 	title: z
 		.string()
 		.min(5, "Title must be at least 5 characters")
 		.max(150, "Title is too long"),
-
 	description: z
 		.string()
 		.min(20, "Please provide a more detailed description")
 		.max(500, "Please provide a clear and concise description"),
-
 	supervisor_id: z.string().min(1, "Please select a project supervisor"),
+	type: z.string(),
 	project_type: z.string().min(1, "Please select a project type"),
-	student_id: z.number(),
 	area_id: z.number(),
-	type: z.enum(["student", "faculty"]),
-	members: z
-		.array(z.string())
-		.min(2, "Select at least 2 team members")
-		.max(3, "Maximum 3 members allowed"),
-
-	fileUrl: z.string().min(1, "Proposal file is required"),
+	max_students: z
+		.string()
+		.min(1, "Maximum students is required")
+		.refine((value) => /^\d+$/.test(value), {
+			message: "Maximum students must be a whole number",
+		})
+		.refine((value) => Number(value) >= 1, {
+			message: "Maximum students must be at least 1",
+		})
+		.refine((value) => Number(value) <= 4, {
+			message: "Maximum students cannot exceed 4",
+		}),
+	eligible_majors: z.string().min(1, "Please select an eligible major."),
+	fileUrl: z.string().min(1, "Proposal document is required"),
 });
 
-export default function CreateProposalPage() {
+export default function CreateFacultyProposal() {
 	useHeaderInitializer("MIIT | Proposal Submission", "Create New Proposal");
 
 	const authUser = useAuthStore((state) => state.authUser);
+	const navigate = useNavigate();
 
 	const {
 		register,
@@ -65,12 +71,12 @@ export default function CreateProposalPage() {
 			title: "",
 			description: "",
 			fileUrl: "",
-			type: "student",
+			type: "faculty",
+			max_students: "",
+			eligible_majors: "",
 			project_type: "",
-			members: [],
-			student_id: authUser?.id,
 			area_id: 1,
-			supervisor_id: "",
+			supervisor_id: authUser?.id.toString(),
 		},
 		mode: "onChange",
 	});
@@ -78,12 +84,9 @@ export default function CreateProposalPage() {
 	type FileUploadHandle = { clear: () => Promise<void> };
 	const fileUploadRef = useRef<FileUploadHandle | null>(null);
 
-	const navigate = useNavigate();
-
 	const onSubmit = async (data: z.infer<typeof ProposalSchema>) => {
 		const formattedData = {
 			...data,
-			members: [...data.members.map((id) => parseInt(id, 10)), authUser?.id],
 			supervisor_id: parseInt(data.supervisor_id, 10),
 		};
 
@@ -105,7 +108,7 @@ export default function CreateProposalPage() {
 		}
 	};
 
-	if (!HasRole("Student")) return <UnAuthorized />;
+	if (!HasRole("Faculty")) return <UnAuthorized />;
 
 	return (
 		<>
@@ -115,7 +118,7 @@ export default function CreateProposalPage() {
 					<Heading
 						title="Submit Your Proposal"
 						description="	Complete the form below to submit your academic project proposal for
-						review"
+            review"
 					/>
 				</div>
 
@@ -141,6 +144,7 @@ export default function CreateProposalPage() {
 										<ErrorMessage error={errors.title.message} />
 									)}
 								</Field>
+
 								{/* project area */}
 								<Field>
 									<FieldLabel htmlFor="area_id">
@@ -152,42 +156,56 @@ export default function CreateProposalPage() {
 									/>
 								</Field>
 							</div>
-							<div className="grid grid-cols-2 gap-x-10 gap-y-5">
-								{/* supervisor selection */}
-								<SupervisorSelection
-									control={control}
-									error={errors.supervisor_id?.message}
-								/>
 
+							<div className="grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-5 mb-4">
 								{/* project type */}
 								<ProjectTypeSelection
 									control={control}
 									error={errors.project_type?.message}
 								/>
-							</div>
 
-							{/* project description */}
-							<Field>
-								<FieldLabel htmlFor="description">
-									Project Description <span className="text-red-500">*</span>
-								</FieldLabel>
-								<Textarea
-									id="description"
-									{...register("description")}
-									className="min-h-30 resize-none"
-									placeholder="Describe your project, its objectives, scope, and expected outcomes"
+								{/* eligible majors */}
+								<MajorsSelection
+									control={control}
+									error={errors.eligible_majors?.message}
 								/>
-								{errors.description && (
-									<ErrorMessage error={errors.description.message} />
-								)}
-							</Field>
 
-							{/* team member selection */}
-							<MembersSelection
-								control={control}
-								error={errors.members?.message}
-							/>
+								{/* max students */}
+								<Field>
+									<FieldLabel htmlFor="max_students">
+										Maximun Students <span className="text-red-500">*</span>
+									</FieldLabel>
+									<Input
+										id="max_students"
+										{...register("max_students")}
+										className="py-5"
+										min={2}
+										max={4}
+										placeholder="Enter maximum number of students allowed for this project"
+										type="number"
+									/>
+									{errors.max_students && (
+										<ErrorMessage error={errors.max_students.message} />
+									)}
+								</Field>
+							</div>
 						</div>
+
+						{/* project description */}
+						<Field>
+							<FieldLabel htmlFor="description">
+								Project Description <span className="text-red-500">*</span>
+							</FieldLabel>
+							<Textarea
+								id="description"
+								{...register("description")}
+								className="min-h-30 resize-none"
+								placeholder="Describe your project, its objectives, scope, and expected outcomes"
+							/>
+							{errors.description && (
+								<ErrorMessage error={errors.description.message} />
+							)}
+						</Field>
 
 						<FileUpload
 							ref={fileUploadRef}
@@ -201,16 +219,13 @@ export default function CreateProposalPage() {
 								disabled={isSubmitting}
 								className="hover:cursor-pointer w-full sm:w-fit order-1 sm:order-2 bg-primary-700 hover:bg-primary-700/80 hover:text-white text-white"
 								variant={"outline"}>
+								<span>
+									{isSubmitting ? "Submitting..." : "Submit Proposal"}
+								</span>
 								{isSubmitting ? (
-									<>
-										<span>Submitting...</span>
-										<IconLoader className="animate-spin" />
-									</>
+									<IconLoader className="animate-spin" />
 								) : (
-									<>
-										<span>Submit Proposal</span>
-										<IconSend />
-									</>
+									<IconSend />
 								)}
 							</Button>
 						</div>

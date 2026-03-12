@@ -71,7 +71,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post("/delete-from-s3", 'deleteFromS3');
     });
 
-    Route::apiResource("/announcements", AnnouncementController::class)->except(['create', 'show', 'edit']);
+    Route::apiResource("/announcements", AnnouncementController::class)->except(['create', 'show', 'edit', 'update']);
 
     Route::apiResource("/tasks", TaskController::class)->except(['create', 'show', 'edit']);
 

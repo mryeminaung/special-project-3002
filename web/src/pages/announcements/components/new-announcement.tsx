@@ -90,7 +90,7 @@ export function NewAnnouncement() {
 				<form onSubmit={handleSubmit(onSubmit)}>
 					<DialogHeader>
 						<DialogTitle>Create New Announcement</DialogTitle>
-						<DialogDescription>
+						<DialogDescription className="mb-2">
 							Fill in the details for your new announcement.
 							<br />
 							Click <b>Save</b> when you&apos;re done.

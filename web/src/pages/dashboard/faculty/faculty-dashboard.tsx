@@ -5,7 +5,7 @@ import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { useQuery } from "@tanstack/react-query";
 import { FacultyCards } from "./components/faculty-card";
 
-export default function SupervisorDashboard() {
+export default function FacultyDashboard() {
 	useHeaderInitializer("MIIT | Supervisor Dashboard", "Dashboard");
 	const fetchFacultyDashboardData = async () => {
 		const res = await api.get("/dashboard");
