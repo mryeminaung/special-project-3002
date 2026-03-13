@@ -1,10 +1,11 @@
 import BrowseProposalsPage from "@/pages/proposals/faculties/browse-proposals";
 import CreateFacultyProposal from "@/pages/proposals/faculties/create-faculty-proposal";
+import FacultyProposalDetailPage from "@/pages/proposals/faculties/faculty-proposal-detail";
 import ProjectsProposalPage from "@/pages/proposals/page";
-import ProposalDetailPage from "@/pages/proposals/proposal-detail";
 import CreateProposalPage from "@/pages/proposals/students/create-proposal";
 import EditProposalPage from "@/pages/proposals/students/edit-proposal";
 import MyProposasPage from "@/pages/proposals/students/my-proposals";
+import StudentProposalDetailPage from "@/pages/proposals/students/student-proposal-detail";
 
 export const proposalRoutes = [
 	{
@@ -32,7 +33,11 @@ export const proposalRoutes = [
 		Component: BrowseProposalsPage,
 	},
 	{
-		path: "/project-proposals/:slug/detail",
-		Component: ProposalDetailPage,
+		path: "/project-proposals/student/:slug/detail",
+		Component: StudentProposalDetailPage,
+	},
+	{
+		path: "/project-proposals/faculty/:slug/detail",
+		Component: FacultyProposalDetailPage,
 	},
 ];

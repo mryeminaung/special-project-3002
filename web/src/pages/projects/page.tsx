@@ -4,7 +4,7 @@ import PageWrapper from "@/components/page-wrapper";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { HasRole } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import UnAuthorized from "../auth/un-authorized";
+import UnAuthorized from "../../components/un-authorized";
 import ProjectsTable from "./components/projects-table";
 
 export default function ProjectsPage() {

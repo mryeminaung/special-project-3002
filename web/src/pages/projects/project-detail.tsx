@@ -16,7 +16,6 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
 import ProjectActivity from "./components/project-activity";
 import ProjectMembers from "./components/project-members";
-import ProjectTasks from "./components/project-tasks";
 
 export default function ProjectDetailPage() {
 	const navigate = useNavigate();
@@ -140,11 +139,6 @@ export default function ProjectDetailPage() {
 
 			{/* project members */}
 			<ProjectMembers members={projectDetail?.members} />
-
-			<ProjectTasks
-				projectId={projectDetail?.id}
-				members={projectDetail?.members}
-			/>
 
 			{/* project activities */}
 			<ProjectActivity />
