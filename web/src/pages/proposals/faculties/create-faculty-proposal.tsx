@@ -18,11 +18,11 @@ import { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router";
 import { toast } from "sonner";
 import * as z from "zod";
-import UnAuthorized from "../../auth/un-authorized";
+import UnAuthorized from "../../../components/un-authorized";
 import FileUpload from "../components/file-upload";
 import { ProjectAreaSelection } from "../components/project-area-selection";
-import { MajorsSelection } from "./majors-selection";
 import { ProjectTypeSelection } from "../components/project-type-selection";
+import { MajorsSelection } from "./majors-selection";
 
 const ProposalSchema = z.object({
 	title: z

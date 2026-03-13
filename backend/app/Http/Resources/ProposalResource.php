@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
@@ -15,28 +14,17 @@ class ProposalResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'title' => $this->title,
-            'slug' => $this->slug,
-            'description' => $this->description,
-            'supervisor' => $this->whenLoaded('supervisor', function ($supervisor) {
+            'id'          => $this->id,
+            'title'       => $this->title,
+            'supervisor'  => $this->whenLoaded('supervisor', function ($supervisor) {
                 return [
-                    'id'    => $supervisor->id,
-                    'name'  => $supervisor->name,
-                    'email' => $supervisor->email,
+                    'id'   => $supervisor->id,
+                    'name' => $supervisor->name,
                 ];
             }),
-            'submittedBy' => $this->whenLoaded('leader', function ($leader) {
-                return [
-                    'id'    => $leader->id,
-                    'name'  => $leader->name,
-                    'email' => $leader->email,
-                ];
-            }),
-            'members' => MemberResource::collection($this->getRelation('members')),
-            'file' => $this->fileUrl,
-            'status' => $this->status,
-            'submitted_at' => $this->submitted_at->format('d-m-Y')
+            // 'members'     => MemberResource::collection($this->getRelation('members')),
+            'status'      => $this->status,
+            'submittedAt' => $this->submitted_at->format('d-m-Y'),
         ];
     }
 }

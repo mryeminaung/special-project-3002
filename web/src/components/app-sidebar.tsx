@@ -3,7 +3,6 @@ import {
 	IconDeviceTabletSearch,
 	IconFileDescription,
 	IconLayoutDashboard,
-	IconListCheck,
 	IconListDetails,
 	IconSend,
 	IconSettings,
@@ -130,11 +129,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			title: "My Projects",
 			url: "/projects/my-projects",
 			icon: IconListDetails,
-		},
-		{
-			title: "My Tasks",
-			url: "/my-tasks",
-			icon: IconListCheck,
 		},
 		{
 			title: "Settings",

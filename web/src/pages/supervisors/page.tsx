@@ -2,7 +2,7 @@ import api from "@/api/api";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { HasRole } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import UnAuthorized from "../auth/un-authorized";
+import UnAuthorized from "../../components/un-authorized";
 import SupervisorsTable from "./components/supervisors-table";
 
 export default function SupervisorsPage() {

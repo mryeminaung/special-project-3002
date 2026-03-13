@@ -4,24 +4,24 @@ namespace App\Http\Controllers;
 use App\Events\ProposalApproved;
 use App\Http\Requests\ProposalRequest;
 use App\Http\Resources\ProposalResource;
+use App\Http\Resources\proposal\FacultyProposalResource;
+use App\Http\Resources\proposal\ProposalTableResource;
+use App\Http\Resources\proposal\StudentProposalResource;
 use App\Models\Proposal;
+use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ProposalController extends Controller
 {
+    use ApiResponse;
+
     public function index()
     {
-        try {
-            $proposals = Proposal::with(['supervisor', 'leader', 'members'])->get();
-            return ProposalResource::collection($proposals);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to retrieve proposals',
-                'error'   => $e->getMessage(),
-            ], 500);
-        }
+        $proposals = Proposal::orderBy('id')->paginate(5);
+        $data      = $this->paginatedResponse(ProposalTableResource::class, $proposals);
+        return $this->successResponse("Proposals retrived successfully.", $data);
     }
 
     public function store(ProposalRequest $request)
@@ -65,20 +65,6 @@ class ProposalController extends Controller
                 'message' => 'Proposal created successfully',
             ], 201);
         });
-
-    }
-
-    public function myProposals()
-    {
-        $proposals = Auth::user()->teamProposals()->with(['supervisor', 'leader', 'members'])->get();
-
-        if ($proposals->isEmpty()) {
-            return response()->json([
-                'message' => 'Proposals not found',
-            ], 404);
-        }
-
-        return ProposalResource::collection($proposals->load(['supervisor', 'leader', 'members']));
     }
 
     public function approveByIC(Proposal $proposal)
@@ -107,55 +93,60 @@ class ProposalController extends Controller
 
     public function detail(Proposal $proposal)
     {
-        try {
-            if (! $proposal) {
-                return response()->json([
-                    'message' => 'Proposal not found',
-                ], 404);
+        if ($proposal->type === 'student') {
+            if ($proposal->student_id !== null) {
+                return $this->successResponse(
+                    'Student proposal detail view',
+                    new StudentProposalResource($proposal->load('members')),
+                    200);
+            } else {
+                return $this->errorResponse(
+                    'Student proposal not found',
+                    404);
             }
+        }
 
-            $proposal = $proposal->load(['supervisor', 'leader', 'members']);
-            return new ProposalResource($proposal);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to retrieve proposal details',
-                'error'   => $e->getMessage(),
-            ], 500);
+        if ($proposal->type === 'faculty') {
+            if ($proposal->student_id === null) {
+                return $this->successResponse(
+                    'Faculty proposal detail view',
+                    new FacultyProposalResource($proposal),
+                    200);
+            } else {
+                return $this->errorResponse(
+                    'Student proposal not found',
+                    404);
+            }
         }
     }
 
     public function browseProposals()
     {
-        try {
-            $proposals = Proposal::where('supervisor_id', Auth::id())->with(['supervisor', 'leader', 'members'])->get();
+        $auth      = Auth::user();
+        $proposals = Proposal::where('supervisor_id', $auth->id)->orderBy('id')->paginate(5);
 
-            if ($proposals->isEmpty()) {
-                return response()->json([
-                    'message' => 'Proposals not found',
-                ], 404);
-            }
-
-            return ProposalResource::collection($proposals);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to retrieve proposals',
-                'error'   => $e->getMessage(),
-            ], 500);
+        if ($proposals->isEmpty()) {
+            return $this->errorResponse('No proposals found for the supervisor', 404);
         }
+
+        $data = $this->paginatedResponse(ProposalTableResource::class, $proposals);
+        return $this->successResponse("Proposals retrived successfully.", $data);
+    }
+
+    public function myProposals()
+    {
+        $proposals = Auth::user()->teamProposals()->get();
+
+        if ($proposals->isEmpty()) {
+            return $this->errorResponse('No proposals found for the student', 404);
+        }
+
+        return ProposalResource::collection($proposals->load(['supervisor', 'leader', 'members']));
     }
 
     public function destroy(Proposal $proposal)
     {
-        try {
-            $proposal->delete();
-            return response()->json([
-                'message' => 'Proposal deleted successfully',
-            ], 204);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to delete proposal',
-                'error'   => $e->getMessage(),
-            ], 500);
-        }
+        $proposal->delete();
+        return $this->successResponse('Proposal deleted successfully', null, 200);
     }
 }

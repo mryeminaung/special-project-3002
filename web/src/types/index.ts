@@ -46,6 +46,8 @@ export interface ProjectProposal {
 	members: User[];
 	status: ProposalStatus;
 	submitted_at: string;
+	type: string;
+	project_type: string;
 }
 
 export interface SupervisorData {

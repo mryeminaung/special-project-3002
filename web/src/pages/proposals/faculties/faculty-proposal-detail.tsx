@@ -4,7 +4,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { cn, HasRole, PROPOSAL_STATUS_COLOR } from "@/lib/utils";
+import {
+	cn,
+	HasRole,
+	PROPOSAL_STATUS_COLOR,
+	type ProposalStatus,
+} from "@/lib/utils";
 
 import {
 	ArrowLeftIcon,
@@ -15,53 +20,66 @@ import {
 	EnvelopeIcon,
 	HandThumbDownIcon,
 	HandThumbUpIcon,
-	UserIcon,
 } from "@heroicons/react/24/outline";
 
 import { Download, Loader2, ShieldCheck, TrashIcon } from "lucide-react";
 
 import api from "@/api/api";
-import type { ProjectProposal } from "@/types";
 import { PencilSquareIcon } from "@heroicons/react/24/solid";
 import { IconUsersGroup } from "@tabler/icons-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
+import PageWrapper from "@/components/page-wrapper";
 import { useAuthStore } from "@/stores/use-auth-store";
-import ApprovalModal from "./components/approval-modal";
-import CommentBox from "./components/comment-box";
+import { useQuery } from "@tanstack/react-query";
+import ApprovalModal from "../components/approval-modal";
+import CommentBox from "../components/comment-box";
 
-export default function ProposalDetail() {
+type ProposalDetail = {
+	id: number;
+	title: string;
+	slug: string;
+	description: string;
+	file: string;
+	type: string;
+	projectType: string;
+	status: ProposalStatus;
+	submittedAt: string;
+	maxStudents: number;
+	supervisor: {
+		id: number;
+		name: string;
+		email: string;
+	};
+	members: Array<{
+		id: number;
+		name: string;
+		email: string;
+	}>;
+};
+
+export default function FacultyProposalDetailPage() {
 	const navigate = useNavigate();
 	const { slug } = useParams();
 	const isIC = HasRole("IC");
 	const isStudent = HasRole("Student");
 	const authUser = useAuthStore((state) => state.authUser);
-	const [proposal, setProposal] = useState<ProjectProposal | null>();
-	const [loading, setLoading] = useState(true);
 	const [showApprovalModal, setShowApprovalModal] = useState(false);
 	const [isApproving, setIsApproving] = useState(false);
 
 	const fetchProposalDetail = async () => {
-		setLoading(true);
-		try {
-			const res = await api.get(`/proposals/${slug}/detail`);
-			if (res.status === 200) {
-				setLoading(false);
-				setProposal(res.data);
-			} else if (res.status === 404) {
-				setLoading(false);
-				setProposal(null);
-			}
-		} catch (err) {
-			console.error("Error fetching proposal:", err);
-			setProposal(null);
-		}
+		const res = await api.get(`/proposals/${slug}/detail`);
+		return res.data;
 	};
 
-	useEffect(() => {
-		fetchProposalDetail();
-	}, [slug]);
+	const { data: proposalDetail, isLoading } = useQuery({
+		queryKey: ["proposalDetail", slug],
+		queryFn: fetchProposalDetail,
+	});
+
+	const proposal: ProposalDetail = proposalDetail?.data;
+	const canApproveOrReject = isIC && proposal?.status === "pending";
 
 	const handleApprove = async () => {
 		setShowApprovalModal(true);
@@ -92,7 +110,7 @@ export default function ProposalDetail() {
 		}
 	};
 
-	if (loading)
+	if (isLoading)
 		return (
 			<div className="flex flex-col items-center justify-center py-20">
 				<Loader2 className="h-8 w-8 animate-spin text-primary-600" />
@@ -110,7 +128,7 @@ export default function ProposalDetail() {
 				isLoading={isApproving}
 				onComplete={handleApprovalModalComplete}
 			/>
-			<div className="mx-auto max-w-7xl">
+			<PageWrapper>
 				<Button
 					onClick={() => navigate(-1)}
 					variant="ghost"
@@ -140,15 +158,29 @@ export default function ProposalDetail() {
 											)}>
 											{proposal.status}
 										</Badge>
+										<Badge
+											className={cn(
+												PROPOSAL_STATUS_COLOR(proposal.status),
+												"font-mono capitalize px-3 rounded-md",
+											)}>
+											{proposal.type}
+										</Badge>
+										<Badge
+											className={cn(
+												PROPOSAL_STATUS_COLOR(proposal.status),
+												"font-mono capitalize px-3 rounded-md",
+											)}>
+											{proposal.projectType}
+										</Badge>
 										<span className="flex items-center gap-1.5">
 											<CalendarIcon className="h-4 w-4" />
-											Submitted on {proposal.submitted_at}
+											Submitted on {proposal.submittedAt}
 										</span>
 									</div>
 								</div>
 								{proposal.status === "pending" &&
 									isStudent &&
-									authUser.id === proposal?.submittedBy.id && (
+									authUser.id === proposal?.supervisor.id && (
 										<div className="space-x-3">
 											<Button
 												size={"sm"}
@@ -167,8 +199,8 @@ export default function ProposalDetail() {
 							</CardContent>
 						</Card>
 
-						<div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-							<div className="space-y-6 lg:col-span-2">
+						<div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
+							<div className="space-y-6 lg:col-span-3">
 								<Card className="border-gray-200 shadow-sm">
 									<CardHeader>
 										<CardTitle className="flex items-center gap-2 text-lg">
@@ -195,7 +227,7 @@ export default function ProposalDetail() {
 												<div>
 													<p className="font-medium ">proposal</p>
 													<p className="text-sm  ">
-														Submitted on {proposal.submitted_at}
+														Submitted on {proposal.submittedAt}
 													</p>
 												</div>
 											</div>
@@ -221,7 +253,7 @@ export default function ProposalDetail() {
 								/>
 							</div>
 
-							<div className="space-y-6">
+							<div className="space-y-6 lg:col-span-2">
 								<Card className="border-gray-200 shadow-sm">
 									<CardHeader>
 										<CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest">
@@ -240,49 +272,50 @@ export default function ProposalDetail() {
 
 								{/* submiiter */}
 								<div className="space-y-6">
-									<Card className="border-gray-200 shadow-sm">
-										<CardHeader>
-											<CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest">
-												<UserIcon className="size-5 stroke-2 text-primary-600" />
-												Submitted by
-											</CardTitle>
-										</CardHeader>
-										<CardContent className="space-y-1">
-											<p className="font-semibold">
-												{proposal.submittedBy.name}
-											</p>
-											<p className="flex items-center gap-1.5 text-sm">
-												<EnvelopeIcon className="h-3.5 w-3.5" />
-												{proposal.submittedBy.email}
-											</p>
-										</CardContent>
-									</Card>
-
 									{/* members */}
 									<Card className="border-gray-200 shadow-sm">
 										<CardHeader>
 											<CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest">
 												<IconUsersGroup className="size-5 stroke-2 text-primary-600" />
-												Team Members
+												Applied Students
 												<Badge className="bg-primary-500 h-5 min-w-5 rounded-full px-1 font-mono tabular-nums text-xs text-center">
-													{proposal?.members.length}
+													{proposal?.members.length}/{proposal?.maxStudents}
 												</Badge>
 											</CardTitle>
 										</CardHeader>
 										<CardContent className="space-y-3">
+											{proposal.members.length === 0 && <span>hahaha</span>}
 											{proposal.members.map((student) => (
-												<div key={student.id}>
-													<p className="font-medium">{student.name}</p>
-													<p className="flex items-center gap-1.5 truncate text-sm  ">
-														<EnvelopeIcon className="h-3.5 w-3.5" />
-														{student.email}
-													</p>
+												<div
+													key={student.id}
+													className="flex items-center justify-between">
+													<div className="">
+														<p className="font-medium">{student.name}</p>
+														<p className="flex items-center gap-1.5 truncate text-sm  ">
+															<EnvelopeIcon className="h-3.5 w-3.5" />
+															{student.email}
+														</p>
+													</div>
+													<div className="flex flex-col-reverse items-end sm:flex-row gap-2">
+														<Button
+															onClick={handleReject}
+															className="flex-1 gap-2 bg-red-300 font-semibold text-red-900 hover:cursor-pointer hover:bg-red-500 hover:text-white text-[12px]">
+															<HandThumbDownIcon className="size-3 stroke-2" />
+															Reject
+														</Button>
+														<Button
+															onClick={handleApprove}
+															className="flex-1 gap-2 bg-green-300 font-semibold text-green-900 hover:cursor-pointer hover:bg-green-500 hover:text-white text-[12px]">
+															<HandThumbUpIcon className="size-3 stroke-2" />
+															Approve
+														</Button>
+													</div>
 												</div>
 											))}
 										</CardContent>
 									</Card>
 
-									{isIC && proposal.status === "pending" && (
+									{false && (
 										<Card className="border-gray-200 shadow-sm">
 											<CardHeader>
 												<CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest">
@@ -311,7 +344,7 @@ export default function ProposalDetail() {
 						</div>
 					</>
 				)}
-			</div>
+			</PageWrapper>
 		</>
 	);
 }
