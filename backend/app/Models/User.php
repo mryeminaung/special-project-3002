@@ -1,14 +1,11 @@
 <?php
-
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use ApiPlatform\Metadata\ApiResource;
 use Laravel\Sanctum\HasApiTokens;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Traits\HasRoles;
 
 // #[ApiResource]
@@ -78,5 +75,10 @@ class User extends Authenticatable
     public function teamProposals()
     {
         return $this->belongsToMany(Proposal::class, 'proposal_student', 'user_id', 'proposal_id');
+    }
+
+    public function announcements()
+    {
+        return $this->hasMany(Announcement::class, 'created_by');
     }
 }

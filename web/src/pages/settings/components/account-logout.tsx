@@ -2,7 +2,7 @@ import api from "@/api/api";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FieldDescription } from "@/components/ui/field";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useAuthStore } from "@/stores/use-auth-store";
 import { IconLogout } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
 

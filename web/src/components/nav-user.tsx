@@ -23,7 +23,7 @@ import {
 	SidebarMenuItem,
 	useSidebar,
 } from "@/components/ui/sidebar";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useAuthStore } from "@/stores/use-auth-store";
 import { useNavigate } from "react-router";
 
 export function NavUser({
@@ -55,7 +55,7 @@ export function NavUser({
 
 	const avatarFallbackName = user.name
 		?.split(" ")
-		.slice(1)
+		.slice(1, 3)
 		.map((name: string) => name[0])
 		.join("");
 

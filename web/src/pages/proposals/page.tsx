@@ -1,41 +1,48 @@
 import api from "@/api/api";
+import Heading from "@/components/heading";
+import PageWrapper from "@/components/page-wrapper";
+import { useCurrentPage } from "@/hooks/use-current-page";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { HasRole } from "@/lib/utils";
-import type { ProjectProposal } from "@/types";
-import { useEffect, useState } from "react";
-import UnAuthorized from "../auth/un-authorized";
-import ProposalTable from "./proposals-table";
+import { useQuery } from "@tanstack/react-query";
+import UnAuthorized from "../../components/un-authorized";
+import Pagination from "./components/pagination";
+import ProposalsTable from "./components/proposals-table";
 
 export default function ProjectsProposalPage() {
 	useHeaderInitializer("MIIT| Proposals", "Submitted Proposals");
+	const currentPage = useCurrentPage();
 
-	const [proposalsData, setProposalsData] = useState<ProjectProposal[]>([]);
 	const getProposalsData = async () => {
-		const res = await api.get("/proposals");
-		setProposalsData(res.data);
+		const endpoint =
+			currentPage > 1 ? `/proposals?page=${currentPage}` : "/proposals";
+		const res = await api.get(endpoint);
+		return res.data;
 	};
 
-	useEffect(() => {
-		getProposalsData();
-	}, []);
+	const { data: proposals, isFetching } = useQuery({
+		queryKey: ["proposals", currentPage],
+		queryFn: getProposalsData,
+		refetchOnWindowFocus: false,
+		staleTime: 30_000,
+	});
 
 	if (!HasRole("IC") && !HasRole("Student Affairs")) return <UnAuthorized />;
 
 	return (
-		<div className="mx-auto max-w-7xl">
-			<h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
-				Proposals
-			</h1>
-			<p className="text-sm text-neutral-500">
-				Browse and manage project proposals with team assignments and
-				supervisors.
-			</p>
-			{proposalsData && (
-				<ProposalTable
-					getProposalsData={getProposalsData}
-					proposalData={proposalsData}
+		<PageWrapper>
+			<Heading
+				title="Proposals"
+				description="Browse and manage project proposals with team assignments and
+				supervisors."
+			/>
+			<div className="space-y-4 mt-5">
+				<ProposalsTable
+					proposals={proposals?.data?.data ?? []}
+					isLoading={isFetching}
 				/>
-			)}
-		</div>
+				{proposals?.data?.meta && <Pagination meta={proposals.data.meta} />}
+			</div>
+		</PageWrapper>
 	);
 }

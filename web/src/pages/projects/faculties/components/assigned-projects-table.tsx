@@ -42,7 +42,7 @@ export default function AssignedProjectsTable({
 			"approved_on",
 		]),
 	);
-	const itemsPerPage = 10;
+	const itemsPerPage = 8;
 
 	const filteredProjects = useMemo(() => {
 		const filtered = projects.filter((project) => {

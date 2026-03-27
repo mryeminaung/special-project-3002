@@ -1,3 +1,5 @@
+import Heading from "@/components/heading";
+import PageWrapper from "@/components/page-wrapper";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { ProjectCard } from "@/pages/projects/students/components/project-card";
 
@@ -69,16 +71,12 @@ export default function MyProjects() {
 	];
 
 	return (
-		<div className="mx-auto max-w-7xl">
-			<div className="">
-				<h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
-					Projects Workspace
-				</h1>
-				<p className="text-sm text-neutral-500">
-					Oversee your active collaborations, track project status, and
-					coordinate with supervisors.
-				</p>
-			</div>
+		<PageWrapper>
+			<Heading
+				title="Projects Workspace"
+				description="Oversee your active collaborations, track project status, and
+					coordinate with supervisors."
+			/>
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-5">
 				{mockProjects.map((project) => (
 					<ProjectCard
@@ -87,6 +85,6 @@ export default function MyProjects() {
 					/>
 				))}
 			</div>
-		</div>
+		</PageWrapper>
 	);
 }

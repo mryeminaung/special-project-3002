@@ -1,5 +1,5 @@
-import { useAuthStore } from "@/stores/useAuthStore";
-import { useSiteHeaderStore } from "@/stores/useSiteHeaderStore";
+import { useAuthStore } from "@/stores/use-auth-store";
+import { useSiteHeaderStore } from "@/stores/use-site-header-store";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 

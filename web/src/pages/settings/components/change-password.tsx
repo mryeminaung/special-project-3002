@@ -15,7 +15,7 @@ import {
 	FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useAuthStore } from "@/stores/use-auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconEye, IconEyeOff, IconLoader2 } from "@tabler/icons-react";
 import { useState } from "react";

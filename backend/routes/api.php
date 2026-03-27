@@ -1,15 +1,16 @@
 <?php
 
+use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\auth\AuthController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\ProjectAreaController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\SupervisorController;
+use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(AuthController::class)->group(function () {
@@ -24,9 +25,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post("/reset-password", 'resetPassword');
     });
 
-    Route::controller(DashboardController::class)->group(function () {
-        Route::get("/dashboard", 'index');
-    });
+    Route::get("/dashboard", DashboardController::class);
 
     Route::controller(UserController::class)->group(function () {
         Route::get("/faculties-for-proposal", "getFacultiesForProposal");
@@ -71,17 +70,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post("/upload-to-s3", 'uploadToS3');
         Route::post("/delete-from-s3", 'deleteFromS3');
     });
-});
 
-Route::get('/test-mail', function () {
-    $project = "Special Project Management System";
+    Route::apiResource("/announcements", AnnouncementController::class)->except(['create', 'show', 'edit', 'update']);
 
-    Mail::raw(
-        "Hello, your project proposal titled '$project' has been approved.",
-        function ($message) {
-            $message->to('2019-miit-ece-050@miit.edu.mm')->subject('Project Approval Notification');
-        }
-    );
+    Route::apiResource("/tasks", TaskController::class)->except(['create', 'show', 'edit']);
 
-    return 'Email is sent to Mailtrap Sandbox!';
+    Route::apiResource("/project-areas", ProjectAreaController::class)->except(['create', 'show', 'edit']);
+
 });

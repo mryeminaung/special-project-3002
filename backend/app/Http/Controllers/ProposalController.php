@@ -1,70 +1,70 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Events\ProposalApproved;
 use App\Http\Requests\ProposalRequest;
 use App\Http\Resources\ProposalResource;
+use App\Http\Resources\proposal\FacultyProposalResource;
+use App\Http\Resources\proposal\ProposalTableResource;
+use App\Http\Resources\proposal\StudentProposalResource;
 use App\Models\Proposal;
+use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class ProposalController extends Controller
 {
+    use ApiResponse;
+
     public function index()
     {
-        try {
-            $proposals = Proposal::with(['supervisor', 'leader', 'members'])->get();
-            return ProposalResource::collection($proposals);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to retrieve proposals',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        $proposals = Proposal::orderBy('id')->paginate(5);
+        $data      = $this->paginatedResponse(ProposalTableResource::class, $proposals);
+        return $this->successResponse("Proposals retrived successfully.", $data);
     }
 
     public function store(ProposalRequest $request)
     {
-        try {
-            $user = Auth::user();
+        $user                 = Auth::user();
+        $data                 = $request->validated();
+        $data['slug']         = Str::slug($data['title'], '-');
+        $data['submitted_at'] = now();
 
-            // Check if user is already in a team or as a leader in proposals
-            if (
-                $user->teamProposals()->exists() ||
-                Proposal::where('leader_id', $user->id)->exists()
-            ) {
+        if ($data['type'] === 'student') {
+            $studentId = $user->id;
+            // Check if student is already a leader in another proposal
+            $isLeader = Proposal::where('student_id', $studentId)
+                ->whereNotNull('student_id')
+                ->exists();
+
+            // Check if student is already a member in another proposal
+            $isMember = DB::table('proposal_student')->where('user_id', $studentId)->exists();
+
+            if ($isLeader || $isMember) {
                 return response()->json([
-                    'message' => 'You have already submitted a proposal, are part of a team, or are a leader in another proposal.'
+                    'message' => 'Student is already part of another proposal as leader or member.',
                 ], 422);
             }
+        }
 
-            $proposal = Proposal::create($request->except('members'));
-            if ($request->has('members')) {
+        if ($data['type'] === 'student') {
+            $data['student_id'] = $user->id;
+        } else {
+            $data['student_id'] = null;
+        }
+
+        return DB::transaction(function () use ($data, $request) {
+            $proposal = Proposal::create($data);
+
+            if ($request->type === 'student' && $request->has('members')) {
                 $proposal->members()->attach($request->members);
             }
+
             return response()->json([
-                'message' => 'Proposal created successfully'
+                'message' => 'Proposal created successfully',
             ], 201);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to create proposal',
-                'error' => $e->getMessage()
-            ], 500);
-        }
-    }
-
-    public function myProposals()
-    {
-        $proposals = Auth::user()->teamProposals()->with(['supervisor', 'leader', 'members'])->get();
-
-        if ($proposals->isEmpty()) {
-            return response()->json([
-                'message' => 'Proposals not found'
-            ], 404);
-        }
-
-        return ProposalResource::collection($proposals->load(['supervisor', 'leader', 'members']));
+        });
     }
 
     public function approveByIC(Proposal $proposal)
@@ -85,7 +85,7 @@ class ProposalController extends Controller
     public function rejectByIC(Proposal $proposal)
     {
         $proposal->update([
-            'status' => 'rejected'
+            'status' => 'rejected',
         ]);
 
         return response()->json(['message' => 'Proposal Rejected!']);
@@ -93,55 +93,60 @@ class ProposalController extends Controller
 
     public function detail(Proposal $proposal)
     {
-        try {
-            if (!$proposal) {
-                return response()->json([
-                    'message' => 'Proposal not found'
-                ], 404);
+        if ($proposal->type === 'student') {
+            if ($proposal->student_id !== null) {
+                return $this->successResponse(
+                    'Student proposal detail view',
+                    new StudentProposalResource($proposal->load('members')),
+                    200);
+            } else {
+                return $this->errorResponse(
+                    'Student proposal not found',
+                    404);
             }
+        }
 
-            $proposal = $proposal->load(['supervisor', 'leader', 'members']);
-            return new ProposalResource($proposal);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to retrieve proposal details',
-                'error' => $e->getMessage()
-            ], 500);
+        if ($proposal->type === 'faculty') {
+            if ($proposal->student_id === null) {
+                return $this->successResponse(
+                    'Faculty proposal detail view',
+                    new FacultyProposalResource($proposal),
+                    200);
+            } else {
+                return $this->errorResponse(
+                    'Student proposal not found',
+                    404);
+            }
         }
     }
 
     public function browseProposals()
     {
-        try {
-            $proposals = Proposal::where('supervisor_id', Auth::id())->with(['supervisor', 'leader', 'members'])->get();
+        $auth      = Auth::user();
+        $proposals = Proposal::where('supervisor_id', $auth->id)->orderBy('id')->paginate(5);
 
-            if ($proposals->isEmpty()) {
-                return response()->json([
-                    'message' => 'Proposals not found'
-                ], 404);
-            }
-
-            return ProposalResource::collection($proposals);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to retrieve proposals',
-                'error' => $e->getMessage()
-            ], 500);
+        if ($proposals->isEmpty()) {
+            return $this->errorResponse('No proposals found for the supervisor', 404);
         }
+
+        $data = $this->paginatedResponse(ProposalTableResource::class, $proposals);
+        return $this->successResponse("Proposals retrived successfully.", $data);
+    }
+
+    public function myProposals()
+    {
+        $proposals = Auth::user()->teamProposals()->get();
+
+        if ($proposals->isEmpty()) {
+            return $this->errorResponse('No proposals found for the student', 404);
+        }
+
+        return ProposalResource::collection($proposals->load(['supervisor', 'leader', 'members']));
     }
 
     public function destroy(Proposal $proposal)
     {
-        try {
-            $proposal->delete();
-            return response()->json([
-                'message' => 'Proposal deleted successfully'
-            ], 204);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Failed to delete proposal',
-                'error' => $e->getMessage()
-            ], 500);
-        }
+        $proposal->delete();
+        return $this->successResponse('Proposal deleted successfully', null, 200);
     }
 }

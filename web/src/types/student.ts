@@ -1,8 +1,8 @@
 import type { ElementType } from "react";
 
-export type StudentDashboardCard<T = ElementType> = {
+export type DashboardCard<T = ElementType> = {
 	title: string;
 	cardIcon?: T;
-	description: string;
+	count: number | string;
 	pageUrl: string;
 };

@@ -5,6 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import UnAuthorized from "@/components/un-authorized";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { HasRole } from "@/lib/utils";
 import type { User } from "@/types";
@@ -13,8 +14,7 @@ import { IconLoader, IconPencilCheck } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import UnAuthorized from "../../auth/un-authorized";
-import FileUpload from "./components/file-upload";
+import FileUpload from "../components/file-upload";
 import MembersSelection from "./components/members-selection";
 import SupervisorSelection from "./components/supervisor-selection";
 
@@ -42,16 +42,11 @@ const ProposalSchema = z.object({
 export default function EditProposalPage() {
 	useHeaderInitializer("MIIT | Proposal Editing", "Edit Proposal");
 
-	const [faculties, setFaculties] = useState<User[]>([]);
 	const [students, setStudents] = useState<User[]>([]);
 
 	const loadInitialData = async () => {
 		try {
-			const [facultiesRes, studentsRes] = await Promise.all([
-				api.get("faculties-for-proposal"),
-				api.get("students-for-proposal"),
-			]);
-			setFaculties(facultiesRes.data);
+			const studentsRes = await api.get("students-for-proposal");
 			setStudents(studentsRes.data);
 		} catch (error) {
 			console.error("Failed to load proposal data", error);
@@ -132,7 +127,6 @@ export default function EditProposalPage() {
 
 								<SupervisorSelection
 									control={control}
-									supervisors={faculties}
 									error={errors.supervisor_id?.message}
 								/>
 

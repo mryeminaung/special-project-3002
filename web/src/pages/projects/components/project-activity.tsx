@@ -1,3 +1,4 @@
+import Heading from "@/components/heading";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -63,7 +64,7 @@ export default function ProjectActivity() {
 			id: 2,
 			title: "Midterm Seminar",
 			date: "15 Jan 2026",
-			status: "pending",
+			status: "completed",
 		},
 		{
 			id: 3,
@@ -80,24 +81,24 @@ export default function ProjectActivity() {
 	];
 
 	return (
-		<div>
-			<div className="flex items-center justify-between mb-3">
-				<h3 className="text-lg font-bold text-neutral-900 dark:text-white">
-					Project Activities
-				</h3>
-			</div>
+		<div className="my-3 space-y-3">
+			<Heading
+				variant="sm"
+				title="Project Activities"
+				description="Track the progress and key milestones of your project."
+			/>
+
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
 				<div className="lg:col-span-1 space-y-10">
 					<Card className="flex flex-col gap-4 p-5 rounded-lg dark:bg-neutral-900 border border-neutral-200/60 dark:border-neutral-800">
-						{activities.map((activity, index) => (
-							<>
-								<ActivityCard
-									key={activity.id}
-									activity={activity}
-								/>
-								{index !== activities.length - 1 && <Separator />}
-							</>
-						))}
+						{activities.map((activity, index) => {
+							return (
+								<div key={activity.id}>
+									<ActivityCard activity={activity} />
+									{index !== activities.length - 1 && <Separator />}
+								</div>
+							);
+						})}
 					</Card>
 				</div>
 
@@ -112,17 +113,15 @@ export default function ProjectActivity() {
 							"MidTermPPT.pptx",
 							"MidTermReport_V2.pdf",
 						].map((file, index) => (
-							<>
-								<div
-									key={file}
-									className="flex items-center gap-x-3 justify-between group cursor-pointer">
+							<div key={index}>
+								<div className="flex items-center gap-x-3 justify-between group cursor-pointer">
 									<span className="text-sm font-semibold text-neutral-600 dark:text-neutral-400 group-hover:text-primary-500 transition-colors">
 										{file}
 									</span>
 									<IconDownload className="text-neutral-300 h-5 w-5 group-hover:text-primary-500" />
 								</div>
 								{index !== activities.length - 1 && <Separator />}
-							</>
+							</div>
 						))}
 					</div>
 				</div>

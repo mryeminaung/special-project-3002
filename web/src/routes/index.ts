@@ -1,26 +1,15 @@
+import AnnouncementsPage from "@/pages/announcements/page";
 import LoginPage from "@/pages/auth/login";
 import NotFoundPage from "@/pages/auth/not-found";
 import ProtectedRoute from "@/pages/auth/protected-route";
 import DashboardPage from "@/pages/dashboard/dashboard";
+import EventsPage from "@/pages/events/page";
 import FacultiesPage from "@/pages/faculties/page";
-import PermissionMatrix from "@/pages/permissions/page";
-import AssignedProjects from "@/pages/projects/faculties/assigned-projects";
-import ProjectsPage from "@/pages/projects/page";
-import ProjectDetailPage from "@/pages/projects/project-detail";
-import MyProjects from "@/pages/projects/students/my-projects";
-import MyTasksPage from "@/pages/projects/students/tasks/my-tasks";
-import BrowseProposalsPage from "@/pages/proposals/faculties/browse-proposals";
-import ProjectsProposalPage from "@/pages/proposals/page";
-import ProposalDetailPage from "@/pages/proposals/proposal-detail";
-import CreateProposalPage from "@/pages/proposals/students/create-proposal";
-import EditProposalPage from "@/pages/proposals/students/edit-proposal";
-import MyProposasPage from "@/pages/proposals/students/my-proposals";
-import ChangePassword from "@/pages/settings/components/change-password";
-import ChangeProfile from "@/pages/settings/components/change-profile";
-import ChangeTheme from "@/pages/settings/components/change-theme";
-import SettingsPage from "@/pages/settings/page";
 import SupervisorsPage from "@/pages/supervisors/page";
 import SupervisorDetailPage from "@/pages/supervisors/supervisor-detail";
+import { projectsRoutes } from "./projects";
+import { proposalRoutes } from "./proposals";
+import { settingsRoutes } from "./settings";
 
 export const routes = [
 	{
@@ -32,32 +21,16 @@ export const routes = [
 				Component: DashboardPage,
 			},
 			{
+				path: "events",
+				Component: EventsPage,
+			},
+			{
+				path: "announcements",
+				Component: AnnouncementsPage,
+			},
+			{
 				path: "/faculties",
 				Component: FacultiesPage,
-			},
-			{
-				path: "/project-proposals/create",
-				Component: CreateProposalPage,
-			},
-			{
-				path: "/project-proposals",
-				Component: ProjectsProposalPage,
-			},
-			{
-				path: "/project-proposals/my-proposals",
-				Component: MyProposasPage,
-			},
-			{
-				path: "/project-proposals/my-proposal/:id/edit",
-				Component: EditProposalPage,
-			},
-			{
-				path: "/project-proposals/my",
-				Component: BrowseProposalsPage,
-			},
-			{
-				path: "/project-proposals/:slug/detail",
-				Component: ProposalDetailPage,
 			},
 			{
 				path: "/supervisors",
@@ -67,53 +40,14 @@ export const routes = [
 				path: "/supervisors/:id/detail",
 				Component: SupervisorDetailPage,
 			},
-			{
-				path: "/assigned-projects",
-				Component: AssignedProjects,
-			},
-			{
-				path: "/projects",
-				Component: ProjectsPage,
-			},
-			{
-				path: "/projects/:slug/detail",
-				Component: ProjectDetailPage,
-			},
-			{
-				path: "/projects/my-projects",
-				Component: MyProjects,
-			},
-			{
-				path: "/my-tasks",
-				Component: MyTasksPage,
-			},
-			{
-				path: "/settings",
-				Component: SettingsPage,
-				children: [
-					{
-						path: "profile",
-						Component: ChangeProfile,
-					},
-					{
-						path: "password",
-						Component: ChangePassword,
-					},
-					{
-						path: "preferences",
-						Component: ChangeTheme,
-					},
-				],
-			},
+			...projectsRoutes,
+			...proposalRoutes,
+			...settingsRoutes,
 		],
 	},
 	{
 		path: "/login",
 		Component: LoginPage,
-	},
-	{
-		path: "/permissions",
-		Component: PermissionMatrix,
 	},
 	{
 		path: "*",

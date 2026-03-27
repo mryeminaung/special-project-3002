@@ -1,45 +1,46 @@
 import api from "@/api/api";
+import Heading from "@/components/heading";
+import PageWrapper from "@/components/page-wrapper";
+import { useCurrentPage } from "@/hooks/use-current-page";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
-import type { ProjectProposal } from "@/types";
-import { useEffect, useState } from "react";
-import ProposalTable from "../proposals-table";
+import { useQuery } from "@tanstack/react-query";
+import Pagination from "../components/pagination";
+import ProposalsTable from "../components/proposals-table";
 
 export default function BrowseProposalsPage() {
 	useHeaderInitializer("MIIT | Browse Proposals", "Browse Proposals");
-
-	const [proposals, setProposals] = useState<ProjectProposal[]>([]);
+	const currentPage = useCurrentPage();
 
 	const fetchBrowseProposals = async () => {
-		try {
-			const res = await api.get("/proposals/browse-proposals");
-			console.log(res.data);
-			setProposals(res.data);
-		} catch (error) {
-			console.error("Error fetching browse proposals:", error);
-		}
+		const endpoint =
+			currentPage > 1
+				? `/proposals/browse-proposals?page=${currentPage}`
+				: "/proposals/browse-proposals";
+		const res = await api.get(endpoint);
+		return res.data;
 	};
 
-	useEffect(() => {
-		fetchBrowseProposals();
-	}, []);
+	const { data: browseProposals, isFetching } = useQuery({
+		queryKey: ["browseProposals"],
+		queryFn: fetchBrowseProposals,
+	});
 
 	return (
-		<>
-			<div className="mx-auto max-w-7xl">
-				<h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
-					Browse Proposals
-				</h1>
-				<p className="text-sm text-neutral-500">
-					Browse and manage project proposals with team assignments and
-					supervisors.
-				</p>
-				{proposals && (
-					<ProposalTable
-						getProposalsData={fetchBrowseProposals}
-						proposalData={proposals}
-					/>
+		<PageWrapper>
+			<Heading
+				title="Browse Proposals"
+				description="Browse and manage project proposals with team assignments and
+				supervisors."
+			/>
+			<div className="space-y-4 mt-5">
+				<ProposalsTable
+					proposals={browseProposals?.data?.data ?? []}
+					isLoading={isFetching}
+				/>
+				{browseProposals?.data?.meta && (
+					<Pagination meta={browseProposals.data.meta} />
 				)}
 			</div>
-		</>
+		</PageWrapper>
 	);
 }

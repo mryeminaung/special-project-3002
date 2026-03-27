@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Resources\ProjectResource;
@@ -10,7 +9,7 @@ class ProjectController extends Controller
 {
     public function index()
     {
-        $projects =  Project::with(['leader', 'supervisor', 'members'])->get();
+        $projects = Project::with(['leader', 'supervisor', 'members'])->get();
         return ProjectResource::collection($projects);
     }
 
@@ -24,6 +23,6 @@ class ProjectController extends Controller
 
     public function show(Project $project)
     {
-        return $project;
+        return new ProjectResource($project->load(['leader', 'supervisor', 'members']));
     }
 }

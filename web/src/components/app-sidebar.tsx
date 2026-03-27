@@ -1,9 +1,10 @@
 import {
+	IconCalendarEvent,
 	IconDeviceTabletSearch,
 	IconFileDescription,
 	IconLayoutDashboard,
-	IconListCheck,
 	IconListDetails,
+	IconSend,
 	IconSettings,
 	IconUsersGroup,
 } from "@tabler/icons-react";
@@ -19,7 +20,7 @@ import {
 } from "@/components/ui/sidebar";
 
 import { HasRole } from "@/lib/utils";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useAuthStore } from "@/stores/use-auth-store";
 import { ShieldCheckIcon } from "lucide-react";
 import AppLogo from "./app-logo";
 
@@ -32,6 +33,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			title: "Dashboard",
 			url: "/dashboard",
 			icon: IconLayoutDashboard,
+		},
+		{
+			title: "Events",
+			url: "/events",
+			icon: IconCalendarEvent,
+		},
+		{
+			title: "Announcements",
+			url: "/announcements",
+			icon: IconSend,
 		},
 		{
 			title: "Project Proposals",
@@ -67,6 +78,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			icon: IconLayoutDashboard,
 		},
 		{
+			title: "Events",
+			url: "/events",
+			icon: IconCalendarEvent,
+		},
+		{
+			title: "Announcements",
+			url: "/announcements",
+			icon: IconSend,
+		},
+		{
 			title: "Browse Proposals",
 			url: "/project-proposals/my",
 			icon: IconDeviceTabletSearch,
@@ -90,6 +111,16 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			icon: IconLayoutDashboard,
 		},
 		{
+			title: "Events",
+			url: "/events",
+			icon: IconCalendarEvent,
+		},
+		{
+			title: "Announcements",
+			url: "/announcements",
+			icon: IconSend,
+		},
+		{
 			title: "My Proposals",
 			url: "/project-proposals/my-proposals",
 			icon: IconFileDescription,
@@ -98,11 +129,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			title: "My Projects",
 			url: "/projects/my-projects",
 			icon: IconListDetails,
-		},
-		{
-			title: "My Tasks",
-			url: "/my-tasks",
-			icon: IconListCheck,
 		},
 		{
 			title: "Settings",

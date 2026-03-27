@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
@@ -8,7 +7,7 @@ class Project extends Model
 {
     public $timestamps = false;
 
-    protected $fillable = ['name', 'slug', 'description', 'status', 'mid_report', 'final_report', 'start_date', 'end_date', 'proposal_id', 'supervisor_id', 'leader_id'];
+    protected $fillable = ['name', 'slug', 'description', 'area_id', 'status', 'mid_report', 'final_report', 'mid_seminar', 'final_seminar', 'start_date', 'end_date', 'proposal_id', 'supervisor_id', 'leader_id', 'project_type'];
 
     public function supervisor()
     {

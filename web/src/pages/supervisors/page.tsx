@@ -1,25 +1,22 @@
 import api from "@/api/api";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { HasRole } from "@/lib/utils";
-import type { SupervisorData } from "@/types";
-import { useEffect, useState } from "react";
-import UnAuthorized from "../auth/un-authorized";
+import { useQuery } from "@tanstack/react-query";
+import UnAuthorized from "../../components/un-authorized";
 import SupervisorsTable from "./components/supervisors-table";
 
 export default function SupervisorsPage() {
 	useHeaderInitializer("MIIT| Supervisors", "Assigned Supervisors");
 
-	const [supervisors, setSupervisors] = useState<SupervisorData[]>([]);
-
 	const fetchSupervisors = async () => {
 		const res = await api.get("/supervisors");
-		console.log(res.data);
-		setSupervisors(res.data);
+		return res.data;
 	};
 
-	useEffect(() => {
-		fetchSupervisors();
-	}, []);
+	const { data: supervisors } = useQuery({
+		queryKey: ["supervisors"],
+		queryFn: fetchSupervisors,
+	});
 
 	if (HasRole("Student")) return <UnAuthorized />;
 

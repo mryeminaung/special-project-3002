@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { useTheme } from "@/hooks/use-theme";
-import { useAuthStore } from "@/stores/useAuthStore";
+import { useAuthStore } from "@/stores/use-auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconEye, IconEyeOff, IconLogin2, IconMail } from "@tabler/icons-react";
 import { useState } from "react";
