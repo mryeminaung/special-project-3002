@@ -1,15 +1,15 @@
-import AnnouncementsPage from "@/pages/announcements/page";
+import AnnouncementsPage from "@/pages/announcements/announcements-page";
 import LoginPage from "@/pages/auth/login";
 import NotFoundPage from "@/pages/auth/not-found";
 import ProtectedRoute from "@/pages/auth/protected-route";
 import DashboardPage from "@/pages/dashboard/dashboard";
-import EventsPage from "@/pages/events/page";
+import EventsPage from "@/pages/events/event-page";
 import FacultiesPage from "@/pages/faculties/page";
+import { projectsRoutes } from "@/pages/projects/projects.route";
+import { proposalRoutes } from "@/pages/proposals/proposals.route";
+import { settingsRoutes } from "@/pages/settings/settings.route";
 import SupervisorsPage from "@/pages/supervisors/page";
 import SupervisorDetailPage from "@/pages/supervisors/supervisor-detail";
-import { projectsRoutes } from "./projects";
-import { proposalRoutes } from "./proposals";
-import { settingsRoutes } from "./settings";
 
 export const routes = [
 	{

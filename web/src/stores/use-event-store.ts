@@ -1,7 +1,6 @@
+import type { EventType } from "@/pages/events/events.type";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
-
-export type EventType = "special" | "capstone" | "master-thesis";
 
 type EnrollmentByEvent = Record<EventType, boolean>;
 

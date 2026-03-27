@@ -1,9 +1,9 @@
-import Account from "@/pages/settings/account";
-import Events from "@/pages/settings/events";
-import SettingsPage from "@/pages/settings/page";
-import Password from "@/pages/settings/password";
-import Preferences from "@/pages/settings/preferences";
-import Profile from "@/pages/settings/profile";
+import Account from "./account";
+import Events from "./events";
+import SettingsPage from "./page";
+import Password from "./password";
+import Preferences from "./preferences";
+import Profile from "./profile";
 
 export const settingsRoutes = [
 	{

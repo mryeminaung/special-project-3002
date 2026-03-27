@@ -1,6 +1,9 @@
 import { Badge } from "@/components/ui/badge";
-import { useEventStore, type EventType } from "@/stores/use-event-store";
+import { HasRole } from "@/lib/utils";
+import { useEventStore } from "@/stores/use-event-store";
 import { CircleX } from "lucide-react";
+import { Link } from "react-router";
+import type { EventType } from "../events.type";
 import EventSelectionModal from "./event-selection-modal";
 
 type EventCardProps = {
@@ -24,6 +27,9 @@ export default function EventCard({
 	const hasPreviousCreatedInfo = useEventStore(
 		(state) => !!state.eventConfigurations[eventType],
 	);
+
+	let canApplyProposals = isEnrollmentOpen && HasRole("Student");
+	let canCreateEventDetail = isEnrollmentOpen && HasRole("IC");
 
 	return (
 		<div
@@ -59,7 +65,22 @@ export default function EventCard({
 					</div>
 				)}
 
-				<div className={isEnrollmentOpen ? "block" : "hidden"}>
+				<div className={canApplyProposals ? "block" : "hidden"}>
+					<div className="flex flex-col gap-y-3 text-center">
+						<Link
+							to={"/project-proposals/create"}
+							className="cursor-pointer rounded-full bg-primary-600 px-5 py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-primary-700 hover:shadow-md">
+							Create a New Proposal
+						</Link>
+						<Link
+							to={""}
+							className="cursor-pointer rounded-full bg-primary-600 px-5 py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-primary-700 hover:shadow-md">
+							Browse Faculty Proposals
+						</Link>
+					</div>
+				</div>
+
+				<div className={canCreateEventDetail ? "block" : "hidden"}>
 					<p className="mb-4 text-sm font-medium text-center text-neutral-600">
 						{description}
 					</p>
@@ -68,7 +89,9 @@ export default function EventCard({
 							eventType={eventType}
 							eventTitle={title}
 							triggerText={
-								hasPreviousCreatedInfo ? "Already Created" : `Select ${title}`
+								hasPreviousCreatedInfo
+									? "Already Created"
+									: `Create Event Detail`
 							}
 							triggerDisabled={hasPreviousCreatedInfo}
 						/>

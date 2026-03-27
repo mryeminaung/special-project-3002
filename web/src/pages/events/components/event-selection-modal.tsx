@@ -3,7 +3,6 @@ import {
 	Dialog,
 	DialogClose,
 	DialogContent,
-	DialogDescription,
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
@@ -12,8 +11,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { useEventStore, type EventType } from "@/stores/use-event-store";
+import { useEventStore } from "@/stores/use-event-store";
 import { useRef, useState } from "react";
+import type { EventType } from "../events.type";
 
 const ACCEPTED_DOCUMENT_EXTENSIONS = ["pdf", "doc", "docx"];
 const ACCEPTED_DOCUMENT_INPUT_TYPES =
@@ -121,9 +121,9 @@ export default function EventSelectionModal({
 			<DialogContent className="sm:max-w-md">
 				<DialogHeader>
 					<DialogTitle>{eventTitle} Setup</DialogTitle>
-					<DialogDescription>
+					{/* <DialogDescription>
 						Enter event detail and submission deadline.
-					</DialogDescription>
+					</DialogDescription> */}
 				</DialogHeader>
 
 				<div className="grid gap-4">
@@ -132,7 +132,7 @@ export default function EventSelectionModal({
 						<Textarea
 							id={`event-detail-${eventTitle}`}
 							placeholder="Describe this event"
-							className="min-h-28 resize-none"
+							className="min-h-28 resize-none border focus:border-primary-500!"
 							value={eventDetail}
 							onChange={(event) => setEventDetail(event.target.value)}
 						/>
@@ -150,7 +150,7 @@ export default function EventSelectionModal({
 						/>
 					</div>
 
-					<div className="grid gap-2">
+					<div className="grid gap-2 hidden">
 						<Label htmlFor={`extra-document-${eventTitle}`}>
 							Extra Document (Optional)
 						</Label>

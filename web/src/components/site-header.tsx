@@ -4,7 +4,6 @@ import { useAuthStore } from "@/stores/use-auth-store";
 import { useSiteHeaderStore } from "@/stores/use-site-header-store";
 import { useEffect, useState } from "react";
 import { NavUser } from "./nav-user";
-import { ThemeToggle } from "./theme-toggle";
 
 export function SiteHeader() {
 	const siteHeader = useSiteHeaderStore((state) => state.siteHeader);
@@ -43,7 +42,7 @@ export function SiteHeader() {
 				/>
 				<h1 className="text-lg font-medium line-clamp-1">{siteHeader}</h1>
 				<div className="ml-auto flex items-center gap-2">
-					<ThemeToggle />
+					{/* <ThemeToggle /> */}
 					<NavUser user={data.user} />
 				</div>
 			</div>

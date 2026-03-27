@@ -1,7 +1,7 @@
 import Heading from "@/components/heading";
 import PageWrapper from "@/components/page-wrapper";
 import { Button } from "@/components/ui/button";
-import { useEventStore, type EventType } from "@/stores/use-event-store";
+import { useEventStore } from "@/stores/use-event-store";
 import {
 	IconTrash,
 	IconUser,
@@ -9,6 +9,7 @@ import {
 	IconUsersGroup,
 } from "@tabler/icons-react";
 import EventCard from "./components/event-card";
+import type { EventType } from "./events.type";
 
 const eventTypeLabels: Record<EventType, string> = {
 	special: "Special Project",
@@ -44,11 +45,7 @@ export default function EventsPage() {
 
 	return (
 		<PageWrapper>
-			<Heading
-				title="Choose Event Type"
-				description="	Create and manage event for Special Project, Capstone, and
-				Thesis, including details and deadlines."
-			/>
+			<Heading title="Choose Event Type" />
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-5">
 				<EventCard
 					eventType="special"
@@ -107,7 +104,7 @@ export default function EventsPage() {
 								key={eventItem.eventType}
 								className="rounded-lg border bg-white p-4 shadow-sm">
 								<div className="flex items-start justify-between gap-3">
-									<p className="text-sm font-semibold text-neutral-900">
+									<p className="text-base font-semibold text-neutral-900">
 										{eventItem.label}
 									</p>
 									<Button
@@ -119,17 +116,16 @@ export default function EventsPage() {
 											deleteEventConfiguration(eventItem.eventType)
 										}>
 										<IconTrash size={14} />
-										Delete
 									</Button>
 								</div>
-								<p className="mt-2 text-xs font-medium uppercase tracking-wide text-neutral-500">
+								<p className="mt-2 text-xs font-medium tracking-wide text-neutral-500">
 									Event Detail
 								</p>
 								<p className="text-sm text-neutral-700">
 									{eventItem.configuration?.eventDetail}
 								</p>
 
-								<p className="mt-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
+								<p className="mt-3 text-xs font-medium tracking-wide text-neutral-500">
 									Submission Deadline
 								</p>
 								<p className="text-sm text-neutral-700">
@@ -138,7 +134,7 @@ export default function EventsPage() {
 									)}
 								</p>
 
-								<p className="mt-3 text-xs font-medium uppercase tracking-wide text-neutral-500">
+								<p className="mt-3 text-xs font-medium tracking-wide text-neutral-500">
 									Extra Document
 								</p>
 								<p className="text-sm text-neutral-700">

@@ -1,6 +1,7 @@
 import Heading from "@/components/heading";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useEventStore, type EventType } from "@/stores/use-event-store";
+import type { EventType } from "@/pages/events/events.type";
+import { useEventStore } from "@/stores/use-event-store";
 import { AppWindowIcon, SettingsIcon } from "lucide-react";
 import { useState } from "react";
 
@@ -28,7 +29,6 @@ export default function EventsSetting() {
 			<Heading
 				title="Events Settings"
 				variant="sm"
-				description="Fine-tune each project type with dedicated controls, deadlines, and validation."
 			/>
 
 			<Tabs
