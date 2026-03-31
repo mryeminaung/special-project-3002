@@ -12,12 +12,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useEventStore } from "@/stores/use-event-store";
-import { useRef, useState } from "react";
+import { useState } from "react";
+import { toast } from "sonner";
 import type { EventType } from "../events.type";
-
-const ACCEPTED_DOCUMENT_EXTENSIONS = ["pdf", "doc", "docx"];
-const ACCEPTED_DOCUMENT_INPUT_TYPES =
-	".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
 type EventSelectionModalProps = {
 	eventType: EventType;
@@ -32,55 +29,26 @@ export default function EventSelectionModal({
 	triggerText,
 	triggerDisabled = false,
 }: EventSelectionModalProps) {
-	const saveEventConfiguration = useEventStore(
-		(state) => state.saveEventConfiguration,
-	);
+	const createProjectEvent = useEventStore((state) => state.createProjectEvent);
 	const [open, setOpen] = useState(false);
-	const [eventDetail, setEventDetail] = useState("");
-	const [submissionDeadline, setSubmissionDeadline] = useState("");
-	const [extraDocument, setExtraDocument] = useState<File | null>(null);
-	const [documentError, setDocumentError] = useState<string | null>(null);
-	const fileInputRef = useRef<HTMLInputElement>(null);
+	const [title, setTitle] = useState("");
+	const [description, setDescription] = useState("");
+	const [startDate, setStartDate] = useState("");
+	const [endDate, setEndDate] = useState("");
+	const [isSaving, setIsSaving] = useState(false);
 
 	const canSave =
-		eventDetail.trim().length > 0 &&
-		submissionDeadline.length > 0 &&
-		!documentError;
+		title.trim().length > 0 &&
+		description.trim().length > 0 &&
+		startDate.length > 0 &&
+		endDate.length > 0 &&
+		!isSaving;
 
 	function resetForm() {
-		setEventDetail("");
-		setSubmissionDeadline("");
-		setExtraDocument(null);
-		setDocumentError(null);
-		if (fileInputRef.current) {
-			fileInputRef.current.value = "";
-		}
-	}
-
-	function handleDocumentChange(event: React.ChangeEvent<HTMLInputElement>) {
-		const selectedFile = event.target.files?.[0] ?? null;
-
-		if (!selectedFile) {
-			setExtraDocument(null);
-			setDocumentError(null);
-			return;
-		}
-
-		const fileExtension = selectedFile.name.split(".").pop()?.toLowerCase();
-		const isAllowed =
-			!!fileExtension && ACCEPTED_DOCUMENT_EXTENSIONS.includes(fileExtension);
-
-		if (!isAllowed) {
-			setExtraDocument(null);
-			setDocumentError("Only PDF, DOC, and DOCX files are allowed.");
-			if (fileInputRef.current) {
-				fileInputRef.current.value = "";
-			}
-			return;
-		}
-
-		setExtraDocument(selectedFile);
-		setDocumentError(null);
+		setTitle("");
+		setDescription("");
+		setStartDate("");
+		setEndDate("");
 	}
 
 	function handleOpenChange(nextOpen: boolean) {
@@ -90,19 +58,29 @@ export default function EventSelectionModal({
 		}
 	}
 
-	function handleSave() {
+	async function handleSave() {
 		if (!canSave) {
 			return;
 		}
 
-		saveEventConfiguration(eventType, {
-			eventDetail: eventDetail.trim(),
-			submissionDeadline,
-			extraDocumentName: extraDocument?.name ?? null,
-		});
-
-		setOpen(false);
-		resetForm();
+		try {
+			setIsSaving(true);
+			await createProjectEvent(eventType, {
+				title: title.trim(),
+				description: description.trim(),
+				startDate,
+				endDate,
+			});
+			toast.success("Project event created successfully.");
+			setOpen(false);
+			resetForm();
+		} catch (error: any) {
+			const message =
+				error?.response?.data?.message ?? "Failed to create project event.";
+			toast.error(message);
+		} finally {
+			setIsSaving(false);
+		}
 	}
 
 	return (
@@ -121,57 +99,51 @@ export default function EventSelectionModal({
 			<DialogContent className="sm:max-w-md">
 				<DialogHeader>
 					<DialogTitle>{eventTitle} Setup</DialogTitle>
-					{/* <DialogDescription>
-						Enter event detail and submission deadline.
-					</DialogDescription> */}
 				</DialogHeader>
 
 				<div className="grid gap-4">
 					<div className="grid gap-2">
-						<Label htmlFor={`event-detail-${eventTitle}`}>Event Detail</Label>
-						<Textarea
-							id={`event-detail-${eventTitle}`}
-							placeholder="Describe this event"
-							className="min-h-28 resize-none border focus:border-primary-500!"
-							value={eventDetail}
-							onChange={(event) => setEventDetail(event.target.value)}
+						<Label htmlFor={`event-title-${eventTitle}`}>Title</Label>
+						<Input
+							id={`event-title-${eventTitle}`}
+							placeholder="Enter event title"
+							value={title}
+							onChange={(event) => setTitle(event.target.value)}
 						/>
 					</div>
 
 					<div className="grid gap-2">
-						<Label htmlFor={`submission-deadline-${eventTitle}`}>
-							Submission Deadline
-						</Label>
-						<Input
-							id={`submission-deadline-${eventTitle}`}
-							type="date"
-							value={submissionDeadline}
-							onChange={(event) => setSubmissionDeadline(event.target.value)}
+						<Label htmlFor={`event-detail-${eventTitle}`}>Description</Label>
+						<Textarea
+							id={`event-detail-${eventTitle}`}
+							placeholder="Describe this event"
+							className="min-h-28 resize-none border focus:border-primary-500!"
+							value={description}
+							onChange={(event) => setDescription(event.target.value)}
 						/>
 					</div>
 
-					<div className="grid gap-2 hidden">
-						<Label htmlFor={`extra-document-${eventTitle}`}>
-							Extra Document (Optional)
-						</Label>
-						<Input
-							ref={fileInputRef}
-							id={`extra-document-${eventTitle}`}
-							type="file"
-							accept={ACCEPTED_DOCUMENT_INPUT_TYPES}
-							onChange={handleDocumentChange}
-						/>
-						<p className="text-xs text-muted-foreground">
-							Accepted formats: PDF, DOC, DOCX
-						</p>
-						{extraDocument && (
-							<p className="text-xs text-muted-foreground">
-								Selected file: {extraDocument.name}
-							</p>
-						)}
-						{documentError && (
-							<p className="text-xs text-destructive">{documentError}</p>
-						)}
+					<div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+						<div className="grid gap-2">
+							<Label htmlFor={`start-date-${eventTitle}`}>Start Date</Label>
+							<Input
+								id={`start-date-${eventTitle}`}
+								type="date"
+								value={startDate}
+								onChange={(event) => setStartDate(event.target.value)}
+							/>
+						</div>
+
+						<div className="grid gap-2">
+							<Label htmlFor={`end-date-${eventTitle}`}>End Date</Label>
+							<Input
+								id={`end-date-${eventTitle}`}
+								type="date"
+								value={endDate}
+								onChange={(event) => setEndDate(event.target.value)}
+								min={startDate || undefined}
+							/>
+						</div>
 					</div>
 				</div>
 
@@ -187,7 +159,7 @@ export default function EventSelectionModal({
 						type="button"
 						onClick={handleSave}
 						disabled={!canSave}>
-						Save
+						{isSaving ? "Saving..." : "Save"}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

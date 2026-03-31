@@ -10,7 +10,6 @@ import {
 	ArrowLeftIcon,
 	CalendarIcon,
 	CheckBadgeIcon,
-	CodeBracketIcon,
 	DocumentTextIcon,
 	EnvelopeIcon,
 	HandThumbDownIcon,
@@ -42,7 +41,7 @@ export default function StudentProposalDetailPage() {
 	const [isApproving, setIsApproving] = useState(false);
 
 	const fetchProposalDetail = async () => {
-		const res = await api.get(`/proposals/${slug}/detail`);
+		const res = await api.get(`/proposals/${slug}`);
 		return res.data;
 	};
 
@@ -118,7 +117,7 @@ export default function StudentProposalDetailPage() {
 					</div>
 				) : (
 					<>
-						<Card className="mb-6 border-gray-200 shadow-sm">
+						<Card className="mb-4 border-gray-200 shadow-sm">
 							<CardContent className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
 								<div>
 									<h1 className="text-2xl font-bold ">{proposal.title}</h1>
@@ -171,12 +170,11 @@ export default function StudentProposalDetailPage() {
 							</CardContent>
 						</Card>
 
-						<div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-							<div className="space-y-6 lg:col-span-2">
+						<div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+							<div className="space-y-4 lg:col-span-2">
 								<Card className="border-gray-200 shadow-sm">
 									<CardHeader>
 										<CardTitle className="flex items-center gap-2 text-lg">
-											<CodeBracketIcon className="size-5 stroke-2 text-primary-600" />
 											Project Description
 										</CardTitle>
 									</CardHeader>
@@ -186,13 +184,12 @@ export default function StudentProposalDetailPage() {
 								<Card className="border-gray-200 shadow-sm">
 									<CardHeader>
 										<CardTitle className="flex items-center gap-2 text-lg">
-											<DocumentTextIcon className="size-5 stroke-2 text-primary-600" />
 											Proposal Document
 										</CardTitle>
 									</CardHeader>
 									<CardContent>
-										<div className="flex flex-col gap-4 rounded-lg border border-dashed border-gray-300  p-4 sm:flex-row sm:items-center sm:justify-between">
-											<div className="flex items-center gap-4">
+										<div className="flex flex-col sm:flex-row items-center justify-between gap-4 ">
+											<div className="flex w-full items-center gap-4">
 												<div className="rounded-lg bg-primary-100 p-3">
 													<DocumentTextIcon className="size-7 text-primary-600" />
 												</div>
@@ -206,7 +203,7 @@ export default function StudentProposalDetailPage() {
 
 											<Button
 												asChild
-												className="gap-2 bg-primary-600 font-semibold text-white hover:bg-primary-500 hover:cursor-pointer">
+												className="w-full sm:w-fit gap-2 bg-primary-600 font-semibold text-white hover:bg-primary-500 hover:cursor-pointer">
 												<a
 													href={proposal.file}
 													target="_blank"
@@ -225,7 +222,7 @@ export default function StudentProposalDetailPage() {
 								/>
 							</div>
 
-							<div className="space-y-6">
+							<div className="space-y-4">
 								<Card className="border-gray-200 shadow-sm">
 									<CardHeader>
 										<CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest">

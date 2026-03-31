@@ -3,7 +3,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import type { EventType } from "@/pages/events/events.type";
 import { useEventStore } from "@/stores/use-event-store";
 import { AppWindowIcon, SettingsIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const projectLabels: Record<EventType, string> = {
 	special: "Special Project",
@@ -17,12 +17,18 @@ export default function EventsSetting() {
 	const toggleEnrollmentWindow = useEventStore(
 		(state) => state.toggleEnrollmentWindow,
 	);
+	const fetchEventStatuses = useEventStore((state) => state.fetchEventStatuses);
+	const isLoadingStatuses = useEventStore((state) => state.isLoadingStatuses);
 
 	const isEnrollmentOpen = enrollmentByEvent[activeTab];
 
-	function handleToggleEnrollment() {
-		toggleEnrollmentWindow(activeTab);
-	}
+	useEffect(() => {
+		void fetchEventStatuses();
+	}, [fetchEventStatuses]);
+
+	const handleEventToggle = async () => {
+		await toggleEnrollmentWindow(activeTab);
+	};
 
 	return (
 		<section>
@@ -67,8 +73,8 @@ export default function EventsSetting() {
 						<p className="text-base font-semibold">Enrollment Window</p>
 						<p className="text-sm text-muted-foreground">
 							{isEnrollmentOpen
-								? `${projectLabels[activeTab]} enrollment is open. Students can submit and browse.`
-								: `${projectLabels[activeTab]} enrollment is closed. Students cannot submit or browse.`}
+								? `${projectLabels[activeTab]} enrollment is open.`
+								: `${projectLabels[activeTab]} enrollment is closed.`}
 						</p>
 					</div>
 				</div>
@@ -76,9 +82,8 @@ export default function EventsSetting() {
 				<button
 					type="button"
 					role="switch"
-					aria-checked={isEnrollmentOpen}
-					aria-label={`Toggle ${projectLabels[activeTab]} enrollment window`}
-					onClick={handleToggleEnrollment}
+					disabled={isLoadingStatuses}
+					onClick={handleEventToggle}
 					className={`relative h-6 w-11 rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none ${
 						isEnrollmentOpen ? "bg-primary" : "bg-muted-foreground/30"
 					}`}>
