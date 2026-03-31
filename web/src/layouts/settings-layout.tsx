@@ -1,6 +1,8 @@
 import Heading from "@/components/heading";
 import PageWrapper from "@/components/page-wrapper";
+import { HasRole } from "@/lib/utils";
 import { IconCalendarEvent } from "@tabler/icons-react";
+// Lock ကို ဒီမှာ ထည့်သွင်းပေးပါ
 import { Lock, SlidersVertical, TriangleAlert, UserRound } from "lucide-react";
 import { Link, Navigate, useLocation } from "react-router";
 
@@ -9,21 +11,27 @@ export default function SettingsLayout({
 }: {
 	children: React.ReactNode;
 }) {
+	const location = useLocation();
+
 	const SettingTabs = [
 		{
 			title: "Profile",
 			href: "/settings/profile",
 			icon: UserRound,
 		},
+		...(HasRole("IC")
+			? [
+					{
+						title: "Events",
+						href: "/settings/events",
+						icon: IconCalendarEvent,
+					},
+				]
+			: []),
 		{
 			title: "Security",
 			href: "/settings/password",
 			icon: Lock,
-		},
-		{
-			title: "Events",
-			href: "/settings/events",
-			icon: IconCalendarEvent,
 		},
 		{
 			title: "Preferences",
@@ -37,12 +45,10 @@ export default function SettingsLayout({
 		},
 	];
 
-	const location = useLocation();
-
 	if (location.pathname === "/settings") {
 		return (
 			<Navigate
-				to="//settings/profile"
+				to="/settings/profile"
 				replace
 				state={{ from: location }}
 			/>
@@ -66,10 +72,10 @@ export default function SettingsLayout({
 									to={tab.href}
 									className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
 										isActive
-											? "bg-card font-semibold shadow-sm border-l-primary-500 border-l-4"
-											: " hover:bg-card"
+											? "bg-card font-semibold shadow-sm border-l-primary-500 border-l-4 text-primary-600"
+											: "hover:bg-card text-muted-foreground"
 									}`}>
-									{tab.icon && <tab.icon className="mr-2 h-4 w-4" />}
+									<tab.icon className="mr-2 h-4 w-4" />
 									{tab.title}
 								</Link>
 							);

@@ -1,6 +1,6 @@
 type HeadingProps = {
 	title: string;
-	description: string;
+	description?: string;
 	variant?: "lg" | "sm";
 };
 

@@ -7,9 +7,9 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\ProjectAreaController;
 use App\Http\Controllers\ProjectController;
+use App\Http\Controllers\ProjectEventController;
 use App\Http\Controllers\ProposalController;
 use App\Http\Controllers\SupervisorController;
-use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -73,8 +73,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::apiResource("/announcements", AnnouncementController::class)->except(['create', 'show', 'edit', 'update']);
 
-    Route::apiResource("/tasks", TaskController::class)->except(['create', 'show', 'edit']);
+    Route::apiResource("/project-events", ProjectEventController::class)->except(['create', 'show', 'edit', 'update']);
+
+    Route::post("/project-events/{projectEvent}/toggle-active", [ProjectEventController::class, 'toggleActive']);
 
     Route::apiResource("/project-areas", ProjectAreaController::class)->except(['create', 'show', 'edit']);
-
 });

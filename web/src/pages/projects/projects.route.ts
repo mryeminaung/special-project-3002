@@ -1,5 +1,5 @@
 import AssignedProjects from "@/pages/projects/faculties/assigned-projects";
-import ProjectsPage from "@/pages/projects/page";
+import ProjectsPage from "@/pages/projects/projects-page";
 import ProjectDetailPage from "@/pages/projects/project-detail";
 import MyProjects from "@/pages/projects/students/my-projects";
 
