@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\ProjectResource;
+use App\Http\Resources\project\FacultyProjectResource;
 use App\Http\Resources\project\StudentProjectResource;
 use App\Models\Project;
 use App\Traits\ApiResponse;
@@ -34,6 +35,11 @@ class ProjectController extends Controller
 
     public function show(Project $project)
     {
-        return new ProjectResource($project->load(['leader', 'supervisor', 'members']));
+        if ($project->type === 'student') {
+            return $this->successResponse("Success", new StudentProjectResource($project));
+        }
+        if ($project->type === 'faculty') {
+            return $this->successResponse("Success", new FacultyProjectResource($project));
+        }
     }
 }

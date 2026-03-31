@@ -14,11 +14,11 @@ export const projectsRoutes = [
 		Component: ProjectsPage,
 	},
 	{
-		path: "/projects/student/:slug",
+		path: "/projects/student/:slug/detail",
 		Component: StudentProjectDetailPage,
 	},
 	{
-		path: "/projects/faculty/:slug",
+		path: "/projects/faculty/:slug/detail",
 		Component: FacultyProjectDetailPage,
 	},
 	{

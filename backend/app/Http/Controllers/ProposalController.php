@@ -26,7 +26,6 @@ class ProposalController extends Controller
 
     public function store(ProposalRequest $request)
     {
-
         $user                 = Auth::user();
         $data                 = $request->validated();
         $data['slug']         = Str::slug($data['title'], '-');

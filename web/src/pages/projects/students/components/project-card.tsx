@@ -29,7 +29,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
 	if (!project) return null;
 
 	return (
-		<Link to={`/projects/student/${project.slug}`}>
+		<Link to={`/projects/student/${project.slug}/detail`}>
 			<Card className="border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
 				{/* Project Title and Status */}
 				<CardContent>

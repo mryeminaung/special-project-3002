@@ -18,6 +18,10 @@ api.interceptors.request.use(
 		if (authToken) {
 			config.headers["Authorization"] = `Bearer ${authToken}`;
 		}
+
+		if (config.data instanceof FormData) {
+			config.headers["Content-Type"] = "multipart/form-data";
+		}
 		return config;
 	},
 	(error) => Promise.reject(error),

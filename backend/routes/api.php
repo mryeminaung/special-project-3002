@@ -59,7 +59,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get("/projects", 'index');
         Route::get("/assigned-projects", 'assignedProjects');
         Route::get("/projects/me", 'studentProjects');
-        Route::get("/projects/{project:slug}/detail", 'show');
+        Route::get("/projects/{project:slug}", 'show');
     });
 
     Route::controller(FileController::class)->group(function () {
@@ -70,6 +70,10 @@ Route::middleware('auth:sanctum')->group(function () {
         // upload or delete proposal document
         Route::post("/upload-to-s3", 'uploadToS3');
         Route::post("/delete-from-s3", 'deleteFromS3');
+
+        // upload or delete report
+        Route::post("/upload-report", 'uploadReport');
+        Route::post("/delete-report", 'deleteReport');
     });
 
     Route::apiResource("/announcements", AnnouncementController::class)->except(['create', 'show', 'edit', 'update']);

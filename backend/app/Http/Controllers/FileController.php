@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\UserResource;
+use App\Models\Project;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -73,6 +74,43 @@ class FileController extends Controller
         ], 200);
     }
 
+    public function uploadReport(Request $request)
+    {
+        if ($request->hasFile('file')) {
+            $request->validate([
+                'file' => ['required', 'mimes:pdf,doc,docx', 'max:10240'],
+            ], [
+                'file.required' => 'Please upload a file.',
+                'file.mimes'    => 'Only PDF, DOC, or DOCX files are allowed.',
+                'file.max'      => 'File size must not exceed 10MB.',
+            ]);
+
+            $type = $request->input('type');
+            $slug = $request->input('slug');
+            $path = $request->file('file')->store("reports/$type", 'public');
+
+            if ($slug) {
+                $project = Project::where('slug', $slug)->first();
+                if ($project) {
+                    $url = "storage/$path";
+                    if ($type === 'mid') {
+                        $project->mid_report_url = $url;
+                    } elseif ($type === 'final') {
+                        $project->final_report_url = $url;
+                    }
+                    $project->save();
+                }
+            }
+
+            return $this->successResponse(
+                "Report is stored successfully",
+                ['url' => "storage/$path"],
+            );
+        }
+
+        return $this->errorResponse("File upload failed", 400);
+    }
+
     public function uploadToS3(Request $request)
     {
         if ($request->hasFile('file')) {
@@ -92,6 +130,36 @@ class FileController extends Controller
         }
 
         return $this->errorResponse("File upload failed", 400);
+    }
+
+    public function deleteReport(Request $request)
+    {
+        $validated = $request->validate([
+            'slug' => ['required', 'string', 'exists:projects,slug'],
+            'type' => ['required', 'in:mid,final'],
+        ]);
+
+        $project = Project::where('slug', $validated['slug'])->first();
+
+        if (! $project) {
+            return $this->errorResponse("Project not found", 404);
+        }
+
+        $reportField = $validated['type'] === 'mid' ? 'mid_report_url' : 'final_report_url';
+        $reportUrl   = $project->{$reportField};
+
+        if ($reportUrl) {
+            $path = ltrim($reportUrl, '/');
+            if (strpos($path, 'storage/') === 0) {
+                $path = substr($path, strlen('storage/'));
+            }
+            Storage::disk('public')->delete($path);
+        }
+
+        $project->{$reportField} = null;
+        $project->save();
+
+        return $this->successResponse("Report deleted successfully", null);
     }
 
     public function deleteFromS3(Request $request)
