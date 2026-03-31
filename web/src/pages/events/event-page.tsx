@@ -8,6 +8,7 @@ import {
 	IconUsers,
 	IconUsersGroup,
 } from "@tabler/icons-react";
+import { useEffect } from "react";
 import EventCard from "./components/event-card";
 import type { EventType } from "./events.type";
 
@@ -34,6 +35,11 @@ export default function EventsPage() {
 	const deleteEventConfiguration = useEventStore(
 		(state) => state.deleteEventConfiguration,
 	);
+	const fetchEventStatuses = useEventStore((state) => state.fetchEventStatuses);
+
+	useEffect(() => {
+		void fetchEventStatuses();
+	}, [fetchEventStatuses]);
 
 	const createdEvents = orderedEventTypes
 		.map((eventType) => ({
@@ -107,6 +113,9 @@ export default function EventsPage() {
 									<p className="text-base font-semibold text-neutral-900">
 										{eventItem.label}
 									</p>
+									<p className="text-sm text-neutral-600">
+										{eventItem.configuration?.title}
+									</p>
 									<Button
 										type="button"
 										variant="destructive"
@@ -119,26 +128,24 @@ export default function EventsPage() {
 									</Button>
 								</div>
 								<p className="mt-2 text-xs font-medium tracking-wide text-neutral-500">
-									Event Detail
+									Description
 								</p>
 								<p className="text-sm text-neutral-700">
-									{eventItem.configuration?.eventDetail}
+									{eventItem.configuration?.description}
 								</p>
 
 								<p className="mt-3 text-xs font-medium tracking-wide text-neutral-500">
-									Submission Deadline
+									Start Date
 								</p>
 								<p className="text-sm text-neutral-700">
-									{formatDate(
-										eventItem.configuration?.submissionDeadline ?? "",
-									)}
+									{formatDate(eventItem.configuration?.startDate ?? "")}
 								</p>
 
 								<p className="mt-3 text-xs font-medium tracking-wide text-neutral-500">
-									Extra Document
+									End Date
 								</p>
 								<p className="text-sm text-neutral-700">
-									{eventItem.configuration?.extraDocumentName ?? "No document"}
+									{formatDate(eventItem.configuration?.endDate ?? "")}
 								</p>
 							</div>
 						))}

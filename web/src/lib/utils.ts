@@ -19,7 +19,7 @@ export const useHeader = () => {
 type UserRole = "IC" | "Supervisor" | "Faculty" | "Student" | "Student Affairs";
 
 export const HasRole = (role: UserRole): boolean => {
-	const authUser = useAuthStore((state) => state.authUser);
+	const authUser = useAuthStore.getState().authUser;
 
 	return authUser?.role === role;
 };
@@ -39,20 +39,13 @@ export const PROPOSAL_STATUS_COLOR = (status: ProposalStatus): string => {
 	return styles[status] || "bg-gray-100 text-gray-800 border-gray-200";
 };
 
-export type ProjectStatus =
-	| "not started"
-	| "active"
-	| "pending"
-	| "under review"
-	| "completed";
+export type ProjectStatus = "active" | "pending" | "under_review" | "completed";
 
 export const PROJECT_STATUS_COLOR = (status: ProjectStatus): string => {
 	const styles: Record<ProjectStatus, string> = {
-		"not started":
-			"bg-neutral-100 text-neutral-800 border-neutral-200 dark:bg-neutral-900/30 dark:text-neutral-400 dark:border-neutral-800",
 		active:
 			"bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800",
-		"under review":
+		under_review:
 			"bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800",
 		pending:
 			"bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800",

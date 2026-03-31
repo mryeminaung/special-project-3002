@@ -29,7 +29,7 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
 	if (!proposal) return null;
 
 	return (
-		<Link to={`/project-proposals/${proposal.slug}/detail`}>
+		<Link to={`/project-proposals/student/${proposal.slug}/detail`}>
 			<Card className="flex flex-col justify-between border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
 				<CardHeader>
 					<div className="flex items-start justify-between gap-x-3">
@@ -41,13 +41,15 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
 							{proposal.status}
 						</Badge>
 					</div>
-					<CardDescription className="flex items-center gap-x-1.5 text-sm">
+					<p className="flex items-center gap-x-1.5 text-sm">
 						<CalendarIcon className="h-4 w-4" />
-						Submitted on {proposal.submitted_at}
-					</CardDescription>
+						Submitted at {proposal.submittedAt}
+					</p>
 				</CardHeader>
 				<CardContent className="text-sm">
-					<p className="line-clamp-2">{proposal.description}</p>
+					<CardDescription className="text-black line-clamp-2">
+						{proposal.description}
+					</CardDescription>
 					<div className="flex items-center gap-x-2 mt-3">
 						<ShieldCheckIcon className="h-5 w-5 text-primary-600" />
 						<p>Supervisor . {proposal.supervisor.name}</p>

@@ -21,7 +21,7 @@ return new class extends Migration
             $table->enum('final_report', ['not submitted', 'submitted'])->default('not submitted');
             $table->enum('final_seminar', ['not completed', 'completed'])->default('not completed');
             $table->enum('project_type', ['special', 'capstone', 'master'])->default('special');
-            $table->enum('status', ['not started', 'active', 'completed', 'under review'])->default('not started');
+            $table->enum('status', ['active', 'completed', 'under review'])->default('active');
             $table->timestamp('start_date');
             $table->timestamp('end_date')->nullable();
             $table->foreignId('area_id')->constrained('project_areas')->onDelete('set null');

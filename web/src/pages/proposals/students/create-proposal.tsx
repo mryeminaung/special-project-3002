@@ -79,14 +79,18 @@ export default function CreateProposalPage() {
 	const fileUploadRef = useRef<FileUploadHandle | null>(null);
 
 	const navigate = useNavigate();
-
+	console.log(isSubmitting);
+	console.log(errors);
+	
 	const onSubmit = async (data: z.infer<typeof ProposalSchema>) => {
+		console.log("hit");
+
 		const formattedData = {
 			...data,
 			members: [...data.members.map((id) => parseInt(id, 10)), authUser?.id],
 			supervisor_id: parseInt(data.supervisor_id, 10),
 		};
-
+		
 		try {
 			const res = await api.post("/proposals/create", formattedData);
 			if (res.status === 201) {
@@ -94,14 +98,15 @@ export default function CreateProposalPage() {
 			}
 		} catch (error: any) {
 			const validationErrors = error.response?.data?.errors;
-			if (error.response.data.message) toast.error(error.response.data.message);
+			console.log(validationErrors);
+			// if (error.response.data.message) toast.error(error.response.data.message);
 
-			if (validationErrors?.title) {
-				setError("title", {
-					type: "manual",
-					message: validationErrors.title,
-				});
-			}
+			// if (validationErrors?.title) {
+			// 	setError("title", {
+			// 		type: "manual",
+			// 		message: validationErrors.title,
+			// 	});
+			// }
 		}
 	};
 

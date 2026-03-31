@@ -1,21 +1,23 @@
 <?php
-
 namespace App\Http\Controllers;
 
 use App\Http\Resources\UserResource;
+use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class FileController extends Controller
 {
+    use ApiResponse;
+
     public function uploadProfilePicture(Request $request)
     {
         $request->validate([
             'avatar_url' => ['required', 'image'],
         ]);
 
-        $path = $request->file('avatar_url')->store('avatars', 's3');
+        $path      = $request->file('avatar_url')->store('avatars', 's3');
         $avatarURL = Storage::disk('s3')->url($path);
 
         $user = Auth::user();
@@ -27,8 +29,8 @@ class FileController extends Controller
         }
 
         return response()->json([
-            'user' => new UserResource(Auth::user()->load(['student', 'faculty'])),
-            'token' => $request->bearerToken()
+            'user'  => new UserResource(Auth::user()->load(['student', 'faculty'])),
+            'token' => $request->bearerToken(),
         ], 200);
     }
 
@@ -36,14 +38,14 @@ class FileController extends Controller
     {
         $user = Auth::user();
 
-        if (!$user || !$user->avatar_url) {
+        if (! $user || ! $user->avatar_url) {
             return response()->json([
-                'user' => new UserResource(Auth::user()->load(['student', 'faculty'])),
+                'user'  => new UserResource(Auth::user()->load(['student', 'faculty'])),
                 'token' => $request->bearerToken(),
             ], 200);
         }
 
-        $url = $user->avatar_url;
+        $url  = $user->avatar_url;
         $path = parse_url($url, PHP_URL_PATH) ?? '';
         $path = ltrim($path, '/');
 
@@ -54,10 +56,10 @@ class FileController extends Controller
 
         if (empty($path)) {
             $baseUrl = rtrim(Storage::disk('s3')->url(''), '/');
-            $path = ltrim(str_replace($baseUrl, '', $url), '/');
+            $path    = ltrim(str_replace($baseUrl, '', $url), '/');
         }
 
-        if (!empty($path)) {
+        if (! empty($path)) {
             Storage::disk('s3')->delete($path);
         }
 
@@ -66,7 +68,7 @@ class FileController extends Controller
         ]);
 
         return response()->json([
-            'user' => new UserResource(Auth::user()->load(['student', 'faculty'])),
+            'user'  => new UserResource(Auth::user()->load(['student', 'faculty'])),
             'token' => $request->bearerToken(),
         ], 200);
     }
@@ -78,18 +80,18 @@ class FileController extends Controller
                 'file' => ['required', 'mimes:pdf,doc,docx', 'max:10240'],
             ], [
                 'file.required' => 'Please upload a file.',
-                'file.mimes' => 'Only PDF, DOC, or DOCX files are allowed.',
-                'file.max' => 'File size must not exceed 10MB.',
+                'file.mimes'    => 'Only PDF, DOC, or DOCX files are allowed.',
+                'file.max'      => 'File size must not exceed 10MB.',
             ]);
 
-            $path = $request->file('file')->store('proposals', 's3');
-
-            return response()->json([
-                'url' => Storage::disk('s3')->url($path),
-            ]);
+            $path = $request->file('file')->store('proposals', 'public');
+            return $this->successResponse(
+                "Proposals is stored successfully",
+                ['url' => "storage/$path"],
+            );
         }
 
-        return response()->json(['error' => 'No file received'], 400);
+        return $this->errorResponse("File upload failed", 400);
     }
 
     public function deleteFromS3(Request $request)
@@ -97,26 +99,7 @@ class FileController extends Controller
         $request->validate([
             'url' => ['required', 'url'],
         ]);
-
-        $url = $request->input('url');
-
-        // Try to extract the object key from the URL path
-        $path = parse_url($url, PHP_URL_PATH) ?? '';
-        $path = ltrim($path, '/');
-
-        $bucket = config('filesystems.disks.s3.bucket') ?? '';
-        if ($bucket && strpos($path, $bucket . '/') === 0) {
-            $path = substr($path, strlen($bucket) + 1);
-        }
-
-        if (empty($path)) {
-            $baseUrl = rtrim(Storage::disk('s3')->url(''), '/');
-            $path = ltrim(str_replace($baseUrl, '', $url), '/');
-        }
-
-        if (empty($path)) {
-            return response()->json(['error' => 'Could not determine S3 object key from provided URL'], 400);
-        }
+        $path = "";
 
         $deleted = Storage::disk('s3')->delete($path);
 

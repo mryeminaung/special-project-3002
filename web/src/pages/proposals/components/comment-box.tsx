@@ -8,8 +8,7 @@ import { useAuthStore } from "@/stores/use-auth-store";
 import type { Comment } from "@/types";
 import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IconRefresh } from "@tabler/icons-react";
-import { Loader2, MessageSquareIcon, SendIcon } from "lucide-react";
+import { MessageSquareIcon, SendIcon } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -32,7 +31,6 @@ export default function CommentBox({
 }) {
 	const authUser = useAuthStore((state) => state.authUser);
 	const isStudentAffair = HasRole("Student Affairs");
-	const [isRefreshing, setIsRefreshing] = useState(false);
 	const [comments, setComments] = useState<Comment[]>([]);
 	const isPendingProposal = proposalStatus === "pending";
 
@@ -44,21 +42,6 @@ export default function CommentBox({
 	useEffect(() => {
 		fetchInitialCommits();
 	}, []);
-
-	const handleRefresh = async () => {
-		setIsRefreshing(true);
-		try {
-			fetchInitialCommits();
-		} finally {
-			setTimeout(() => setIsRefreshing(false), 500);
-		}
-	};
-
-	// const handleEdit = async (commentId: number, newDescription: string) => {
-	// 	const res = await api.put(`/comments/${commentId}`, {
-	// 		description: newDescription,
-	// 	});
-	// };
 
 	const handleDelete = async (commentId: number) => {
 		const res = await api.delete(`/comments/${commentId}`);
@@ -112,25 +95,12 @@ export default function CommentBox({
 							</Badge>
 						)}
 					</CardTitle>
-					{isPendingProposal && (
-						<Button
-							className="hover:cursor-pointer bg-primary-600 hover:bg-primary-600/80 ml-auto hover:text-white text-white"
-							onClick={handleRefresh}
-							variant={"outline"}>
-							{isRefreshing ? (
-								<Loader2 className="h-4 w-4 animate-spin" />
-							) : (
-								<IconRefresh className="h-4 w-4" />
-							)}
-							<span>{isRefreshing ? "Refreshing..." : "Refresh"}</span>
-						</Button>
-					)}
 				</div>
 			</CardHeader>
 
 			<CardContent className="space-y-4">
 				{/* Comments List */}
-				<div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+				<div className="space-y-4 max-h-125 overflow-y-auto pr-2">
 					<AnimatePresence>
 						{comments.length === 0 ? (
 							<>
@@ -221,7 +191,7 @@ export default function CommentBox({
 							<Textarea
 								{...register("description")}
 								placeholder="Write your feedback..."
-								className="min-h-[100px] focus-visible:ring-primary-600"
+								className="min-h-25 focus-visible:ring-primary-600"
 							/>
 							<div className="flex justify-end">
 								<motion.div whileTap={{ scale: 0.98 }}>

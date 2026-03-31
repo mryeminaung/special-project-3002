@@ -1,9 +1,7 @@
-import { Avatar } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { cn, PROJECT_STATUS_COLOR } from "@/lib/utils";
 import { ShieldCheckIcon } from "@heroicons/react/24/solid";
-import { AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { Users } from "lucide-react";
 import { Link } from "react-router";
 
@@ -18,28 +16,20 @@ type ProjectCardProps = {
 	project?: {
 		id: string;
 		name: string;
+		slug: string;
 		description: string;
-		status: "under review" | "completed";
-		supervisor: ProjectMember;
-		members: ProjectMember[];
-		projectCount: number;
-		createdAt: string;
+		status: "under_review" | "completed" | "active";
+		supervisor: string;
+		membersCount: number;
+		startedAt: string;
 	};
 };
 
 export function ProjectCard({ project }: ProjectCardProps) {
-	const getInitials = (name: string) => {
-		return name
-			.split(" ")
-			.map((n) => n[0])
-			.join("")
-			.toUpperCase();
-	};
-
 	if (!project) return null;
 
 	return (
-		<Link to={`/projects/my-projects/${project.description}/detail`}>
+		<Link to={`/projects/student/${project.slug}`}>
 			<Card className="border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
 				{/* Project Title and Status */}
 				<CardContent>
@@ -64,7 +54,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
 						<ShieldCheckIcon className="h-5 w-5 text-primary-600" />
 						<p className="flex flex-row gap-x-2">
 							<span>Supervisor . </span>
-							<span>{project.supervisor.name}</span>
+							<span>{project.supervisor}</span>
 						</p>
 					</div>
 
@@ -75,28 +65,8 @@ export function ProjectCard({ project }: ProjectCardProps) {
 
 							<div className="flex flex-col gap-1">
 								<p className="flex items-center gap-x-3">
-									<span>{project.members.length} Members</span>
-									<Badge className="bg-primary-600 text-xs hidden">
-										{project.members.length}
-									</Badge>
+									<span>{project.membersCount} Members</span>
 								</p>
-
-								{/* members badge */}
-								<div className="-space-x-1 flex overflow-hidden">
-									{project.members.slice(0, 4).map((member) => (
-										<Avatar
-											key={member.id}
-											className="inline-block h-6 w-6 rounded-full ring-2 ring-background bg-primary-600 text-center text-white">
-											<AvatarImage
-												src={member.avatar}
-												alt={member.name}
-											/>
-											<AvatarFallback className="text-xs">
-												{getInitials(member.name)}
-											</AvatarFallback>
-										</Avatar>
-									))}
-								</div>
 							</div>
 						</div>
 					</div>

@@ -2,7 +2,7 @@ import api from "@/api/api";
 import Heading from "@/components/heading";
 import PageWrapper from "@/components/page-wrapper";
 import { useQuery } from "@tanstack/react-query";
-import AssignedProjectsTable from "./components/assigned-projects-table";
+import AssignedProjectsTable from "../components/assigned-projects-table";
 
 type User = {
 	id: number;

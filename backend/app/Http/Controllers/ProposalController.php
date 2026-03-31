@@ -26,6 +26,7 @@ class ProposalController extends Controller
 
     public function store(ProposalRequest $request)
     {
+
         $user                 = Auth::user();
         $data                 = $request->validated();
         $data['slug']         = Str::slug($data['title'], '-');
@@ -91,7 +92,7 @@ class ProposalController extends Controller
         return response()->json(['message' => 'Proposal Rejected!']);
     }
 
-    public function detail(Proposal $proposal)
+    public function show(Proposal $proposal)
     {
         if ($proposal->type === 'student') {
             if ($proposal->student_id !== null) {

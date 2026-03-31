@@ -73,7 +73,7 @@ export default function EventCard({
 							Create a New Proposal
 						</Link>
 						<Link
-							to={""}
+							to={"/project-proposals/faculties"}
 							className="cursor-pointer rounded-full bg-primary-600 px-5 py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-primary-700 hover:shadow-md">
 							Browse Faculty Proposals
 						</Link>

@@ -16,12 +16,15 @@ class ProposalResource extends JsonResource
         return [
             'id'          => $this->id,
             'title'       => $this->title,
+            'slug'        => $this->slug,
+            'description' => $this->description,
             'supervisor'  => $this->whenLoaded('supervisor', function ($supervisor) {
                 return [
                     'id'   => $supervisor->id,
                     'name' => $supervisor->name,
                 ];
             }),
+            'submittedBy' => new MemberResource(($this->leader)),
             // 'members'     => MemberResource::collection($this->getRelation('members')),
             'status'      => $this->status,
             'submittedAt' => $this->submitted_at->format('d-m-Y'),
