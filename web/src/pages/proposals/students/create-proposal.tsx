@@ -33,7 +33,7 @@ const ProposalSchema = z.object({
 	description: z
 		.string()
 		.min(20, "Please provide a more detailed description")
-		.max(500, "Please provide a clear and concise description"),
+		.max(1000, "Please provide a clear and concise description"),
 
 	supervisor_id: z.string().min(1, "Please select a project supervisor"),
 	project_type: z.string().min(1, "Please select a project type"),
@@ -79,11 +79,8 @@ export default function CreateProposalPage() {
 	const fileUploadRef = useRef<FileUploadHandle | null>(null);
 
 	const navigate = useNavigate();
-	console.log(isSubmitting);
-	console.log(errors);
 	
 	const onSubmit = async (data: z.infer<typeof ProposalSchema>) => {
-		console.log("hit");
 
 		const formattedData = {
 			...data,
@@ -92,21 +89,21 @@ export default function CreateProposalPage() {
 		};
 		
 		try {
-			const res = await api.post("/proposals/create", formattedData);
+			const res = await api.post("/proposals", formattedData);
 			if (res.status === 201) {
 				navigate("/project-proposals/my-proposals");
 			}
 		} catch (error: any) {
 			const validationErrors = error.response?.data?.errors;
 			console.log(validationErrors);
-			// if (error.response.data.message) toast.error(error.response.data.message);
+			if (error.response.data.message) toast.error(error.response.data.message);
 
-			// if (validationErrors?.title) {
-			// 	setError("title", {
-			// 		type: "manual",
-			// 		message: validationErrors.title,
-			// 	});
-			// }
+			if (validationErrors?.title) {
+				setError("title", {
+					type: "manual",
+					message: validationErrors.title,
+				});
+			}
 		}
 	};
 

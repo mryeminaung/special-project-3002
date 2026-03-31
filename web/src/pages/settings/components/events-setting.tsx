@@ -27,6 +27,7 @@ export default function EventsSetting() {
 	}, [fetchEventStatuses]);
 
 	const handleEventToggle = async () => {
+		console.log("hit");
 		await toggleEnrollmentWindow(activeTab);
 	};
 

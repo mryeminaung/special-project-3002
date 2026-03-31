@@ -136,6 +136,19 @@ export const useEventStore = create<EventStoreState>()(
 				}
 
 				if (!eventId) {
+					await api.post<ApiSuccessResponse<BackendProjectEvent>>(
+						"/project-events",
+						{
+							title: null,
+							detail: null,
+							type: eventTypeToBackend[eventType],
+							start_date: null,
+							end_date: null,
+							is_active: true,
+						},
+					);
+
+					await get().fetchEventStatuses();
 					return;
 				}
 

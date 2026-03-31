@@ -175,7 +175,7 @@ export default function StudentProposalDetailPage() {
 								<Card className="border-gray-200 shadow-sm">
 									<CardHeader>
 										<CardTitle className="flex items-center gap-2 text-lg">
-											Project Description
+											Proposal Description
 										</CardTitle>
 									</CardHeader>
 									<CardContent>{proposal.description}</CardContent>
