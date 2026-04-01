@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Enums\ProjectProgressStatus;
 use App\Http\Resources\UserResource;
 use App\Models\Project;
 use App\Traits\ApiResponse;
@@ -95,8 +96,10 @@ class FileController extends Controller
                     $url = "storage/$path";
                     if ($type === 'mid') {
                         $project->mid_report_url = $url;
+                        $project->mid_report     = ProjectProgressStatus::Submitted->value;
                     } elseif ($type === 'final') {
                         $project->final_report_url = $url;
+                        $project->final_report     = ProjectProgressStatus::Submitted->value;
                     }
                     $project->save();
                 }
@@ -157,6 +160,11 @@ class FileController extends Controller
         }
 
         $project->{$reportField} = null;
+        if ($validated['type'] === 'mid') {
+            $project->mid_report = ProjectProgressStatus::Not_Submitted->value;
+        } else {
+            $project->final_report = ProjectProgressStatus::Not_Submitted->value;
+        }
         $project->save();
 
         return $this->successResponse("Report deleted successfully", null);

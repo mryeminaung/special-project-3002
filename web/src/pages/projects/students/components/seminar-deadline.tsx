@@ -1,0 +1,147 @@
+import api from "@/api/api";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useQueryClient } from "@tanstack/react-query";
+import { Loader2, Save } from "lucide-react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+
+type SeminarCardProps = {
+	slug: string;
+	midSeminarDeadline?: string | null;
+	finalSeminarDeadline?: string | null;
+};
+
+function toInputDateTime(value?: string | null): string {
+	if (!value) return "";
+	const parsedDate = new Date(value);
+
+	if (!Number.isNaN(parsedDate.getTime())) {
+		const year = parsedDate.getFullYear();
+		const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
+		const day = String(parsedDate.getDate()).padStart(2, "0");
+		const hours = String(parsedDate.getHours()).padStart(2, "0");
+		const minutes = String(parsedDate.getMinutes()).padStart(2, "0");
+		return `${year}-${month}-${day}T${hours}:${minutes}`;
+	}
+
+	return value.replace(" ", "T").slice(0, 16);
+}
+
+function formatDisplayDateTime(value?: string | null): string {
+	if (!value) return "Not scheduled";
+	const date = new Date(value);
+
+	if (Number.isNaN(date.getTime())) return "Not scheduled";
+
+	return date.toLocaleString(undefined, {
+		month: "short",
+		day: "numeric",
+		year: "numeric",
+		hour: "numeric",
+		minute: "2-digit",
+		hour12: true,
+	});
+}
+
+export default function SeminarDeadline({
+	slug,
+	midSeminarDeadline,
+	finalSeminarDeadline,
+}: SeminarCardProps) {
+	const queryClient = useQueryClient();
+	const [isSaving, setIsSaving] = useState(false);
+	const [midDeadline, setMidDeadline] = useState(
+		toInputDateTime(midSeminarDeadline),
+	);
+	const [finalDeadline, setFinalDeadline] = useState(
+		toInputDateTime(finalSeminarDeadline),
+	);
+
+	useEffect(() => {
+		setMidDeadline(toInputDateTime(midSeminarDeadline));
+		setFinalDeadline(toInputDateTime(finalSeminarDeadline));
+	}, [finalSeminarDeadline, midSeminarDeadline]);
+
+	const saveSeminarDeadlines = async () => {
+		if (!midDeadline || !finalDeadline) {
+			toast.error("Please select both mid-term and final seminar deadlines.");
+			return;
+		}
+
+		try {
+			setIsSaving(true);
+			await api.patch(`/projects/${slug}/seminar-deadlines`, {
+				midSeminarDeadline: midDeadline,
+				finalSeminarDeadline: finalDeadline,
+			});
+
+			await queryClient.invalidateQueries({
+				queryKey: ["projectDetail", slug],
+			});
+
+			toast.success("Seminar deadlines updated successfully.");
+		} catch (error: any) {
+			const message =
+				error?.response?.data?.message || "Failed to update seminar deadlines.";
+			toast.error(message);
+		} finally {
+			setIsSaving(false);
+		}
+	};
+
+	return (
+		<Card className="border-gray-200 shadow-sm">
+			<CardHeader>
+				<CardTitle className="flex items-center gap-2 text-lg font-medium">
+					Set Seminar Deadlines
+				</CardTitle>
+			</CardHeader>
+			<CardContent className="space-y-4">
+				<div className="grid grid-cols-2 gap-5">
+					<div className="space-y-2">
+						<label
+							htmlFor="mid-seminar-deadline"
+							className="text-sm font-medium text-foreground">
+							Mid-term seminar deadline
+						</label>
+						<input
+							id="mid-seminar-deadline"
+							type="datetime-local"
+							value={midDeadline}
+							onChange={(event) => setMidDeadline(event.target.value)}
+							className="border-input bg-background mt-2 w-full rounded-md border px-3 py-2 text-sm"
+						/>
+					</div>
+
+					<div className="space-y-2">
+						<label
+							htmlFor="final-seminar-deadline"
+							className="text-sm font-medium  text-foreground">
+							Final seminar deadline
+						</label>
+						<input
+							id="final-seminar-deadline"
+							type="datetime-local"
+							value={finalDeadline}
+							onChange={(event) => setFinalDeadline(event.target.value)}
+							className="border-input bg-background mt-2 w-full rounded-md border px-3 py-2 text-sm"
+						/>
+					</div>
+				</div>
+
+				<button
+					type="button"
+					onClick={() => void saveSeminarDeadlines()}
+					disabled={isSaving}
+					className="bg-primary-600 text-white hover:bg-primary-500 inline-flex w-full items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-semibold disabled:cursor-not-allowed disabled:opacity-70">
+					{isSaving ? (
+						<Loader2 className="h-4 w-4 animate-spin" />
+					) : (
+						<Save className="h-4 w-4" />
+					)}
+					{isSaving ? "Saving..." : "Save deadlines"}
+				</button>
+			</CardContent>
+		</Card>
+	);
+}
