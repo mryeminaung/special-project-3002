@@ -21,7 +21,7 @@ type UserRole = "IC" | "Supervisor" | "Faculty" | "Student" | "Student Affairs";
 export const HasRole = (role: UserRole): boolean => {
 	const authUser = useAuthStore.getState().authUser;
 
-	return authUser?.role === role;
+	return authUser?.roles.includes(role);
 };
 
 export type ProposalStatus = "pending" | "rejected" | "approved";

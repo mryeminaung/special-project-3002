@@ -65,6 +65,7 @@ export interface ProjectData {
 	name: string;
 	slug: string;
 	description: string;
+	type: string;
 	supervisor: User;
 	leader: User;
 	members: User[];

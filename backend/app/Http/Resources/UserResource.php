@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
@@ -15,12 +14,12 @@ class UserResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'email' => $this->email,
+            'id'         => $this->id,
+            'name'       => $this->name,
+            'email'      => $this->email,
             'avatar_url' => $this->avatar_url,
-            'role' => $this->roles->pluck('name')->first(),
-            'status' => 'Active',
+            'roles'       => $this->roles->pluck('name'),
+            'status'     => 'Active',
             $this->mergeWhen($this->relationLoaded('student') && $this->student, function () use ($request) {
                 return (new StudentResource($this->student))->toArray($request);
             }),
@@ -35,7 +34,6 @@ class UserResource extends JsonResource
             // $this->mergeWhen($this->relationLoaded('faculty') && $this->faculty, [
             //     'faculty_info' => new FacultyResource($this->faculty),
             // ]),
-
 
             // 'student_info' => new StudentResource($this->whenLoaded('student')),
             // 'faculty_info' => new FacultyResource($this->whenLoaded('faculty'))

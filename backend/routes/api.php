@@ -60,6 +60,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get("/assigned-projects", 'assignedProjects');
         Route::get("/projects/me", 'studentProjects');
         Route::get("/projects/{project:slug}", 'show');
+        Route::patch("/projects/{project:slug}/change-status", 'changeStatus');
+        Route::patch("/projects/{project:slug}/seminar-deadlines", 'updateSeminarDeadlines');
+        Route::patch("/projects/{project:slug}/seminar-status", 'updateSeminarStatus');
+        Route::patch("/projects/{project:slug}/report-status", 'updateReportStatus');
     });
 
     Route::controller(FileController::class)->group(function () {

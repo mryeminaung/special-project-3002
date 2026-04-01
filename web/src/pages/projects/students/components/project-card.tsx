@@ -2,7 +2,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { cn, PROJECT_STATUS_COLOR } from "@/lib/utils";
 import { ShieldCheckIcon } from "@heroicons/react/24/solid";
-import { Users } from "lucide-react";
+import { CalendarIcon, Users } from "lucide-react";
 import { Link } from "react-router";
 
 type ProjectMember = {
@@ -15,11 +15,15 @@ type ProjectMember = {
 type ProjectCardProps = {
 	project?: {
 		id: string;
-		name: string;
+		title: string;
 		slug: string;
 		description: string;
 		status: "under_review" | "completed" | "active";
-		supervisor: string;
+		supervisor: {
+			id: string;
+			name: string;
+			email: string;
+		};
 		membersCount: number;
 		startedAt: string;
 	};
@@ -35,7 +39,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
 				<CardContent>
 					<div className="flex items-start justify-between">
 						<CardTitle className="line-clamp-1 text-lg font-semibold  mr-2">
-							{project.name}
+							{project.title}
 						</CardTitle>
 						<Badge
 							className={cn(
@@ -45,6 +49,10 @@ export function ProjectCard({ project }: ProjectCardProps) {
 							{project.status}
 						</Badge>
 					</div>
+					<span className="flex items-center text-sm gap-1.5">
+						<CalendarIcon className="h-4 w-4" />
+						Started at {project.startedAt}
+					</span>
 					<p className="line-clamp-2 mt-2 text-sm">{project.description}</p>
 				</CardContent>
 
@@ -54,7 +62,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
 						<ShieldCheckIcon className="h-5 w-5 text-primary-600" />
 						<p className="flex flex-row gap-x-2">
 							<span>Supervisor . </span>
-							<span>{project.supervisor}</span>
+							<span>{project.supervisor.name}</span>
 						</p>
 					</div>
 
