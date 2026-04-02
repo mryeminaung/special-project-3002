@@ -181,8 +181,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		navMain: [
 			...(HasRole("IC") ? tabs.IC : []),
 			...(HasRole("Student") ? tabs.Student : []),
-			...(HasRole("Student Affairs") ? tabs.StudentAffairs : []),
-			...(HasRole("Faculty") || HasRole("Supervisor") ? tabs.Faculty : []),
+			...((HasRole("Faculty") || HasRole("Supervisor")) && !HasRole("IC")
+				? tabs.Faculty
+				: []),
 		],
 	};
 

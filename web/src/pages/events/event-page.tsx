@@ -1,6 +1,7 @@
 import Heading from "@/components/heading";
 import PageWrapper from "@/components/page-wrapper";
 import { Button } from "@/components/ui/button";
+import { HasRole } from "@/lib/utils";
 import { useEventStore } from "@/stores/use-event-store";
 import {
 	IconTrash,
@@ -29,6 +30,8 @@ function formatDate(dateValue: string) {
 }
 
 export default function EventsPage() {
+	const isIC = HasRole("IC");
+
 	const eventConfigurations = useEventStore(
 		(state) => state.eventConfigurations,
 	);
@@ -111,21 +114,20 @@ export default function EventsPage() {
 								className="rounded-lg border bg-white p-4 shadow-sm">
 								<div className="flex items-start justify-between gap-3">
 									<p className="text-base font-semibold text-neutral-900">
-										{eventItem.label}
-									</p>
-									<p className="text-sm text-neutral-600">
 										{eventItem.configuration?.title}
 									</p>
-									<Button
-										type="button"
-										variant="destructive"
-										size="sm"
-										className="h-8 px-2.5"
-										onClick={() =>
-											deleteEventConfiguration(eventItem.eventType)
-										}>
-										<IconTrash size={14} />
-									</Button>
+									{isIC && (
+										<Button
+											type="button"
+											variant="destructive"
+											size="sm"
+											className="h-8 px-2.5"
+											onClick={() =>
+												deleteEventConfiguration(eventItem.eventType)
+											}>
+											<IconTrash size={14} />
+										</Button>
+									)}
 								</div>
 								<p className="mt-2 text-xs font-medium tracking-wide text-neutral-500">
 									Description

@@ -26,11 +26,17 @@ class DatabaseSeeder extends Seeder
 
         app()->make(PermissionRegistrar::class)->forgetCachedPermissions();
 
+        $adminRole          = Role::findByName('Admin');
         $icRole             = Role::findByName('IC');
         $studentAffairsRole = Role::findByName('Student Affairs');
         $supervisorRole     = Role::findByName('Supervisor');
         $studentRole        = Role::findByName('Student');
         $facultyRole        = Role::findByName('Faculty');
+
+        $adminUser = User::where('email', 'admin@miit.edu.mm')->first();
+        $adminUser->assignRole($adminRole);
+        $adminUser->save();
+        $adminUser->refresh();
 
         $icRole->syncPermissions(['approve proposal', 'reject proposal']);
 
@@ -47,7 +53,7 @@ class DatabaseSeeder extends Seeder
         $studentAffairs->refresh();
 
         $faculties = User::where('is_student', false)
-            ->offset(4)
+            ->offset(6)
             ->orderBy('id', 'desc')
             ->get();
         foreach ($faculties as $faculty) {

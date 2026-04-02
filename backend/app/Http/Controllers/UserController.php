@@ -55,7 +55,7 @@ class UserController extends Controller
         // Fetch users who are NOT students and do NOT have the Student Affairs role
         $users = User::where('is_student', false)
             ->whereDoesntHave('roles', function ($query) {
-                $query->where('name', 'Student Affairs');
+                $query->whereIn('name', ['Student Affairs', 'Admin']);
             })
             ->with('faculty')
             ->orderBy('id', 'asc')

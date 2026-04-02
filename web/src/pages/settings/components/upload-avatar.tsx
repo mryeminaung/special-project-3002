@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { IconCamera, IconLoader2 } from "@tabler/icons-react";
 import { useRef, useState } from "react";
-import toast from "react-hot-toast";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function ChangeAvatar() {
 	const authUser = useAuthStore((state) => state.authUser);
@@ -44,6 +44,7 @@ export default function ChangeAvatar() {
 			});
 			setAuth(res.data);
 			setUploadStatus("saved");
+			toast.success("Profile picture uploaded!");
 			setTimeout(() => setUploadStatus("idle"), 2000);
 		} catch (error) {
 			toast.error("Upload failed. Please try again.");
@@ -69,6 +70,7 @@ export default function ChangeAvatar() {
 
 	return (
 		<div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+			<Toaster />
 			<div className="flex items-center gap-4">
 				<Avatar className="size-20 border-2 border-primary-100">
 					{authUser?.avatar_url !== null ? (

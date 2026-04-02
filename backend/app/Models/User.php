@@ -81,4 +81,13 @@ class User extends Authenticatable
     {
         return $this->hasMany(Announcement::class, 'created_by');
     }
+
+    // public function getAvatarPathAttribute()
+    // {
+    //     if (! $this->avatar_url) {
+    //         return null; // Fallback to initials if no image exists
+    //     }
+
+    //     return asset('storage/' . $this->avatar_url);
+    // }
 }
