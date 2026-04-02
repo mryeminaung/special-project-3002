@@ -38,6 +38,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post("/proposals", 'store');
         Route::get("/proposals/me", 'myProposals');
         Route::get("/proposals/browse", 'browseProposals');
+        Route::get("/proposals/faculties", 'facultyProposals');
+        Route::post("/proposals/{proposal:slug}/join", 'joinFacultyProposal');
+        Route::post("/proposals/{proposal:slug}/applications/{student:id}/accept", 'acceptApplicant');
+        Route::post("/proposals/{proposal:slug}/applications/{student:id}/reject", 'rejectApplicant');
         Route::get("/proposals/{proposal:slug}", 'show');
         Route::delete("/proposals/{proposal:slug}", 'destroy');
         Route::post("/proposals/{proposal:slug}/approve", 'approveByIC');

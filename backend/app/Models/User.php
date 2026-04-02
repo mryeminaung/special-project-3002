@@ -74,11 +74,21 @@ class User extends Authenticatable
 
     public function teamProposals()
     {
-        return $this->belongsToMany(Proposal::class, 'proposal_student', 'user_id', 'proposal_id');
+        return $this->belongsToMany(Proposal::class, 'proposal_student', 'user_id', 'proposal_id')
+            ->wherePivot('status', 'accepted');
     }
 
     public function announcements()
     {
         return $this->hasMany(Announcement::class, 'created_by');
     }
+
+    // public function getAvatarPathAttribute()
+    // {
+    //     if (! $this->avatar_url) {
+    //         return null; // Fallback to initials if no image exists
+    //     }
+
+    //     return asset('storage/' . $this->avatar_url);
+    // }
 }

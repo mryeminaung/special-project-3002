@@ -17,7 +17,7 @@ class UserController extends Controller
                 $query->where('name', 'Faculty');
             })
             ->orderBy('id', 'asc')
-            ->offset(4)
+            ->offset(5)
             ->get();
 
         // Map to include department name
@@ -55,7 +55,7 @@ class UserController extends Controller
         // Fetch users who are NOT students and do NOT have the Student Affairs role
         $users = User::where('is_student', false)
             ->whereDoesntHave('roles', function ($query) {
-                $query->where('name', 'Student Affairs');
+                $query->whereIn('name', ['Student Affairs', 'Admin']);
             })
             ->with('faculty')
             ->orderBy('id', 'asc')

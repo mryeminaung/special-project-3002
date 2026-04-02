@@ -46,7 +46,7 @@ export default function ProposalsTable({
 						<TableRow>
 							<TableCell
 								colSpan={8}
-								className="text-center text-muted-foreground py-8">
+								className="text-center text-lg py-10 font-semibold">
 								No proposals found.
 							</TableCell>
 						</TableRow>

@@ -1,35 +1,35 @@
 import { useNavigate, useParams } from "react-router";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { cn, HasRole, PROPOSAL_STATUS_COLOR } from "@/lib/utils";
+import { HasRole } from "@/lib/utils";
 
 import {
-	ArrowLeftIcon,
-	CalendarIcon,
 	CheckBadgeIcon,
 	DocumentTextIcon,
-	EnvelopeIcon,
 	HandThumbDownIcon,
 	HandThumbUpIcon,
-	UserIcon,
 } from "@heroicons/react/24/outline";
 
-import { Download, Loader2, ShieldCheck, TrashIcon } from "lucide-react";
+import { CalendarIcon, Loader2, TrashIcon } from "lucide-react";
 
 import api from "@/api/api";
 import { PencilSquareIcon } from "@heroicons/react/24/solid";
-import { IconUsersGroup } from "@tabler/icons-react";
 import { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
+import DownloadFile from "@/components/download-file";
+import NavigateTo from "@/components/navigate-to";
+import StatusCard from "@/components/status-card";
+import SubmitterCard from "@/components/submitter-card";
+import SupervisorCard from "@/components/supervisor-card";
+import TeamMembers from "@/components/team-members";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useQuery } from "@tanstack/react-query";
-import ApprovalModal from "../components/approval-modal";
-import CommentBox from "../components/comment-box";
-import type { ProposalDetail } from "./students.type";
+import ApprovalModal from "../../components/approval-modal";
+import CommentBox from "../../components/comment-box";
+import type { ProposalDetail } from "../students.type";
 
 export default function StudentProposalDetailPage() {
 	const navigate = useNavigate();
@@ -100,13 +100,10 @@ export default function StudentProposalDetailPage() {
 				onComplete={handleApprovalModalComplete}
 			/>
 			<div className="mx-auto max-w-7xl">
-				<Button
-					onClick={() => navigate(-1)}
-					variant="ghost"
-					className="mb-4 flex bg-primary-600 hover:bg-primary-500 text-white hover:cursor-pointer hover:text-white items-center gap-2">
-					<ArrowLeftIcon className="h-4 w-4" />
-					Back to Proposals
-				</Button>
+				<NavigateTo
+					to="/project-proposals"
+					label="Back to Proposals"
+				/>
 
 				{!proposal ? (
 					<div className="flex flex-col items-center justify-center py-20">
@@ -119,34 +116,27 @@ export default function StudentProposalDetailPage() {
 					<>
 						<Card className="mb-4 border-gray-200 shadow-sm">
 							<CardContent className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-								<div>
-									<h1 className="text-2xl font-bold ">{proposal.title}</h1>
-									<div className="mt-2 flex flex-wrap items-center gap-3 text-sm">
-										<Badge
-											className={cn(
-												PROPOSAL_STATUS_COLOR(proposal.status),
-												"font-mono capitalize px-3 rounded-md",
-											)}>
-											{proposal.status}
-										</Badge>
-										<Badge
-											className={cn(
-												PROPOSAL_STATUS_COLOR(proposal.status),
-												"font-mono capitalize px-3 rounded-md",
-											)}>
-											{proposal.type}
-										</Badge>
-										<Badge
-											className={cn(
-												PROPOSAL_STATUS_COLOR(proposal.status),
-												"font-mono capitalize px-3 rounded-md",
-											)}>
-											{proposal.projectType}
-										</Badge>
-										<span className="flex items-center gap-1.5">
-											<CalendarIcon className="h-4 w-4" />
-											Submitted on {proposal.submittedAt}
-										</span>
+								<div className="space-y-2">
+									<h1 className="text-2xl font-bold ">
+										Title: {proposal.title}
+									</h1>
+									<span className="flex items-center gap-1.5 text-sm">
+										<CalendarIcon className="h-4 w-4" />
+										Submitted on {proposal.submittedAt}
+									</span>
+									<div className="mt-2 flex flex-wrap items-center gap-5 text-sm">
+										<StatusCard
+											label="Proposal Status:"
+											status={proposal.status}
+										/>
+										<StatusCard
+											label="Applied Type:"
+											status={proposal.type}
+										/>
+										<StatusCard
+											label="Project Type:"
+											status={proposal.projectType}
+										/>
 									</div>
 								</div>
 								{proposal.status === "pending" &&
@@ -201,18 +191,7 @@ export default function StudentProposalDetailPage() {
 												</div>
 											</div>
 
-											<Button
-												asChild
-												className="w-full sm:w-fit gap-2 bg-primary-600 font-semibold text-white hover:bg-primary-500 hover:cursor-pointer">
-												<a
-													href={proposal.file}
-													target="_blank"
-													rel="noopener noreferrer"
-													download>
-													<Download className="h-4 w-4" />
-													Download
-												</a>
-											</Button>
+											<DownloadFile fileUrl={proposal.file} />
 										</div>
 									</CardContent>
 								</Card>
@@ -223,65 +202,25 @@ export default function StudentProposalDetailPage() {
 							</div>
 
 							<div className="space-y-4">
-								<Card className="border-gray-200 shadow-sm">
-									<CardHeader>
-										<CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest">
-											<ShieldCheck className="size-5 stroke-2 text-primary-600" />
-											Supervisor
-										</CardTitle>
-									</CardHeader>
-									<CardContent>
-										<p className="font-semibold">{proposal.supervisor.name}</p>
-										<p className="flex items-center gap-1.5 text-sm">
-											<EnvelopeIcon className="h-3.5 w-3.5" />
-											{proposal.supervisor.email}
-										</p>
-									</CardContent>
-								</Card>
+								<SupervisorCard
+									label="Supervisor"
+									name={proposal.supervisor.name}
+									email={proposal.supervisor.email}
+								/>
 
 								{/* submiiter */}
 								<div className="space-y-6">
-									<Card className="border-gray-200 shadow-sm">
-										<CardHeader>
-											<CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest">
-												<UserIcon className="size-5 stroke-2 text-primary-600" />
-												Submitted by
-											</CardTitle>
-										</CardHeader>
-										<CardContent className="space-y-1">
-											<p className="font-semibold">
-												{proposal.submittedBy.name}
-											</p>
-											<p className="flex items-center gap-1.5 text-sm">
-												<EnvelopeIcon className="h-3.5 w-3.5" />
-												{proposal.submittedBy.email}
-											</p>
-										</CardContent>
-									</Card>
+									<SubmitterCard
+										label="Submitted by"
+										name={proposal.submittedBy.name}
+										email={proposal.submittedBy.email}
+									/>
 
 									{/* members */}
-									<Card className="border-gray-200 shadow-sm">
-										<CardHeader>
-											<CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest">
-												<IconUsersGroup className="size-5 stroke-2 text-primary-600" />
-												Team Members
-												<Badge className="bg-primary-500 h-5 min-w-5 rounded-full px-1 font-mono tabular-nums text-xs text-center">
-													{proposal?.members.length}
-												</Badge>
-											</CardTitle>
-										</CardHeader>
-										<CardContent className="space-y-3">
-											{proposal.members.map((student) => (
-												<div key={student.id}>
-													<p className="font-medium">{student.name}</p>
-													<p className="flex items-center gap-1.5 truncate text-sm  ">
-														<EnvelopeIcon className="h-3.5 w-3.5" />
-														{student.email}
-													</p>
-												</div>
-											))}
-										</CardContent>
-									</Card>
+									<TeamMembers
+										label="Team Members"
+										members={proposal?.members}
+									/>
 
 									{isIC && proposal.status === "pending" && (
 										<Card className="border-gray-200 shadow-sm">

@@ -28,6 +28,44 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	// const { isMobile } = useSidebar();
 	const authUser = useAuthStore((state) => state.authUser);
 
+	const adminTabs = [
+		{
+			title: "Dashboard",
+			url: "/dashboard",
+			icon: IconLayoutDashboard,
+		},
+		{
+			title: "Events",
+			url: "/events",
+			icon: IconCalendarEvent,
+		},
+		{
+			title: "Project Areas",
+			url: "/project-proposals",
+			icon: IconFileDescription,
+		},
+		{
+			title: "Students",
+			url: "/students",
+			icon: ShieldCheckIcon,
+		},
+		{
+			title: "Faculties",
+			url: "/faculties",
+			icon: ShieldCheckIcon,
+		},
+		{
+			title: "Departments",
+			url: "/projects",
+			icon: IconListDetails,
+		},
+		{
+			title: "Settings",
+			url: "/settings",
+			icon: IconSettings,
+		},
+	];
+
 	const icTabs = [
 		{
 			title: "Dashboard",
@@ -89,7 +127,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		},
 		{
 			title: "Browse Proposals",
-			url: "/project-proposals/my",
+			url: "/project-proposals/browse",
 			icon: IconDeviceTabletSearch,
 		},
 		{
@@ -122,7 +160,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		},
 		{
 			title: "My Proposals",
-			url: "/project-proposals/my-proposals",
+			url: "/project-proposals/me",
 			icon: IconFileDescription,
 		},
 		{
@@ -167,6 +205,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
 	const tabs = {
 		IC: [...icTabs],
+		Admin: [...adminTabs],
 		Faculty: [...supervisorTabs],
 		Student: [...studentTabs],
 		StudentAffairs: [...studentAffairTabs],
@@ -180,9 +219,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		},
 		navMain: [
 			...(HasRole("IC") ? tabs.IC : []),
+			...(HasRole("Admin") ? tabs.Admin : []),
 			...(HasRole("Student") ? tabs.Student : []),
-			...(HasRole("Student Affairs") ? tabs.StudentAffairs : []),
-			...(HasRole("Faculty") || HasRole("Supervisor") ? tabs.Faculty : []),
+			...((HasRole("Faculty") || HasRole("Supervisor")) &&
+			!HasRole("Admin") &&
+			!HasRole("IC")
+				? tabs.Faculty
+				: []),
 		],
 	};
 

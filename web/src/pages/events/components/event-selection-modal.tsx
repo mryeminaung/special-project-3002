@@ -98,7 +98,7 @@ export default function EventSelectionModal({
 
 			<DialogContent className="sm:max-w-md">
 				<DialogHeader>
-					<DialogTitle>{eventTitle} Setup</DialogTitle>
+					<DialogTitle>{eventTitle} Event</DialogTitle>
 				</DialogHeader>
 
 				<div className="grid gap-4">

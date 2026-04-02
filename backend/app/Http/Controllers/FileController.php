@@ -8,6 +8,7 @@ use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class FileController extends Controller
 {
@@ -19,8 +20,8 @@ class FileController extends Controller
             'avatar_url' => ['required', 'image'],
         ]);
 
-        $path      = $request->file('avatar_url')->store('avatars', 's3');
-        $avatarURL = Storage::disk('s3')->url($path);
+        $path      = $request->file('avatar_url')->store('avatars', 'public');
+        $avatarURL = 'storage/' . $path;
 
         $user = Auth::user();
 
@@ -48,21 +49,13 @@ class FileController extends Controller
         }
 
         $url  = $user->avatar_url;
-        $path = parse_url($url, PHP_URL_PATH) ?? '';
-        $path = ltrim($path, '/');
-
-        $bucket = config('filesystems.disks.s3.bucket') ?? '';
-        if ($bucket && strpos($path, $bucket . '/') === 0) {
-            $path = substr($path, strlen($bucket) + 1);
-        }
-
-        if (empty($path)) {
-            $baseUrl = rtrim(Storage::disk('s3')->url(''), '/');
-            $path    = ltrim(str_replace($baseUrl, '', $url), '/');
+        $path = ltrim($url, '/');
+        if (strpos($path, 'storage/') === 0) {
+            $path = substr($path, strlen('storage/'));
         }
 
         if (! empty($path)) {
-            Storage::disk('s3')->delete($path);
+            Storage::disk('public')->delete($path);
         }
 
         $user->update([
@@ -86,9 +79,14 @@ class FileController extends Controller
                 'file.max'      => 'File size must not exceed 10MB.',
             ]);
 
+            $file = $request->file('file');
+
+            $originalName = $file->getClientOriginalName();
+            $fileName     = time() . '_' . Str::slug(pathinfo($originalName, PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
+
             $type = $request->input('type');
             $slug = $request->input('slug');
-            $path = $request->file('file')->store("reports/$type", 'public');
+            $path = $file->storeAs("reports/$type", $fileName, 'public');
 
             if ($slug) {
                 $project = Project::where('slug', $slug)->first();
@@ -125,7 +123,13 @@ class FileController extends Controller
                 'file.max'      => 'File size must not exceed 10MB.',
             ]);
 
-            $path = $request->file('file')->store('proposals', 'public');
+            $file = $request->file('file');
+
+            $originalName = $file->getClientOriginalName();
+            $fileName     = time() . '_' . Str::slug(pathinfo($originalName, PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
+
+            $path = $file->storeAs('proposals', $fileName, 'public');
+
             return $this->successResponse(
                 "Proposals is stored successfully",
                 ['url' => "storage/$path"],
@@ -168,21 +172,5 @@ class FileController extends Controller
         $project->save();
 
         return $this->successResponse("Report deleted successfully", null);
-    }
-
-    public function deleteFromS3(Request $request)
-    {
-        $request->validate([
-            'url' => ['required', 'url'],
-        ]);
-        $path = "";
-
-        $deleted = Storage::disk('s3')->delete($path);
-
-        if ($deleted) {
-            return response()->json(['success' => true]);
-        }
-
-        return response()->json(['error' => 'Delete failed or file not found'], 400);
     }
 }

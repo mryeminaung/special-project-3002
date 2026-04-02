@@ -16,7 +16,13 @@ export const useHeader = () => {
 	return { tabTitle, setTabTitle, siteHeader, setSiteHeader };
 };
 
-type UserRole = "IC" | "Supervisor" | "Faculty" | "Student" | "Student Affairs";
+type UserRole =
+	| "Admin"
+	| "IC"
+	| "Supervisor"
+	| "Faculty"
+	| "Student"
+	| "Student Affairs";
 
 export const HasRole = (role: UserRole): boolean => {
 	const authUser = useAuthStore.getState().authUser;

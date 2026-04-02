@@ -22,6 +22,10 @@ class CreateProjectFromProposal
     {
         $proposal = $event->proposal;
 
+        if (Project::where('proposal_id', $proposal->id)->exists()) {
+            return;
+        }
+
         // Transform Proposal to Project
         $project = Project::create([
             'name'          => $proposal->title,
@@ -45,9 +49,6 @@ class CreateProjectFromProposal
         if (! $project->supervisor->hasRole('Supervisor')) {
             $project->supervisor->assignRole('Supervisor');
         }
-
-        // Project Leader Role Assignment
-        // $project->leader->assignRole('Project Leader');
 
         // Sync the team members
         $memberIds = $proposal->members()->pluck('user_id');
