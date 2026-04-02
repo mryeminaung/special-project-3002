@@ -15,7 +15,20 @@ class Proposal extends Model
 
     public function members()
     {
-        return $this->belongsToMany(User::class, 'proposal_student', 'proposal_id', 'user_id');
+        return $this->belongsToMany(User::class, 'proposal_student', 'proposal_id', 'user_id')
+            ->wherePivot('status', 'accepted');
+    }
+
+    public function applicants()
+    {
+        return $this->belongsToMany(User::class, 'proposal_student', 'proposal_id', 'user_id')
+            ->wherePivot('status', 'pending');
+    }
+
+    public function applications()
+    {
+        return $this->belongsToMany(User::class, 'proposal_student', 'proposal_id', 'user_id')
+            ->withPivot('status');
     }
 
     public function supervisor()
@@ -31,6 +44,11 @@ class Proposal extends Model
     public function comments()
     {
         return $this->hasMany(Comment::class, "proposal_id", "id");
+    }
+
+    public function project()
+    {
+        return $this->hasOne(Project::class, 'proposal_id');
     }
 
     protected $casts = [

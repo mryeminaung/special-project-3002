@@ -98,7 +98,8 @@ export function LoginForm() {
 						<img
 							key={theme}
 							src={
-								theme === "dark" ? "/wordmark_light_text.png" : "/wordmark.png"
+								"/login-pic.png"
+								// theme === "dark" ? "/wordmark_light_text.png" : "/wordmark.png"
 							}
 							alt="MIIT SPMS Logo"
 							className="max-h-36 w-full md:max-w-3xl object-contain"

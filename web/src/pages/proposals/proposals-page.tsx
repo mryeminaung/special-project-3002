@@ -27,7 +27,9 @@ export default function ProjectsProposalPage() {
 		staleTime: 30_000,
 	});
 
-	if (!HasRole("IC") && !HasRole("Student Affairs")) return <UnAuthorized />;
+	console.log();
+
+	if (!HasRole("IC")) return <UnAuthorized />;
 
 	return (
 		<PageWrapper>

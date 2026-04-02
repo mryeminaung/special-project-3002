@@ -20,7 +20,7 @@ export default function ProjectsPage() {
 		queryFn: getProjects,
 	});
 
-	if (HasRole("Student Affairs") || HasRole("IC") || HasRole("Supervisor")) {
+	if (HasRole("IC")) {
 		return (
 			<PageWrapper>
 				<Heading

@@ -18,11 +18,11 @@ import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate } from "react-router";
 import * as z from "zod";
-import FileUpload from "../components/file-upload";
-import { ProjectAreaSelection } from "../components/project-area-selection";
-import { ProjectTypeSelection } from "../components/project-type-selection";
-import MembersSelection from "./components/members-selection";
-import SupervisorSelection from "./components/supervisor-selection";
+import FileUpload from "../../components/file-upload";
+import { ProjectAreaSelection } from "../../components/project-area-selection";
+import { ProjectTypeSelection } from "../../components/project-type-selection";
+import MembersSelection from "../components/members-selection";
+import SupervisorSelection from "../components/supervisor-selection";
 
 const ProposalSchema = z.object({
 	title: z
@@ -48,7 +48,7 @@ const ProposalSchema = z.object({
 	fileUrl: z.string().min(1, "Proposal file is required"),
 });
 
-export default function CreateProposalPage() {
+export default function CreateStudentProposalPage() {
 	useHeaderInitializer("MIIT | Proposal Submission", "Create New Proposal");
 
 	const authUser = useAuthStore((state) => state.authUser);
@@ -79,15 +79,14 @@ export default function CreateProposalPage() {
 	const fileUploadRef = useRef<FileUploadHandle | null>(null);
 
 	const navigate = useNavigate();
-	
-	const onSubmit = async (data: z.infer<typeof ProposalSchema>) => {
 
+	const onSubmit = async (data: z.infer<typeof ProposalSchema>) => {
 		const formattedData = {
 			...data,
 			members: [...data.members.map((id) => parseInt(id, 10)), authUser?.id],
 			supervisor_id: parseInt(data.supervisor_id, 10),
 		};
-		
+
 		try {
 			const res = await api.post("/proposals", formattedData);
 			if (res.status === 201) {

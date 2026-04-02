@@ -16,9 +16,10 @@ export default function AppLogo() {
 					<img
 						key={theme}
 						src={
-							theme === "dark" ? "/wordmark_light_text.png" : "/wordmark.png"
+							"/login-pic.png"
+							// theme === "dark" ? "/wordmark_light_text.png" : "/wordmark.png"
 						}
-						alt="MIIT SPMS Logo"
+						alt="MIIT PIMS Logo"
 						className="w-full"
 					/>
 					<span className="text-[12px] hidden text-left font-semibold">

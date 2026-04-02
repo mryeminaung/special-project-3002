@@ -1,42 +1,48 @@
 import FacultiesProposalsPage from "./faculties-proposals-page";
 import BrowseProposalsPage from "./faculties/browse-proposals";
-import CreateFacultyProposal from "./faculties/create-faculty-proposal";
+import CreateFacultyProposalPage from "./faculties/create-faculty-proposal";
 import FacultyProposalDetailPage from "./faculties/faculty-proposal-detail";
-import ProjectsProposalPage from "./page";
-import CreateProposalPage from "./students/create-proposal";
-import EditProposalPage from "./students/edit-proposal";
-import MyProposasPage from "./students/my-proposals";
-import StudentProposalDetailPage from "./students/student-proposal-detail";
+import ProjectsProposalPage from "./proposals-page";
+import CreateStudentProposalPage from "./students/pages/create-student-proposal";
+import EditProposalPage from "./students/pages/edit-proposal";
+import MyProposasPage from "./students/pages/my-proposals";
+import StudentProposalDetailPage from "./students/pages/student-proposal-detail";
 
 export const proposalRoutes = [
-	{
-		path: "/project-proposals/create",
-		Component: CreateProposalPage,
-	},
-	{
-		path: "/project-proposals/create-faculty-proposal",
-		Component: CreateFacultyProposal,
-	},
+	// Base path for proposals
 	{
 		path: "/project-proposals",
 		Component: ProjectsProposalPage,
 	},
+	// Student proposal routes
 	{
-		path: "/project-proposals/my-proposals",
+		path: "/project-proposals/new/student",
+		Component: CreateStudentProposalPage,
+	},
+	// Faculty proposal routes
+	{
+		path: "/project-proposals/new/faculty",
+		Component: CreateFacultyProposalPage,
+	},
+	// Student proposals
+	{
+		path: "/project-proposals/me",
 		Component: MyProposasPage,
 	},
 	{
-		path: "/project-proposals/my-proposal/:id/edit",
+		path: "/project-proposals/me/:id/edit",
 		Component: EditProposalPage,
 	},
+	// Faculty proposals
 	{
-		path: "/project-proposals/my",
+		path: "/project-proposals/browse",
 		Component: BrowseProposalsPage,
 	},
 	{
 		path: "/project-proposals/faculties",
 		Component: FacultiesProposalsPage,
 	},
+	// Proposal details for students and faculty
 	{
 		path: "/project-proposals/student/:slug/detail",
 		Component: StudentProposalDetailPage,

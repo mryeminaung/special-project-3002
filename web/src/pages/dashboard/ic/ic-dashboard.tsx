@@ -10,8 +10,8 @@ import { AdminCards } from "../components/admin-cards";
 import ProjectProgressTable from "../components/project-progress-table";
 import ProjectsChart from "../components/projects-chart";
 
-export default function AdminDashboard() {
-	useHeaderInitializer("MIIT | Admin Dashboard", "Dashboard");
+export default function ICDashboard() {
+	useHeaderInitializer("MIIT | IC Dashboard", "Dashboard");
 
 	const fetchDashboardData = async () => {
 		const res = await api.get("/dashboard");
@@ -27,7 +27,7 @@ export default function AdminDashboard() {
 		<PageWrapper>
 			<div className="mb-5 space-y-3">
 				<Heading
-					title="Admin Dashboard"
+					title="IC Dashboard"
 					description="Overview of project management activities and statistics"
 				/>
 				{dashboardData && <AdminCards dashboardData={dashboardData} />}
@@ -39,7 +39,7 @@ export default function AdminDashboard() {
 						title="Projects Progress"
 						description="Overview of all projects completion status"
 					/>
-					<div className="flex items-center ml-auto gap-x-3 hidden">
+					<div className="flex items-center ml-auto gap-x-3">
 						<Button
 							className="hover:cursor-pointer bg-primary-600 hover:bg-primary-600/80 ml-auto hover:text-white text-white"
 							onClick={() => alert("Refreshing...")}

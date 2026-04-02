@@ -17,7 +17,7 @@ class UserController extends Controller
                 $query->where('name', 'Faculty');
             })
             ->orderBy('id', 'asc')
-            ->offset(4)
+            ->offset(5)
             ->get();
 
         // Map to include department name

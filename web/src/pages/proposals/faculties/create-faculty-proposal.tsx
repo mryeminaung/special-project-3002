@@ -32,7 +32,7 @@ const ProposalSchema = z.object({
 	description: z
 		.string()
 		.min(20, "Please provide a more detailed description")
-		.max(500, "Please provide a clear and concise description"),
+		.max(1000, "Please provide a clear and concise description"),
 	supervisor_id: z.string().min(1, "Please select a project supervisor"),
 	type: z.string(),
 	project_type: z.string().min(1, "Please select a project type"),
@@ -53,7 +53,7 @@ const ProposalSchema = z.object({
 	fileUrl: z.string().min(1, "Proposal document is required"),
 });
 
-export default function CreateFacultyProposal() {
+export default function CreateFacultyProposalPage() {
 	useHeaderInitializer("MIIT | Proposal Submission", "Create New Proposal");
 
 	const authUser = useAuthStore((state) => state.authUser);
@@ -91,9 +91,9 @@ export default function CreateFacultyProposal() {
 		};
 
 		try {
-			const res = await api.post("/proposals/create", formattedData);
+			const res = await api.post("/proposals", formattedData);
 			if (res.status === 201) {
-				navigate("/project-proposals/my-proposals");
+				navigate("/project-proposals/browse");
 			}
 		} catch (error: any) {
 			const validationErrors = error.response?.data?.errors;
@@ -108,7 +108,7 @@ export default function CreateFacultyProposal() {
 		}
 	};
 
-	if (!HasRole("Faculty")) return <UnAuthorized />;
+	if (!HasRole("Faculty") && !HasRole("Supervisor")) return <UnAuthorized />;
 
 	return (
 		<>

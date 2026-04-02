@@ -14,9 +14,9 @@ import { IconLoader, IconPencilCheck } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
-import FileUpload from "../components/file-upload";
-import MembersSelection from "./components/members-selection";
-import SupervisorSelection from "./components/supervisor-selection";
+import FileUpload from "../../components/file-upload";
+import MembersSelection from "../components/members-selection";
+import SupervisorSelection from "../components/supervisor-selection";
 
 const ProposalSchema = z.object({
 	title: z

@@ -3,7 +3,7 @@ import Heading from "@/components/heading";
 import PageWrapper from "@/components/page-wrapper";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { useQuery } from "@tanstack/react-query";
-import ProposalCard from "./components/proposal-card";
+import ProposalCard from "../components/proposal-card";
 
 export default function MyProposasPage() {
 	useHeaderInitializer("MIIT | My Proposals", "My Proposals");
@@ -13,10 +13,12 @@ export default function MyProposasPage() {
 		return res.data;
 	};
 
-	const { data: proposals } = useQuery({
+	const { data: myProposals } = useQuery({
 		queryKey: ["myProposals"],
 		queryFn: fetchProposals,
 	});
+
+	const proposals = myProposals?.data || [];
 
 	return (
 		<PageWrapper>

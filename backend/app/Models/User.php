@@ -74,7 +74,8 @@ class User extends Authenticatable
 
     public function teamProposals()
     {
-        return $this->belongsToMany(Proposal::class, 'proposal_student', 'user_id', 'proposal_id');
+        return $this->belongsToMany(Proposal::class, 'proposal_student', 'user_id', 'proposal_id')
+            ->wherePivot('status', 'accepted');
     }
 
     public function announcements()

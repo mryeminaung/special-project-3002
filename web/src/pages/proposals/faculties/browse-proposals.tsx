@@ -14,8 +14,8 @@ export default function BrowseProposalsPage() {
 	const fetchBrowseProposals = async () => {
 		const endpoint =
 			currentPage > 1
-				? `/proposals/browse-proposals?page=${currentPage}`
-				: "/proposals/browse-proposals";
+				? `/proposals/browse?page=${currentPage}`
+				: "/proposals/browse";
 		const res = await api.get(endpoint);
 		return res.data;
 	};
