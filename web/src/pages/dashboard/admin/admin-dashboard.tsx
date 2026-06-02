@@ -33,7 +33,7 @@ export default function AdminDashboard() {
 				{dashboardData && <AdminCards dashboardData={dashboardData} />}
 			</div>
 
-			<div className="mb-5 space-y-3">
+			<div className="mb-5 space-y-3 hidden">
 				<div className="flex items-center justify-between">
 					<Heading
 						title="Projects Progress"

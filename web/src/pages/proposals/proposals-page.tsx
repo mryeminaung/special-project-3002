@@ -3,7 +3,7 @@ import Heading from "@/components/heading";
 import PageWrapper from "@/components/page-wrapper";
 import { useCurrentPage } from "@/hooks/use-current-page";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
-import { HasRole } from "@/lib/utils";
+import { useRoleChecker } from "@/hooks/use-role-checker";
 import { useQuery } from "@tanstack/react-query";
 import UnAuthorized from "../../components/un-authorized";
 import Pagination from "./components/pagination";
@@ -27,9 +27,8 @@ export default function ProjectsProposalPage() {
 		staleTime: 30_000,
 	});
 
-	console.log();
-
-	if (!HasRole("IC")) return <UnAuthorized />;
+	const { isIC } = useRoleChecker();
+	if (!isIC) return <UnAuthorized />;
 
 	return (
 		<PageWrapper>

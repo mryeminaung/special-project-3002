@@ -9,6 +9,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { CheckCircle2, Clock, Eye, XCircle } from "lucide-react";
+import { Link } from "react-router";
 
 function StatusBadge({ status }: { status: string }) {
 	switch (status.toLowerCase()) {
@@ -57,6 +58,11 @@ export default function ProjectProgressTable({
 }: {
 	projects?: any[];
 }) {
+	const getProjectDetailUrl = (project: any) => {
+		if (!project?.slug) return "/projects";
+		return `/projects/${project.slug}/detail`;
+	};
+
 	return (
 		<div className="rounded-lg border mt-5 bg-card">
 			<Table>
@@ -96,9 +102,12 @@ export default function ProjectProgressTable({
 								<TableCell className="border-l">
 									<Button
 										size="sm"
-										className="bg-violet-600 hover:bg-violet-700">
-										<Eye className="w-4 h-4 mr-1" />
-										View
+										className="bg-violet-600 hover:bg-violet-700"
+										asChild>
+										<Link to={getProjectDetailUrl(project)}>
+											<Eye className="w-4 h-4 mr-1" />
+											View
+										</Link>
 									</Button>
 								</TableCell>
 							</TableRow>

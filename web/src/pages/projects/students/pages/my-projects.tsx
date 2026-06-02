@@ -16,7 +16,6 @@ export default function MyProjects() {
 		},
 	});
 
-	console.log(projects?.data);
 
 	return (
 		<PageWrapper>

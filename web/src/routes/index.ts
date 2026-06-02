@@ -1,3 +1,4 @@
+import { adminRoutes } from "@/pages/admin/admin.route";
 import AnnouncementsPage from "@/pages/announcements/announcements-page";
 import LoginPage from "@/pages/auth/login";
 import NotFoundPage from "@/pages/auth/not-found";
@@ -40,6 +41,7 @@ export const routes = [
 				path: "/supervisors/:id/detail",
 				Component: SupervisorDetailPage,
 			},
+			...adminRoutes,
 			...projectsRoutes,
 			...proposalRoutes,
 			...settingsRoutes,

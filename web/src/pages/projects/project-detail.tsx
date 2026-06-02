@@ -3,7 +3,8 @@ import PageWrapper from "@/components/page-wrapper";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { cn, HasRole, PROJECT_STATUS_COLOR } from "@/lib/utils";
+import { useRoleChecker } from "@/hooks/use-role-checker";
+import { cn, PROJECT_STATUS_COLOR } from "@/lib/utils";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import { CalendarIcon } from "@heroicons/react/24/solid";
 import {
@@ -19,11 +20,11 @@ import ProjectMembers from "./components/project-members";
 
 export default function ProjectDetailPage() {
 	const navigate = useNavigate();
-	let isIC = HasRole("IC");
+	let { isIC } = useRoleChecker();
 	const { slug } = useParams();
 
 	const fetchProjectDetail = async () => {
-		const res = await api.get(`/projects/${slug}/detail`);
+		const res = await api.get(`/projects/${slug}`);
 		return res.data;
 	};
 
@@ -32,7 +33,34 @@ export default function ProjectDetailPage() {
 		queryFn: fetchProjectDetail,
 	});
 
-	console.log(projectDetail);
+	const proposal = projectDetail?.data ?? [];
+	const midReportCompleted =
+		typeof proposal?.progressStatus?.midReport === "boolean"
+			? !proposal.progressStatus.midReport
+			: proposal?.mid_report === "submitted";
+	const finalReportCompleted =
+		typeof proposal?.progressStatus?.finalReport === "boolean"
+			? !proposal.progressStatus.finalReport
+			: proposal?.final_report === "submitted";
+	const midSeminarCompleted =
+		typeof proposal?.progressStatus?.midSeminar === "boolean"
+			? !proposal.progressStatus.midSeminar
+			: proposal?.mid_seminar === "completed";
+	const finalSeminarCompleted =
+		typeof proposal?.progressStatus?.finalSeminar === "boolean"
+			? !proposal.progressStatus.finalSeminar
+			: proposal?.final_seminar === "completed";
+	const completedMilestonesCount = [
+		midReportCompleted,
+		finalReportCompleted,
+		midSeminarCompleted,
+		finalSeminarCompleted,
+	].filter(Boolean).length;
+	const projectProgressPercent = Math.round(
+		(completedMilestonesCount / 4) * 100,
+	);
+
+	console.log(proposal);
 
 	return (
 		<PageWrapper className="dark:bg-neutral-950">
@@ -49,7 +77,7 @@ export default function ProjectDetailPage() {
 				<CardContent className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
 					<div className="">
 						<div className="mt-2 flex justify-between flex-wrap items-center gap-3 text-sm">
-							<h1 className="text-2xl font-bold ">{projectDetail?.name}</h1>
+							<h1 className="text-2xl font-bold ">Title: {proposal?.title}</h1>
 						</div>
 						<div className="flex items-center mt-1 gap-x-3">
 							<Badge
@@ -57,18 +85,16 @@ export default function ProjectDetailPage() {
 									PROJECT_STATUS_COLOR("active"),
 									"font-mono capitalize px-3 rounded-md",
 								)}>
-								{projectDetail?.status}
+								{proposal?.status}
 							</Badge>
 							<span className="flex items-center gap-1.5">
 								<CalendarIcon className="h-4 w-4" />
-								Started on {projectDetail?.startedAt}
+								Started on {proposal?.startedAt}
 							</span>
 						</div>
 						<div className="mt-5 space-y-1">
 							<p className="text-lg font-semibold">Project Description</p>
-							<p className="text-muted-foreground">
-								{projectDetail?.description}
-							</p>
+							<p className="text-muted-foreground">{proposal?.description}</p>
 						</div>
 					</div>
 					<div className="dark:bg-primary-700 min-w-62.5 bg-primary-100 rounded-lg p-8 relative overflow-hidden">
@@ -79,11 +105,13 @@ export default function ProjectDetailPage() {
 									Project Progress
 								</span>
 							</div>
-							<div className="text-5xl font-black mb-2 tabular-nums">65%</div>
+							<div className="text-5xl font-black mb-2 tabular-nums">
+								{projectProgressPercent}%
+							</div>
 							<div className="h-2 w-full bg-white/20 rounded-full overflow-hidden">
 								<div
 									className="h-full bg-primary-700 dark:bg-white"
-									style={{ width: "65%" }}></div>
+									style={{ width: `${projectProgressPercent}%` }}></div>
 							</div>
 						</div>
 					</div>
@@ -96,17 +124,17 @@ export default function ProjectDetailPage() {
 					{[
 						{
 							label: "Supervisor",
-							value: "Dr. Aung Aung",
+							value: proposal?.supervisor?.name ?? "N/A",
 							icon: <IconUsers className="text-primary-500" />,
 						},
 						{
 							label: "Project Members",
-							value: "4",
+							value: proposal?.members?.length ?? 0,
 							icon: <IconUsers className="text-purple-500" />,
 						},
 						{
 							label: "Start Date",
-							value: "Dec 01, 2025",
+							value: proposal?.startedAt,
 							icon: <IconCalendar className="text-orange-500" />,
 						},
 					].map((stat, i) => (
@@ -138,10 +166,10 @@ export default function ProjectDetailPage() {
 			)}
 
 			{/* project members */}
-			<ProjectMembers members={projectDetail?.members} />
+			<ProjectMembers members={proposal?.members} />
 
 			{/* project activities */}
-			<ProjectActivity />
+			<ProjectActivity project={proposal} />
 		</PageWrapper>
 	);
 }

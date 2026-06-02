@@ -100,6 +100,7 @@ export default function StudentProjectDetailPage() {
 							slug={project.slug}
 							midSeminarDeadline={project.midSeminarDeadline}
 							finalSeminarDeadline={project.finalSeminarDeadline}
+							progressStatus={project.progressStatus}
 						/>
 					)}
 

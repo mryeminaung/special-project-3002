@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { HasRole } from "@/lib/utils";
+import { useRoleChecker } from "@/hooks/use-role-checker";
 import { useEventStore } from "@/stores/use-event-store";
 import { CircleX } from "lucide-react";
 import { Link } from "react-router";
@@ -27,11 +27,10 @@ export default function EventCard({
 	const hasPreviousCreatedInfo = useEventStore(
 		(state) => !!state.eventConfigurations[eventType],
 	);
-
-	let canCreateEventDetail = isEnrollmentOpen && HasRole("IC");
-	let canApplyProposals = isEnrollmentOpen && HasRole("Student");
-	let canCreateProposal =
-		isEnrollmentOpen && HasRole("Faculty") && !HasRole("IC");
+	const { isStudent, isIC, isFaculty } = useRoleChecker();
+	let canCreateEventDetail = isEnrollmentOpen && isIC;
+	let canApplyProposals = isEnrollmentOpen && isStudent;
+	let canCreateProposal = isEnrollmentOpen && isFaculty && !isIC;
 
 	return (
 		<div

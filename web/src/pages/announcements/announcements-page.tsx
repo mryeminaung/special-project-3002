@@ -3,7 +3,7 @@ import Heading from "@/components/heading";
 import Loading from "@/components/loading";
 import PageWrapper from "@/components/page-wrapper";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
-import { HasRole } from "@/lib/utils";
+import { useRoleChecker } from "@/hooks/use-role-checker";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import type { AnnouncementItem } from "./announcement.types";
@@ -23,7 +23,7 @@ export default function AnnouncementsPage() {
 
 	const hasAnnouncements = announcements.length > 0;
 
-	const isIC = HasRole("IC");
+	const { isIC } = useRoleChecker();
 
 	return (
 		<PageWrapper>

@@ -46,7 +46,7 @@ export function FacultyCards({ data }: { data: FacultyCardProps }) {
 		{
 			title: "Completion Rate",
 			cardIcon: IconCircleCheck,
-			count: data.completionRate ?? 0 + "%",
+			count:  100 + "%",
 			pageUrl: "/my-tasks",
 		},
 	];

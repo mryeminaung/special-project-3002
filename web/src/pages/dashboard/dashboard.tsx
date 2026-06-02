@@ -1,14 +1,13 @@
-import { HasRole } from "@/lib/utils";
+import { useRoleChecker } from "@/hooks/use-role-checker";
 import AdminDashboard from "./admin/admin-dashboard";
 import FacultyDashboard from "./faculty/faculty-dashboard";
 import ICDashboard from "./ic/ic-dashboard";
 import StudentDashboard from "./student/student-dashboard";
-import StudentAffairsDashboard from "./student_affairs/student-affairs-dashboard";
 
 export default function DashboardPage() {
-	if (HasRole("IC")) return <ICDashboard />;
-	else if (HasRole("Admin")) return <AdminDashboard />;
-	else if (HasRole("Faculty")) return <FacultyDashboard />;
-	else if (HasRole("Student")) return <StudentDashboard />;
-	else if (HasRole("Student Affairs")) return <StudentAffairsDashboard />;
+	const { isIC, isAdmin, isFaculty, isStudent } = useRoleChecker();
+	if (isIC) return <ICDashboard />;
+	else if (isAdmin) return <AdminDashboard />;
+	else if (isFaculty) return <FacultyDashboard />;
+	else if (isStudent) return <StudentDashboard />;
 }

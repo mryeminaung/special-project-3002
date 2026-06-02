@@ -19,7 +19,7 @@ import {
 	SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-import { HasRole } from "@/lib/utils";
+import { useRoleChecker } from "@/hooks/use-role-checker";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { ShieldCheckIcon } from "lucide-react";
 import AppLogo from "./app-logo";
@@ -36,12 +36,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		},
 		{
 			title: "Events",
-			url: "/events",
+			url: "/admin/events",
 			icon: IconCalendarEvent,
 		},
 		{
 			title: "Project Areas",
-			url: "/project-proposals",
+			url: "/admin/project-areas",
 			icon: IconFileDescription,
 		},
 		{
@@ -51,12 +51,12 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		},
 		{
 			title: "Faculties",
-			url: "/faculties",
+			url: "/admin/faculties",
 			icon: ShieldCheckIcon,
 		},
 		{
 			title: "Departments",
-			url: "/projects",
+			url: "/admin/departments",
 			icon: IconListDetails,
 		},
 		{
@@ -101,6 +101,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			title: "Faculties",
 			url: "/faculties",
 			icon: IconUsersGroup,
+		},
+		{
+			title: "Students",
+			url: "/students",
+			icon: ShieldCheckIcon,
 		},
 		{
 			title: "Settings",
@@ -165,7 +170,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		},
 		{
 			title: "My Projects",
-			url: "/projects/my-projects",
+			url: "/projects/me",
 			icon: IconListDetails,
 		},
 		{
@@ -211,6 +216,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		StudentAffairs: [...studentAffairTabs],
 	};
 
+	const { isAdmin, isIC, isStudent, isFaculty, isSupervisor } =
+		useRoleChecker();
+
 	const data = {
 		user: {
 			name: authUser?.name,
@@ -218,14 +226,10 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			avatar: authUser?.avatar_url,
 		},
 		navMain: [
-			...(HasRole("IC") ? tabs.IC : []),
-			...(HasRole("Admin") ? tabs.Admin : []),
-			...(HasRole("Student") ? tabs.Student : []),
-			...((HasRole("Faculty") || HasRole("Supervisor")) &&
-			!HasRole("Admin") &&
-			!HasRole("IC")
-				? tabs.Faculty
-				: []),
+			...(isIC ? tabs.IC : []),
+			...(isAdmin ? tabs.Admin : []),
+			...(isStudent ? tabs.Student : []),
+			...((isFaculty || isSupervisor) && !isAdmin && !isIC ? tabs.Faculty : []),
 		],
 	};
 

@@ -1,6 +1,6 @@
 import api from "@/api/api";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
-import { HasRole } from "@/lib/utils";
+import { useRoleChecker } from "@/hooks/use-role-checker";
 import { useQuery } from "@tanstack/react-query";
 import UnAuthorized from "../../components/un-authorized";
 import SupervisorsTable from "./components/supervisors-table";
@@ -18,7 +18,9 @@ export default function SupervisorsPage() {
 		queryFn: fetchSupervisors,
 	});
 
-	if (HasRole("Student")) return <UnAuthorized />;
+	const { isStudent } = useRoleChecker();
+
+	if (isStudent) return <UnAuthorized />;
 
 	return (
 		<div className="mx-auto max-w-7xl">

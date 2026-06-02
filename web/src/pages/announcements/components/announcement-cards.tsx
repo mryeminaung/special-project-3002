@@ -1,6 +1,7 @@
 import api from "@/api/api";
 import { Badge } from "@/components/ui/badge";
-import { cn, HasRole } from "@/lib/utils";
+import { useRoleChecker } from "@/hooks/use-role-checker";
+import { cn } from "@/lib/utils";
 import {
 	IconCalendarEvent,
 	IconSpeakerphone,
@@ -59,15 +60,14 @@ export default function AnnouncementCards({
 		},
 	});
 
-	const isIC = HasRole("IC");
-	const isStudent = HasRole("Student");
-	const isFaculty = HasRole("Faculty") || HasRole("Supervisor");
+	const { isIC, isStudent, isFaculty, isSupervisor } = useRoleChecker();
+	const isFacultyRole = isFaculty || isSupervisor;
 
 	const filteredAnnouncements = announcements.filter((announcement) => {
 		if (isIC) return true;
 		if (announcement.audience === "both") return true;
 		if (isStudent) return announcement.audience === "students";
-		if (isFaculty) return announcement.audience === "faculties";
+		if (isFacultyRole) return announcement.audience === "faculties";
 	});
 
 	return (

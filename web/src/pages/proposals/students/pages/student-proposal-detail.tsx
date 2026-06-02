@@ -1,13 +1,10 @@
-import { useNavigate, useParams } from "react-router";
+import { useParams } from "react-router";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { HasRole } from "@/lib/utils";
-
 import {
 	CheckBadgeIcon,
-	DocumentTextIcon,
 	HandThumbDownIcon,
 	HandThumbUpIcon,
 } from "@heroicons/react/24/outline";
@@ -19,12 +16,15 @@ import { PencilSquareIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
-import DownloadFile from "@/components/download-file";
+import DescriptionCard from "@/components/description-card";
 import NavigateTo from "@/components/navigate-to";
+import PageWrapper from "@/components/page-wrapper";
+import ProposalDocument from "@/components/proposal-document";
 import StatusCard from "@/components/status-card";
 import SubmitterCard from "@/components/submitter-card";
 import SupervisorCard from "@/components/supervisor-card";
 import TeamMembers from "@/components/team-members";
+import { useRoleChecker } from "@/hooks/use-role-checker";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useQuery } from "@tanstack/react-query";
 import ApprovalModal from "../../components/approval-modal";
@@ -32,10 +32,8 @@ import CommentBox from "../../components/comment-box";
 import type { ProposalDetail } from "../students.type";
 
 export default function StudentProposalDetailPage() {
-	const navigate = useNavigate();
 	const { slug } = useParams();
-	const isIC = HasRole("IC");
-	const isStudent = HasRole("Student");
+	const { isIC, isStudent } = useRoleChecker();
 	const authUser = useAuthStore((state) => state.authUser);
 	const [showApprovalModal, setShowApprovalModal] = useState(false);
 	const [isApproving, setIsApproving] = useState(false);
@@ -51,6 +49,10 @@ export default function StudentProposalDetailPage() {
 	});
 
 	const proposal: ProposalDetail = proposalDetail?.data;
+	const canEditOrDelete =
+		isStudent &&
+		authUser.id === proposal?.submittedBy.id &&
+		proposal.status === "pending";
 
 	const handleApprove = async () => {
 		setShowApprovalModal(true);
@@ -99,11 +101,19 @@ export default function StudentProposalDetailPage() {
 				isLoading={isApproving}
 				onComplete={handleApprovalModalComplete}
 			/>
-			<div className="mx-auto max-w-7xl">
-				<NavigateTo
-					to="/project-proposals"
-					label="Back to Proposals"
-				/>
+			<PageWrapper>
+				{isStudent && (
+					<NavigateTo
+						to="/project-proposals/me"
+						label="Back to Proposals"
+					/>
+				)}
+				{isIC && (
+					<NavigateTo
+						to="/project-proposals"
+						label="Back to Proposals"
+					/>
+				)}
 
 				{!proposal ? (
 					<div className="flex flex-col items-center justify-center py-20">
@@ -139,62 +149,37 @@ export default function StudentProposalDetailPage() {
 										/>
 									</div>
 								</div>
-								{proposal.status === "pending" &&
-									isStudent &&
-									authUser.id === proposal?.submittedBy.id && (
-										<div className="space-x-3">
-											<Button
-												size={"sm"}
-												className="bg-yellow-300 font-semibold text-yellow-900 hover:bg-yellow-500 hover:text-white">
-												<PencilSquareIcon />
-												<span>Edit</span>
-											</Button>
-											<Button
-												size={"sm"}
-												className="bg-red-300 font-semibold text-red-900 hover:bg-red-500 hover:text-white">
-												<TrashIcon />
-												<span>Delete</span>
-											</Button>
-										</div>
-									)}
+								{canEditOrDelete && (
+									<div className="space-x-3 flex items-center">
+										<Button
+											size={"sm"}
+											className="bg-yellow-300 font-semibold text-yellow-900 hover:bg-yellow-500 hover:text-white">
+											<PencilSquareIcon />
+											<span>Edit</span>
+										</Button>
+										<Button
+											size={"sm"}
+											className="bg-red-300 font-semibold text-red-900 hover:bg-red-500 hover:text-white">
+											<TrashIcon />
+											<span>Delete</span>
+										</Button>
+									</div>
+								)}
 							</CardContent>
 						</Card>
 
 						<div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
 							<div className="space-y-4 lg:col-span-2">
-								<Card className="border-gray-200 shadow-sm">
-									<CardHeader>
-										<CardTitle className="flex items-center gap-2 text-lg">
-											Proposal Description
-										</CardTitle>
-									</CardHeader>
-									<CardContent>{proposal.description}</CardContent>
-								</Card>
+								<DescriptionCard
+									label="Proposal"
+									description={proposal.description}
+								/>
 
-								<Card className="border-gray-200 shadow-sm">
-									<CardHeader>
-										<CardTitle className="flex items-center gap-2 text-lg">
-											Proposal Document
-										</CardTitle>
-									</CardHeader>
-									<CardContent>
-										<div className="flex flex-col sm:flex-row items-center justify-between gap-4 ">
-											<div className="flex w-full items-center gap-4">
-												<div className="rounded-lg bg-primary-100 p-3">
-													<DocumentTextIcon className="size-7 text-primary-600" />
-												</div>
-												<div>
-													<p className="font-medium ">proposal</p>
-													<p className="text-sm  ">
-														Submitted on {proposal.submittedAt}
-													</p>
-												</div>
-											</div>
+								<ProposalDocument
+									submittedAt={proposal.submittedAt}
+									file={proposal.file}
+								/>
 
-											<DownloadFile fileUrl={proposal.file} />
-										</div>
-									</CardContent>
-								</Card>
 								<CommentBox
 									proposalStatus={proposal.status}
 									proposalId={Number(proposal.id)}
@@ -251,7 +236,7 @@ export default function StudentProposalDetailPage() {
 						</div>
 					</>
 				)}
-			</div>
+			</PageWrapper>
 		</>
 	);
 }

@@ -18,12 +18,12 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
+import ViewDetail from "@/components/view-detail";
 import { cn, PROJECT_STATUS_COLOR } from "@/lib/utils";
 import type { ProjectData } from "@/types";
 import { IconDownload, IconRefresh } from "@tabler/icons-react";
-import { Eye, Search, Settings2, ShieldCheckIcon } from "lucide-react";
+import { Search, Settings2, ShieldCheckIcon } from "lucide-react";
 import { useMemo, useState } from "react";
-import { Link } from "react-router";
 
 export default function ProjectsTable({
 	projects,
@@ -265,21 +265,7 @@ export default function ProjectsTable({
 												<TableCell>{project.startedAt}</TableCell>
 											)}
 											<TableCell className="border">
-												{project.type === "student" ? (
-													<Link
-														to={`/projects/student/${project?.slug}/detail`}
-														className="bg-primary-800 hover:cursor-pointer hover:bg-primary-800/80 flex items-center text-white px-2 py-2 rounded-md gap-x-1 justify-center">
-														<Eye className="size-4" />
-														<span className="text-[12px]">View</span>
-													</Link>
-												) : (
-													<Link
-														to={`/projects/faculty/${project?.slug}/detail`}
-														className="bg-primary-800 hover:cursor-pointer hover:bg-primary-800/80 flex items-center text-white px-2 py-2 rounded-md gap-x-1 justify-center">
-														<Eye className="size-4" />
-														<span className="text-[12px]">View</span>
-													</Link>
-												)}
+												<ViewDetail url={`/projects/${project?.slug}/detail`} />
 											</TableCell>
 										</TableRow>
 									))

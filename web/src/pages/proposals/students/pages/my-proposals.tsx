@@ -19,6 +19,7 @@ export default function MyProposasPage() {
 	});
 
 	const proposals = myProposals?.data || [];
+	console.log(proposals);
 
 	return (
 		<PageWrapper>

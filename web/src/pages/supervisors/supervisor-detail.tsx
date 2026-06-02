@@ -1,3 +1,4 @@
+import api from "@/api/api";
 import PageWrapper from "@/components/page-wrapper";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,48 +10,54 @@ import {
 } from "@/components/ui/card";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { CheckCircleIcon, UserGroupIcon } from "@heroicons/react/24/outline";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowLeftIcon, User } from "lucide-react";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
+
+type SupervisorDetailResponse = {
+	id: number;
+	name: string;
+	email: string;
+	rank?: string | null;
+	faculty?: string | null;
+	phone?: string | null;
+	imageUrl?: string | null;
+	activeProjects: { id: number; title: string; students: string }[];
+	pastProjects: {
+		id: number;
+		title: string;
+		year?: string | null;
+		outcome: string;
+	}[];
+};
 
 export default function SupervisorDetail() {
 	useHeaderInitializer("MIIT | Supervisor Detail", "Supervisor Detail");
 	const navigate = useNavigate();
+	const { id } = useParams();
 
-	const supervisor = {
-		name: "Dr. Aung Kyaw",
-		email: "aung.kyaw@miit.edu.mm",
-		rank: "Professor",
-		faculty: "Faculty of Information Science",
-		phone: "+95 9 123 456 789",
-		imageUrl:
-			"https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&h=200&auto=format&fit=crop",
-		activeProjects: [
-			{
-				id: 1,
-				title: "Edge Computing for Smart Cities",
-				students: "3 Students",
-			},
-			{
-				id: 2,
-				title: "Blockchain in Healthcare Data",
-				students: "4 Students",
-			},
-		],
-		pastProjects: [
-			{
-				id: 101,
-				title: "Real-time Traffic Monitoring System",
-				year: "2024",
-				outcome: "Completed",
-			},
-			{
-				id: 102,
-				title: "Distributed Database Optimization",
-				year: "2023",
-				outcome: "Completed",
-			},
-		],
+	const fetchSupervisorDetail = async () => {
+		const res = await api.get<SupervisorDetailResponse>(
+			`/supervisors/${id}/detail`,
+		);
+		return res.data;
 	};
+
+	const { data: supervisor, isLoading } = useQuery({
+		queryKey: ["supervisor-detail", id],
+		queryFn: fetchSupervisorDetail,
+		enabled: Boolean(id),
+	});
+
+	if (isLoading || !supervisor) {
+		return (
+			<PageWrapper>
+				<div className="text-sm text-muted-foreground">
+					Loading supervisor detail...
+				</div>
+			</PageWrapper>
+		);
+	}
 
 	return (
 		<PageWrapper>
@@ -79,7 +86,7 @@ export default function SupervisorDetail() {
 							<h1 className="text-2xl font-bold">{supervisor.name}</h1>
 							<p className="text-sm text-neutral-500">{supervisor.email}</p>
 							<p className="text-sm text-muted-foreground">
-								{supervisor.rank} • {supervisor.faculty}
+								{supervisor.rank || "N/A"} • {supervisor.faculty || "N/A"}
 							</p>
 						</div>
 					</div>
@@ -109,7 +116,7 @@ export default function SupervisorDetail() {
 					<div className="text-sm text-neutral-500">Contact</div>
 					<div className="text-sm font-medium">{supervisor.email}</div>
 					<div className="text-sm text-muted-foreground">
-						{supervisor.phone}
+						{supervisor.phone || "N/A"}
 					</div>
 				</div>
 			</div>
@@ -124,17 +131,23 @@ export default function SupervisorDetail() {
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="space-y-3">
-							{supervisor.activeProjects.map((p) => (
-								<div
-									key={p.id}
-									className="p-3 rounded-lg border hover:shadow-sm transition">
-									<div className="font-semibold">{p.title}</div>
-									<div className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
-										<UserGroupIcon className="h-4 w-4" />
-										<span>{p.students}</span>
+							{supervisor.activeProjects.length === 0 ? (
+								<p className="text-sm text-muted-foreground">
+									No active projects.
+								</p>
+							) : (
+								supervisor.activeProjects.map((p) => (
+									<div
+										key={p.id}
+										className="p-3 rounded-lg border hover:shadow-sm transition">
+										<div className="font-semibold">{p.title}</div>
+										<div className="text-xs text-muted-foreground mt-1 flex items-center gap-2">
+											<UserGroupIcon className="h-4 w-4" />
+											<span>{p.students}</span>
+										</div>
 									</div>
-								</div>
-							))}
+								))
+							)}
 						</CardContent>
 					</Card>
 				</div>
@@ -162,20 +175,30 @@ export default function SupervisorDetail() {
 										</tr>
 									</thead>
 									<tbody className="divide-y divide-neutral-100 dark:divide-neutral-800">
-										{supervisor.pastProjects.map((proj) => (
-											<tr
-												key={proj.id}
-												className="hover:bg-neutral-50/50 transition">
-												<td className="p-3 font-bold text-primary-600">
-													{proj.year}
-												</td>
-												<td className="p-3">{proj.title}</td>
-												<td className="p-3 text-sm text-emerald-600 font-semibold flex items-center gap-2">
-													<CheckCircleIcon className="h-4 w-4" />
-													{proj.outcome}
+										{supervisor.pastProjects.length === 0 ? (
+											<tr>
+												<td
+													colSpan={3}
+													className="p-3 text-sm text-muted-foreground">
+													No past supervisions yet.
 												</td>
 											</tr>
-										))}
+										) : (
+											supervisor.pastProjects.map((proj) => (
+												<tr
+													key={proj.id}
+													className="hover:bg-neutral-50/50 transition">
+													<td className="p-3 font-bold text-primary-600">
+														{proj.year || "-"}
+													</td>
+													<td className="p-3">{proj.title}</td>
+													<td className="p-3 text-sm text-emerald-600 font-semibold flex items-center gap-2">
+														<CheckCircleIcon className="h-4 w-4" />
+														{proj.outcome}
+													</td>
+												</tr>
+											))
+										)}
 									</tbody>
 								</table>
 							</div>
