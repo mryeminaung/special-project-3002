@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AnnouncementController;
 use App\Http\Controllers\auth\AuthController;
 use App\Http\Controllers\CommentController;
@@ -26,6 +27,23 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::get("/dashboard", DashboardController::class);
+
+    Route::controller(AdminController::class)->group(function () {
+        // 1. Events Management
+        Route::get("/admin/events", "getEvents");
+
+        // 2. Project Areas Management
+        Route::get("/admin/project-areas", "getProjectAreas");
+
+        // 3. Students Management
+        Route::get("/admin/students", "getStudents");
+
+        // 4. Faculties Management
+        Route::get("/admin/faculties", "getFaculties");
+
+        // 5. Departments Management
+        Route::get("/admin/departments", "getDepartments");
+    });
 
     Route::controller(UserController::class)->group(function () {
         Route::get("/faculties-for-proposal", "getFacultiesForProposal");

@@ -22,7 +22,14 @@ class ProjectController extends Controller
 
     public function studentProjects()
     {
-        $projects = Project::all();
+        $authId = Auth::id();
+
+        $projects = Project::with(['leader', 'supervisor', 'members'])
+            ->where('leader_id', $authId)
+            ->orWhereHas('members', function ($query) use ($authId) {
+                $query->where('users.id', $authId);
+            })
+            ->get();
 
         return $this->successResponse("Success", StudentProjectResource::collection($projects));
     }
@@ -72,12 +79,33 @@ class ProjectController extends Controller
         }
 
         $validated = $request->validate([
-            'midSeminarDeadline'   => ['required', 'date'],
-            'finalSeminarDeadline' => ['required', 'date'],
+            'midSeminarDeadline'   => ['nullable', 'date'],
+            'finalSeminarDeadline' => ['nullable', 'date'],
         ]);
 
-        $project->mid_seminar_deadline   = $validated['midSeminarDeadline'];
-        $project->final_seminar_deadline = $validated['finalSeminarDeadline'];
+        $midDeadline           = $validated['midSeminarDeadline'] ?? null;
+        $finalDeadline         = $validated['finalSeminarDeadline'] ?? null;
+        $isMidSeminarCompleted = $project->mid_seminar === ProjectProgressStatus::Completed->value;
+
+        if ($midDeadline === null && $finalDeadline === null) {
+            return $this->errorResponse('At least one seminar deadline must be provided.', 422);
+        }
+
+        if ($isMidSeminarCompleted && $midDeadline !== null) {
+            return $this->errorResponse('Mid-term seminar is completed, so mid-term deadline cannot be changed.', 422);
+        }
+
+        if (! $isMidSeminarCompleted && $finalDeadline !== null) {
+            return $this->errorResponse('Final seminar deadline can be set only after mid-term seminar is completed.', 422);
+        }
+
+        if ($midDeadline !== null) {
+            $project->mid_seminar_deadline = $midDeadline;
+        }
+
+        if ($finalDeadline !== null) {
+            $project->final_seminar_deadline = $finalDeadline;
+        }
         $project->save();
 
         return $this->successResponse('Seminar deadlines updated successfully.', [
@@ -124,6 +152,13 @@ class ProjectController extends Controller
             'type'   => ['required', 'in:mid,final'],
             'status' => ['required', 'in:not completed,completed'],
         ]);
+
+        if (
+            $validated['type'] === 'final'
+            && $project->mid_seminar !== ProjectProgressStatus::Completed->value
+        ) {
+            return $this->errorResponse('Final seminar status can be changed only after mid-term seminar is completed.', 422);
+        }
 
         $seminarField             = $validated['type'] === 'mid' ? 'mid_seminar' : 'final_seminar';
         $project->{$seminarField} =

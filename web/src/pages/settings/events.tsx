@@ -1,8 +1,10 @@
 import UnAuthorized from "@/components/un-authorized";
-import { HasRole } from "@/lib/utils";
+import { useRoleChecker } from "@/hooks/use-role-checker";
 import EventsSetting from "./components/events-setting";
 
 export default function Events() {
-	if (HasRole("IC")) return <EventsSetting />;
+	const { isIC } = useRoleChecker();
+
+	if (isIC) return <EventsSetting />;
 	else return <UnAuthorized />;
 }

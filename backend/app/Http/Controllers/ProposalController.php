@@ -303,13 +303,19 @@ class ProposalController extends Controller
 
     public function myProposals()
     {
-        $proposals = Auth::user()->teamProposals()->get();
+        $proposals = Auth::user()
+            ->teamProposals()
+            ->with(['supervisor', 'leader', 'members'])
+            ->get();
 
         if ($proposals->isEmpty()) {
             return $this->errorResponse('No proposals found for the student', 404);
         }
 
-        return ProposalResource::collection($proposals->load(['supervisor', 'leader', 'members']));
+        return $this->successResponse(
+            'Student proposals retrieved successfully.',
+            ProposalResource::collection($proposals)
+        );
     }
 
     public function destroy(Proposal $proposal)

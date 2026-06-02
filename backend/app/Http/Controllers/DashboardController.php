@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProjectProgressResource;
 use App\Models\Project;
+use App\Models\ProjectArea;
+use App\Models\ProjectEvent;
 use App\Models\Proposal;
 use App\Models\Task;
 use App\Models\User;
@@ -19,8 +21,8 @@ class DashboardController extends Controller
             return $this->getICDashboardData();
         }
 
-        if ($user->hasRole('Student Affairs')) {
-            return $this->getStudentAffairsDashboardData();
+        if ($user->hasRole('Admin')) {
+            return $this->getAdminDashboardData();
         }
 
         if ($user->hasRole('Supervisor') || $user->hasRole('Faculty')) {
@@ -67,9 +69,20 @@ class DashboardController extends Controller
         ]);
     }
 
-    private function getStudentAffairsDashboardData()
+    private function getAdminDashboardData()
     {
-        return "Student Role - Managing my proposal and team";
+        $noOfFaculties    = User::where('is_student', false)->count();
+        $noOfStudents     = User::where('is_student', true)->count();
+        $noOfProjectAreas = ProjectArea::count();
+        $noOfEvents       = ProjectEvent::count();
+
+        return response()->json([
+            'noOfStudents'     => $noOfStudents,
+            'noOfFaculties'    => $noOfFaculties,
+            'noOfProjectAreas' => $noOfProjectAreas,
+            'noOfEvents'       => 3,
+        ]
+        );
     }
 
     private function getStudentDashboardData()

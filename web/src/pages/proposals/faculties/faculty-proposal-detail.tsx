@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { HasRole, type ProposalStatus } from "@/lib/utils";
+import { type ProposalStatus } from "@/lib/utils";
 
 import {
 	CalendarIcon,
@@ -27,6 +27,7 @@ import PageWrapper from "@/components/page-wrapper";
 import ProposalDocument from "@/components/proposal-document";
 import StatusCard from "@/components/status-card";
 import SupervisorCard from "@/components/supervisor-card";
+import { useRoleChecker } from "@/hooks/use-role-checker";
 import { useState } from "react";
 import ApprovalModal from "../components/approval-modal";
 import CommentBox from "../components/comment-box";
@@ -62,7 +63,7 @@ type ProposalDetail = {
 export default function FacultyProposalDetailPage() {
 	const { slug } = useParams();
 	const queryClient = useQueryClient();
-	const isIC = HasRole("IC");
+	const { isIC, isSupervisor, isFaculty } = useRoleChecker();
 	const [showApprovalModal, setShowApprovalModal] = useState(false);
 	const [isApproving, setIsApproving] = useState(false);
 
@@ -168,10 +169,17 @@ export default function FacultyProposalDetailPage() {
 				onComplete={handleApprovalModalComplete}
 			/>
 			<PageWrapper>
-				<NavigateTo
-					to="/project-proposals"
-					label="Back To Proposals"
-				/>
+				{isSupervisor && isFaculty ? (
+					<NavigateTo
+						to="/project-proposals/browse"
+						label="Back To Proposals"
+					/>
+				) : (
+					<NavigateTo
+						to="/project-proposals"
+						label="Back To Proposals"
+					/>
+				)}
 
 				{!proposal ? (
 					<div className="flex flex-col items-center justify-center py-20">

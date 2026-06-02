@@ -1,6 +1,7 @@
 import ProjectsPage from "@/pages/projects/projects-page";
 import AssignedProjects from "./faculties/pages/assigned-projects";
 import FacultyProjectDetailPage from "./faculties/pages/faculty-project-detail";
+import ProjectDetailPage from "./project-detail";
 import MyProjects from "./students/pages/my-projects";
 import StudentProjectDetailPage from "./students/pages/student-project-detail";
 
@@ -14,6 +15,10 @@ export const projectsRoutes = [
 		Component: ProjectsPage,
 	},
 	{
+		path: "/projects/:slug/detail",
+		Component: ProjectDetailPage,
+	},
+	{
 		path: "/projects/student/:slug/detail",
 		Component: StudentProjectDetailPage,
 	},
@@ -22,7 +27,7 @@ export const projectsRoutes = [
 		Component: FacultyProjectDetailPage,
 	},
 	{
-		path: "/projects/my-projects",
+		path: "/projects/me",
 		Component: MyProjects,
 	},
 ];

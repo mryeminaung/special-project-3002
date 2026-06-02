@@ -1,6 +1,6 @@
 import Heading from "@/components/heading";
 import PageWrapper from "@/components/page-wrapper";
-import { HasRole } from "@/lib/utils";
+import { useRoleChecker } from "@/hooks/use-role-checker";
 import { IconCalendarEvent } from "@tabler/icons-react";
 // Lock ကို ဒီမှာ ထည့်သွင်းပေးပါ
 import { Lock, SlidersVertical, TriangleAlert, UserRound } from "lucide-react";
@@ -12,14 +12,14 @@ export default function SettingsLayout({
 	children: React.ReactNode;
 }) {
 	const location = useLocation();
-
+	const { isIC } = useRoleChecker();
 	const SettingTabs = [
 		{
 			title: "Profile",
 			href: "/settings/profile",
 			icon: UserRound,
 		},
-		...(HasRole("IC")
+		...(isIC
 			? [
 					{
 						title: "Events",

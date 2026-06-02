@@ -9,6 +9,9 @@ type SeminarCardProps = {
 	slug: string;
 	midSeminarDeadline?: string | null;
 	finalSeminarDeadline?: string | null;
+	progressStatus?: {
+		midSeminar?: boolean;
+	};
 };
 
 function toInputDateTime(value?: string | null): string {
@@ -47,6 +50,7 @@ export default function SeminarDeadline({
 	slug,
 	midSeminarDeadline,
 	finalSeminarDeadline,
+	progressStatus,
 }: SeminarCardProps) {
 	const queryClient = useQueryClient();
 	const [isSaving, setIsSaving] = useState(false);
@@ -62,18 +66,49 @@ export default function SeminarDeadline({
 		setFinalDeadline(toInputDateTime(finalSeminarDeadline));
 	}, [finalSeminarDeadline, midSeminarDeadline]);
 
+	const isMidSeminarCompleted = progressStatus?.midSeminar === false;
+	const canEditMidDeadline = !isMidSeminarCompleted;
+	const canEditFinalDeadline = isMidSeminarCompleted;
+
 	const saveSeminarDeadlines = async () => {
-		if (!midDeadline || !finalDeadline) {
-			toast.error("Please select both mid-term and final seminar deadlines.");
+		if (!midDeadline) {
+			toast.error("Please select a mid-term seminar deadline.");
+			return;
+		}
+
+		if (canEditFinalDeadline && !finalDeadline) {
+			toast.error("Please select a final seminar deadline.");
+			return;
+		}
+
+		if (!canEditFinalDeadline && finalDeadline) {
+			toast.error(
+				"Final seminar deadline can be set only after mid-term seminar is completed.",
+			);
+			return;
+		}
+
+		const payload: {
+			midSeminarDeadline?: string;
+			finalSeminarDeadline?: string;
+		} = {};
+
+		if (canEditMidDeadline) {
+			payload.midSeminarDeadline = midDeadline;
+		}
+
+		if (canEditFinalDeadline && finalDeadline) {
+			payload.finalSeminarDeadline = finalDeadline;
+		}
+
+		if (!payload.midSeminarDeadline && !payload.finalSeminarDeadline) {
+			toast.error("No deadline change is allowed in the current state.");
 			return;
 		}
 
 		try {
 			setIsSaving(true);
-			await api.patch(`/projects/${slug}/seminar-deadlines`, {
-				midSeminarDeadline: midDeadline,
-				finalSeminarDeadline: finalDeadline,
-			});
+			await api.patch(`/projects/${slug}/seminar-deadlines`, payload);
 
 			await queryClient.invalidateQueries({
 				queryKey: ["projectDetail", slug],
@@ -109,8 +144,14 @@ export default function SeminarDeadline({
 							type="datetime-local"
 							value={midDeadline}
 							onChange={(event) => setMidDeadline(event.target.value)}
+							disabled={!canEditMidDeadline || isSaving}
 							className="border-input bg-background mt-2 w-full rounded-md border px-3 py-2 text-sm"
 						/>
+						{!canEditMidDeadline && (
+							<p className="text-xs text-muted-foreground">
+								Mid-term seminar is completed, so this deadline is locked.
+							</p>
+						)}
 					</div>
 
 					<div className="space-y-2">
@@ -124,8 +165,14 @@ export default function SeminarDeadline({
 							type="datetime-local"
 							value={finalDeadline}
 							onChange={(event) => setFinalDeadline(event.target.value)}
+							disabled={!canEditFinalDeadline || isSaving}
 							className="border-input bg-background mt-2 w-full rounded-md border px-3 py-2 text-sm"
 						/>
+						{!canEditFinalDeadline && (
+							<p className="text-xs text-muted-foreground">
+								Complete mid-term seminar first to set this deadline.
+							</p>
+						)}
 					</div>
 				</div>
 

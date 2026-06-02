@@ -3,7 +3,6 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
-import { HasRole } from "@/lib/utils";
 import { useAuthStore } from "@/stores/use-auth-store";
 import type { Comment } from "@/types";
 import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/solid";
@@ -30,7 +29,6 @@ export default function CommentBox({
 	proposalStatus: "approved" | "rejected" | "pending";
 }) {
 	const authUser = useAuthStore((state) => state.authUser);
-	const isStudentAffair = HasRole("Student Affairs");
 	const [comments, setComments] = useState<Comment[]>([]);
 	const isPendingProposal = proposalStatus === "pending";
 
@@ -103,30 +101,15 @@ export default function CommentBox({
 				<div className="space-y-4 max-h-125 overflow-y-auto pr-2">
 					<AnimatePresence>
 						{comments.length === 0 ? (
-							<>
-								{!isStudentAffair ? (
-									<motion.div
-										initial={{ opacity: 0 }}
-										animate={{ opacity: 1 }}
-										className="flex flex-col items-center justify-center py-8 text-center">
-										<MessageSquareIcon className="h-12 w-12 text-gray-300 mb-3" />
-										<p className="text-gray-500 text-sm">
-											No comments yet. Be the first to share your feedback!
-										</p>
-									</motion.div>
-								) : (
-									<motion.div
-										initial={{ opacity: 0 }}
-										animate={{ opacity: 1 }}
-										className="flex flex-col items-center justify-center py-8 text-center">
-										<MessageSquareIcon className="h-12 w-12 text-gray-300 mb-3" />
-										<p className="text-gray-500 text-sm">
-											Commenting is currently restricted to Students,
-											Supervisors and IC members.
-										</p>
-									</motion.div>
-								)}
-							</>
+							<motion.div
+								initial={{ opacity: 0 }}
+								animate={{ opacity: 1 }}
+								className="flex flex-col items-center justify-center py-8 text-center">
+								<MessageSquareIcon className="h-12 w-12 text-gray-300 mb-3" />
+								<p className="text-gray-500 text-sm">
+									No comments yet. Be the first to share your feedback!
+								</p>
+							</motion.div>
 						) : (
 							comments.map((c) => (
 								<motion.div
@@ -180,7 +163,7 @@ export default function CommentBox({
 				</div>
 
 				{/* Comment box */}
-				{!isStudentAffair && isPendingProposal && (
+				{isPendingProposal && (
 					<motion.form
 						initial={{ opacity: 0, y: 6 }}
 						animate={{ opacity: 1, y: 0 }}

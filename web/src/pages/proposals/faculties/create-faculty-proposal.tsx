@@ -8,7 +8,7 @@ import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
-import { HasRole } from "@/lib/utils";
+import { useRoleChecker } from "@/hooks/use-role-checker";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader, IconSend } from "@tabler/icons-react";
@@ -108,7 +108,8 @@ export default function CreateFacultyProposalPage() {
 		}
 	};
 
-	if (!HasRole("Faculty") && !HasRole("Supervisor")) return <UnAuthorized />;
+	const { isFaculty, isSupervisor } = useRoleChecker();
+	if (!isFaculty && !isSupervisor) return <UnAuthorized />;
 
 	return (
 		<>

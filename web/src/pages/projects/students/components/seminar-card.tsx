@@ -1,4 +1,5 @@
 import api from "@/api/api";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -8,7 +9,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { HasRole } from "@/lib/utils";
+import { useRoleChecker } from "@/hooks/use-role-checker";
 import { useQueryClient } from "@tanstack/react-query";
 import { Calendar, Loader2, Presentation, Save } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -48,7 +49,7 @@ export default function SeminarCard({
 	finalSeminarDeadline,
 	progressStatus,
 }: SeminarCardProps) {
-	const isSupervisor = HasRole("Supervisor");
+	const { isSupervisor } = useRoleChecker();
 	const queryClient = useQueryClient();
 	const [savingType, setSavingType] = useState<"mid" | "final" | null>(null);
 
@@ -73,10 +74,19 @@ export default function SeminarCard({
 		setFinalSeminarStatus(getInitialStatus(progressStatus?.finalSeminar));
 	}, [progressStatus?.finalSeminar, progressStatus?.midSeminar]);
 
+	const isMidSeminarCompleted = progressStatus?.midSeminar === false;
+
 	const saveSeminarStatus = async (
 		type: "mid" | "final",
 		status: SeminarStatusValue,
 	) => {
+		if (type === "final" && !isMidSeminarCompleted) {
+			toast.error(
+				"Final seminar status can be changed only after mid-term seminar is completed.",
+			);
+			return;
+		}
+
 		try {
 			setSavingType(type);
 			await api.patch(`/projects/${slug}/seminar-status`, {
@@ -110,7 +120,10 @@ export default function SeminarCard({
 			</CardHeader>
 			<CardContent className="space-y-4">
 				<div>
-					<p className="font-semibold">Mid-term Seminar</p>
+					<p className="font-semibold">
+						Mid-term Seminar
+						<Badge className="bg-primary-600 ml-2">{midSeminarStatus}</Badge>
+					</p>
 					<div className="mt-1 flex items-center gap-x-2">
 						<Calendar className="size-3 stroke-2 text-primary-600" />
 						<p className="flex items-center gap-1.5 text-sm">
@@ -149,7 +162,10 @@ export default function SeminarCard({
 				</div>
 
 				<div>
-					<p className="font-semibold">Final Seminar</p>
+					<p className="font-semibold">
+						Final Seminar
+						<Badge className="bg-primary-600 ml-2">{finalSeminarStatus}</Badge>
+					</p>
 					<div className="mt-1 flex items-center gap-x-2">
 						<Calendar className="size-3 stroke-2 text-primary-600" />
 						<p className="flex items-center gap-1.5 text-sm">
@@ -158,34 +174,44 @@ export default function SeminarCard({
 					</div>
 
 					{isSupervisor && (
-						<div className="mt-3 flex items-center gap-2">
-							<Select
-								value={finalSeminarStatus}
-								onValueChange={(value) =>
-									setFinalSeminarStatus(value as SeminarStatusValue)
-								}>
-								<SelectTrigger className="w-full">
-									<SelectValue placeholder="Seminar status" />
-								</SelectTrigger>
-								<SelectContent>
-									<SelectItem value="not completed">Not completed</SelectItem>
-									<SelectItem value="completed">Completed</SelectItem>
-								</SelectContent>
-							</Select>
-							<Button
-								onClick={() =>
-									void saveSeminarStatus("final", finalSeminarStatus)
-								}
-								disabled={savingType === "final"}
-								className="gap-2 bg-primary-600 font-semibold text-white hover:bg-primary-500">
-								{savingType === "final" ? (
-									<Loader2 className="h-4 w-4 animate-spin" />
-								) : (
-									<Save className="h-4 w-4" />
-								)}
-								{savingType === "final" ? "Saving" : "Save"}
-							</Button>
-						</div>
+						<>
+							<div className="mt-3 flex items-center gap-2">
+								<Select
+									value={finalSeminarStatus}
+									onValueChange={(value) =>
+										setFinalSeminarStatus(value as SeminarStatusValue)
+									}>
+									<SelectTrigger
+										className="w-full"
+										disabled={!isMidSeminarCompleted || savingType === "final"}>
+										<SelectValue placeholder="Seminar status" />
+									</SelectTrigger>
+									<SelectContent>
+										<SelectItem value="not completed">Not completed</SelectItem>
+										<SelectItem value="completed">Completed</SelectItem>
+									</SelectContent>
+								</Select>
+								<Button
+									onClick={() =>
+										void saveSeminarStatus("final", finalSeminarStatus)
+									}
+									disabled={savingType === "final" || !isMidSeminarCompleted}
+									className="gap-2 bg-primary-600 font-semibold text-white hover:bg-primary-500">
+									{savingType === "final" ? (
+										<Loader2 className="h-4 w-4 animate-spin" />
+									) : (
+										<Save className="h-4 w-4" />
+									)}
+									{savingType === "final" ? "Saving" : "Save"}
+								</Button>
+							</div>
+							{!isMidSeminarCompleted && (
+								<p className="mt-2 text-xs text-muted-foreground">
+									Complete mid-term seminar first to update final seminar
+									status.
+								</p>
+							)}
+						</>
 					)}
 				</div>
 			</CardContent>

@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Resources;
 
+use App\Enums\ProjectProgressStatus;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -13,14 +14,21 @@ class ProjectProgressResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $midReportSubmitted   = $this->mid_report === ProjectProgressStatus::Submitted->value;
+        $midSeminarDone       = $this->mid_seminar === ProjectProgressStatus::Completed->value;
+        $finalReportSubmitted = $this->final_report === ProjectProgressStatus::Submitted->value;
+        $finalSeminarDone     = $this->final_seminar === ProjectProgressStatus::Completed->value;
+
         return [
             'id'             => $this->id,
             'name'           => $this->name,
-            'supervisorName' => $this->supervisor->name,
-            'midReport'      => $this->mid_report ? 'Submitted' : 'Not Submitted',
-            'midSeminar'     => $this->mid_seminar ? 'Completed' : 'Not Completed',
-            'finalReport'    => $this->final_report ? 'Submitted' : 'Not Submitted',
-            'finalSeminar'   => $this->final_seminar ? 'Completed' : 'Not Completed',
+            'slug'           => $this->slug,
+            'type'           => $this->type,
+            'supervisorName' => $this->supervisor?->name,
+            'midReport'      => $midReportSubmitted ? 'Submitted' : 'Not Submitted',
+            'midSeminar'     => $midSeminarDone ? 'Completed' : 'Not Completed',
+            'finalReport'    => $finalReportSubmitted ? 'Submitted' : 'Not Submitted',
+            'finalSeminar'   => $finalSeminarDone ? 'Completed' : 'Not Completed',
         ];
     }
 }

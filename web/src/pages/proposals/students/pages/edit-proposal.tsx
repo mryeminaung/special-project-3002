@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import UnAuthorized from "@/components/un-authorized";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
-import { HasRole } from "@/lib/utils";
+import { useRoleChecker } from "@/hooks/use-role-checker";
 import type { User } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader, IconPencilCheck } from "@tabler/icons-react";
@@ -88,7 +88,9 @@ export default function EditProposalPage() {
 		await fileUploadRef.current?.clear();
 	};
 
-	if (!HasRole("Student")) return <UnAuthorized />;
+	const { isStudent } = useRoleChecker();
+
+	if (!isStudent) return <UnAuthorized />;
 
 	return (
 		<>

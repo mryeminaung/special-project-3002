@@ -13,13 +13,13 @@ import {
 import { ShieldCheckIcon } from "lucide-react";
 import { useNavigate } from "react-router";
 
-export function AdminCards({
+export function IcCards({
 	dashboardData,
 }: {
 	dashboardData: {
-		noOfStudents: number;
-		noOfEvents: number;
-		noOfProjectAreas: number;
+		noOfProposals: number;
+		noOfProjects: number;
+		noOfSupervisors: number;
 		noOfFaculties: number;
 	};
 }) {
@@ -27,22 +27,22 @@ export function AdminCards({
 
 	const sectionCardData = [
 		{
-			title: dashboardData.noOfEvents ?? 0,
+			title: dashboardData.noOfProjects ?? 0,
 			cardIcon: IconListDetails,
-			description: "Total Events",
-			pageUrl: "/events",
+			description: "Total Projects",
+			pageUrl: "/projects",
 		},
 		{
-			title: dashboardData.noOfStudents ?? 0,
+			title: dashboardData.noOfProposals ?? 0,
 			cardIcon: IconFileDescription,
-			description: "Total Students",
-			pageUrl: "/students",
+			description: "Total Proposals",
+			pageUrl: "/project-proposals",
 		},
 		{
-			title: dashboardData.noOfProjectAreas ?? 0,
+			title: dashboardData.noOfSupervisors ?? 0,
 			cardIcon: ShieldCheckIcon,
-			description: "Total Project Areas",
-			pageUrl: "/project-areas",
+			description: "Total Supervisors",
+			pageUrl: "/supervisors",
 		},
 		{
 			title: dashboardData.noOfFaculties ?? 0,

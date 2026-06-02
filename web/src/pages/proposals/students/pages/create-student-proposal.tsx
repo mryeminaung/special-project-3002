@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import UnAuthorized from "@/components/un-authorized";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
-import { HasRole } from "@/lib/utils";
+import { useRoleChecker } from "@/hooks/use-role-checker";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader, IconSend } from "@tabler/icons-react";
@@ -90,7 +90,7 @@ export default function CreateStudentProposalPage() {
 		try {
 			const res = await api.post("/proposals", formattedData);
 			if (res.status === 201) {
-				navigate("/project-proposals/my-proposals");
+				navigate("/project-proposals/me");
 			}
 		} catch (error: any) {
 			const validationErrors = error.response?.data?.errors;
@@ -106,7 +106,8 @@ export default function CreateStudentProposalPage() {
 		}
 	};
 
-	if (!HasRole("Student")) return <UnAuthorized />;
+	const { isStudent } = useRoleChecker();
+	if (!isStudent) return <UnAuthorized />;
 
 	return (
 		<>
