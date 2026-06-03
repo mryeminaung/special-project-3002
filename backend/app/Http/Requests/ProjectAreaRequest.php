@@ -3,9 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
-class CommentRequest extends FormRequest
+class ProjectAreaRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,19 +23,22 @@ class CommentRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'description' => 'required|string',
-            'proposal_id' => 'required',
-            // 'proposal_id' => 'required|exists:proposals,id',
+            'name' => 'required|string|unique:project_areas,name|max:255',
+            'description' => 'nullable|string',
         ];
     }
 
-    /**
-     * Handle a passed validation attempt.
-     */
-    protected function passedValidation(): void
+    public function messages(): array
+    {
+        return [
+            'name.unique' => 'The project area has already been taken.',
+        ];
+    }
+
+    public function passedValidation()
     {
         $this->merge([
-            'user_id' => Auth::id()
+            'slug' => Str::slug($this->name),
         ]);
     }
 }

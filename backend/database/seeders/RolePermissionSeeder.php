@@ -15,21 +15,21 @@ class RolePermissionSeeder extends Seeder
     {
         app()->make(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        $roles = ["Admin", 'IC', 'Student Affairs', 'Supervisor', 'Faculty', 'Student'];
+        $roles = ["admin", 'ic', 'student-affairs', 'supervisor', 'faculty', 'student'];
 
         foreach ($roles as $role) {
             Role::create(['name' => $role]);
         }
 
-        $icPermissions = ['approve proposal', 'reject proposal'];
-        foreach ($icPermissions as $permission) {
-            Permission::create(['name' => $permission]);
-        }
+        // $icPermissions = ['approve proposal', 'reject proposal'];
+        // foreach ($icPermissions as $permission) {
+        //     Permission::create(['name' => $permission]);
+        // }
 
-        $permissions = ['create proposal', 'edit proposal', 'edit project', 'delete project', 'submit reports', 'create tasks', 'edit tasks', 'delete tasks'];
+        // $permissions = ['create proposal', 'edit proposal', 'edit project', 'delete project', 'submit reports', 'create tasks', 'edit tasks', 'delete tasks'];
 
-        foreach ($permissions as $permission) {
-            Permission::create(['name' => $permission]);
-        }
+        // foreach ($permissions as $permission) {
+        //     Permission::create(['name' => $permission]);
+        // }
     }
 }

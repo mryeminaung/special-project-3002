@@ -1,6 +1,7 @@
 <?php
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\ProjectEventStoreRequest;
 use App\Http\Resources\ProjectEventResource;
 use App\Models\ProjectEvent;

@@ -1,18 +1,18 @@
 <?php
 
-namespace App\Http\Controllers\auth;
+namespace App\Http\Controllers\Api\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\auth\LoginRequest;
 use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Lang;
-use Illuminate\Validation\ValidationException;
+use App\Traits\ApiResponse;
 
-class AuthController extends Controller
+class ProfileController extends Controller
 {
+    use ApiResponse;
+    
     public function updateProfile(Request $request)
     {
         $data = $request->validate([
@@ -74,27 +74,4 @@ class AuthController extends Controller
         }
     }
 
-    public function login(LoginRequest $request)
-    {
-        if (Auth::attempt($request->validated())) {
-            $token = Auth::user()->createToken('authToken')->plainTextToken;
-            return response()->json([
-                'user' => new UserResource(Auth::user()->load(['student', 'faculty'])),
-                'token' => $token
-            ], 200);
-        } else {
-            throw ValidationException::withMessages([
-                'email' => [Lang::get('auth.failed')],
-            ]);
-        }
-    }
-
-    public function logout()
-    {
-        Auth::user()->currentAccessToken()->delete();
-
-        return response()->json([
-            'message' => "Logout Successfully"
-        ]);
-    }
 }
