@@ -7,11 +7,11 @@ export const useRoleChecker = (): {
 	isSupervisor: boolean;
 	isFaculty: boolean;
 } => {
-	const isStudent = HasRole("Student");
-	const isAdmin = HasRole("Admin");
-	const isIC = HasRole("IC");
-	const isSupervisor = HasRole("Supervisor");
-	const isFaculty = HasRole("Faculty");
+	const isStudent = HasRole("student");
+	const isAdmin = HasRole("admin");
+	const isIC = HasRole("ic");
+	const isSupervisor = HasRole("supervisor");
+	const isFaculty = HasRole("faculty");
 
 	return { isStudent, isAdmin, isIC, isSupervisor, isFaculty };
 };

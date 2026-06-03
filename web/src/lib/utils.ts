@@ -17,12 +17,12 @@ export const useHeader = () => {
 };
 
 type UserRole =
-	| "Admin"
-	| "IC"
-	| "Supervisor"
-	| "Faculty"
-	| "Student"
-	| "Student Affairs";
+	| "admin"
+	| "ic"
+	| "supervisor"
+	| "faculty"
+	| "student"
+	| "student-affairs";
 
 export const HasRole = (role: UserRole): boolean => {
 	const authUser = useAuthStore.getState().authUser;

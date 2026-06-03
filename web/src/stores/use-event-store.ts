@@ -1,5 +1,5 @@
 import api from "@/api/api";
-import type { EventType } from "@/pages/events/events.type";
+import type { EventType } from "@/features/events/events.type";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 

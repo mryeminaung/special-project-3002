@@ -1,6 +1,6 @@
 import { AppSidebar } from "@/components/app-sidebar";
-import ProgressIndicator from "@/components/progress-indicator";
-import { SiteHeader } from "@/components/site-header";
+import ProgressIndicator from "@/components/common/progress-indicator";
+import { SiteHeader } from "@/components/common/site-header";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import Cookies from "js-cookie";
 import { useState } from "react";
