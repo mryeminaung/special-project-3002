@@ -2,7 +2,7 @@ import { useAuthStore } from "@/stores/use-auth-store";
 import axios from "axios";
 
 const api = axios.create({
-	baseURL: "http://localhost:8000/api/",
+	baseURL: "http://localhost:8000/api/v1",
 	withCredentials: true,
 	withXSRFToken: true,
 	headers: {
@@ -40,7 +40,7 @@ api.interceptors.response.use(
 
 			// Optional: Redirect to login page manually if not using a Guard component
 			if (typeof window !== "undefined") {
-				window.location.href = "/login";
+				window.location.href = "/auth/login";
 			}
 		}
 		return Promise.reject(error);
