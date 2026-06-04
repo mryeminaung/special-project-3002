@@ -1,6 +1,7 @@
 <?php
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Enums\ProjectProgressStatus;
 use App\Http\Resources\ProjectResource;
 use App\Http\Resources\project\FacultyProjectResource;

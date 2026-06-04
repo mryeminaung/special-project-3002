@@ -24,6 +24,7 @@ class CommentResource extends JsonResource
                     'role' => $author->roles->first()?->name ?? 'Student',
                 ];
             }),
+            'proposalId' => $this->proposal_id,
             'updatedAt' => $this->updated_at->format('M d, Y'),
         ];
     }

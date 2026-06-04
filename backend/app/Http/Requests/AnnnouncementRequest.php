@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 
-class CommentRequest extends FormRequest
+class AnnnouncementRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,19 +23,19 @@ class CommentRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'proposal_id' => 'required',
-            // 'proposal_id' => 'required|exists:proposals,id',
+            'audience' => 'required|in:students,faculties,both',
         ];
     }
 
     /**
      * Handle a passed validation attempt.
      */
-    protected function passedValidation(): void
+    public function passedValidation()
     {
         $this->merge([
-            'user_id' => Auth::id()
+            'created_by' => Auth::id()
         ]);
     }
 }

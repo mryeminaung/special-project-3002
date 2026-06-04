@@ -1,29 +1,63 @@
 <?php
 
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\AnnouncementController;
-use App\Http\Controllers\auth\AuthController;
-use App\Http\Controllers\CommentController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\FileController;
-use App\Http\Controllers\ProjectAreaController;
-use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\ProjectEventController;
-use App\Http\Controllers\ProposalController;
-use App\Http\Controllers\SupervisorController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Admin\AdminController;
+use App\Http\Controllers\Api\AnnouncementController;
+use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\Auth\ProfileController;
+use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\FileController;
+use App\Http\Controllers\Api\ProjectAreaController;
+use App\Http\Controllers\Api\ProjectController;
+use App\Http\Controllers\Api\ProjectEventController;
+use App\Http\Controllers\Api\ProposalController;
+use App\Http\Controllers\Api\SupervisorController;
+use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
-Route::controller(AuthController::class)->group(function () {
-    Route::post('/login', 'login')->middleware('guest');
-    Route::post('/logout', 'logout')->middleware('auth:sanctum');
+Route::prefix("v1/auth")->group(function () {
+    // Authentication routes
+    Route::controller(AuthController::class)->group(function () {
+        Route::post('/login', 'login')->middleware('guest');
+        Route::post('/logout', 'logout')->middleware('auth:sanctum');
+        Route::post('/logout-all', 'logoutAll')->middleware('auth:sanctum');
+    });
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::prefix("v1/")->middleware('auth:sanctum')->group(function () {
 
-    Route::controller(AuthController::class)->group(function () {
+    // profile routes
+    Route::controller(ProfileController::class)->group(function () {
+        Route::get("/profile", 'showProfile');
         Route::patch("/update-profile", 'updateProfile');
         Route::post("/reset-password", 'resetPassword');
+    });
+
+    // comment routes
+    Route::controller(CommentController::class)->group(function () {
+        Route::get("/comments", 'index');
+        Route::get("/comments/{proposal:id}", 'show');
+        Route::post("/comments", 'store');
+        Route::patch("/comments/{proposal:id}/{comment}", 'update');
+        Route::delete("/comments/{comment}", 'destroy');
+    });
+
+    // announcement routes
+    Route::controller(AnnouncementController::class)->group(function () {
+        Route::get("/announcements", 'index');
+        Route::get("/announcements/{announcement}", 'show');
+        Route::post("/announcements", 'store');
+        Route::patch("/announcements/{announcement}", 'update');
+        Route::delete("/announcements/{announcement}", 'destroy');
+    });
+
+    // project area routes
+    Route::controller(ProjectAreaController::class)->group(function () {
+        Route::get("/project-areas", 'index');
+        Route::get("/project-areas/{projectArea:slug}", 'show');
+        Route::post("/project-areas", 'store');
+        Route::patch("/project-areas/{projectArea:slug}", 'update');
+        Route::delete("/project-areas/{projectArea:slug}", 'destroy');
     });
 
     Route::get("/dashboard", DashboardController::class);
@@ -66,12 +100,6 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post("/proposals/{proposal:slug}/reject", 'rejectByIC');
     });
 
-    Route::controller(CommentController::class)->group(function () {
-        Route::post("/comments/create", 'store');
-        Route::get("/comments/{proposal:id}", 'show');
-        Route::delete("/comments/{comment}", 'destroy');
-    });
-
     Route::controller(SupervisorController::class)->group(function () {
         Route::get("/supervisors", 'index');
         Route::get("/supervisors/{supervisor:id}/detail", 'show');
@@ -102,11 +130,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post("/delete-report", 'deleteReport');
     });
 
-    Route::apiResource("/announcements", AnnouncementController::class)->except(['create', 'show', 'edit', 'update']);
-
     Route::apiResource("/project-events", ProjectEventController::class)->except(['create', 'show', 'edit', 'update']);
 
     Route::post("/project-events/{projectEvent}/toggle-active", [ProjectEventController::class, 'toggleActive']);
-
-    Route::apiResource("/project-areas", ProjectAreaController::class)->except(['create', 'show', 'edit']);
 });

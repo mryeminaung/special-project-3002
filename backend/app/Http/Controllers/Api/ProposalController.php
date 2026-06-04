@@ -1,6 +1,7 @@
 <?php
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use App\Events\ProposalApproved;
 use App\Http\Requests\ProposalRequest;
 use App\Http\Resources\ProposalResource;
