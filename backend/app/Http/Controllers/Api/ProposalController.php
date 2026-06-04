@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
@@ -111,11 +112,13 @@ class ProposalController extends Controller
                 return $this->successResponse(
                     'Student proposal detail view',
                     new StudentProposalResource($proposal->load('members')),
-                    200);
+                    200
+                );
             } else {
                 return $this->errorResponse(
                     'Student proposal not found',
-                    404);
+                    404
+                );
             }
         }
 
@@ -123,7 +126,8 @@ class ProposalController extends Controller
             return $this->successResponse(
                 'Faculty proposal detail view',
                 new FacultyProposalResource($proposal->load(['supervisor', 'members', 'applicants'])),
-                200);
+                200
+            );
         }
     }
 
@@ -158,7 +162,8 @@ class ProposalController extends Controller
             [
                 'proposals'              => BrowseFacultyResource::collection($proposals),
                 'joined_proposals_count' => $joinedProposalsCount,
-            ]);
+            ]
+        );
     }
 
     public function joinFacultyProposal(Proposal $proposal)

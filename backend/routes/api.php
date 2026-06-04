@@ -1,10 +1,13 @@
 <?php
 
 use App\Http\Controllers\Api\Auth\AuthController;
+use App\Http\Controllers\Api\Auth\ProfileController;
+
 use App\Http\Controllers\Api\Admin\AdminController;
+use App\Http\Controllers\Api\Admin\DepartmentController;
+use App\Http\Controllers\Api\Admin\StudentController;
 use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\CommentController;
-use App\Http\Controllers\Api\Auth\ProfileController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\FileController;
 use App\Http\Controllers\Api\ProjectAreaController;
@@ -13,6 +16,7 @@ use App\Http\Controllers\Api\ProjectEventController;
 use App\Http\Controllers\Api\ProposalController;
 use App\Http\Controllers\Api\SupervisorController;
 use App\Http\Controllers\Api\UserController;
+
 use Illuminate\Support\Facades\Route;
 
 Route::prefix("v1/auth")->group(function () {
@@ -62,21 +66,10 @@ Route::prefix("v1/")->middleware('auth:sanctum')->group(function () {
 
     Route::get("/dashboard", DashboardController::class);
 
-    Route::controller(AdminController::class)->group(function () {
-        // 1. Events Management
-        Route::get("/admin/events", "getEvents");
+    Route::prefix("/admin")->middleware('role:admin')->group(function () {
 
-        // 2. Project Areas Management
-        Route::get("/admin/project-areas", "getProjectAreas");
-
-        // 3. Students Management
-        Route::get("/admin/students", "getStudents");
-
-        // 4. Faculties Management
-        Route::get("/admin/faculties", "getFaculties");
-
-        // 5. Departments Management
-        Route::get("/admin/departments", "getDepartments");
+        Route::apiResource("/students", StudentController::class);
+        Route::apiResource("/departments", DepartmentController::class);
     });
 
     Route::controller(UserController::class)->group(function () {

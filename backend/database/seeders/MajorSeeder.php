@@ -13,11 +13,14 @@ class MajorSeeder extends Seeder
      */
     public function run(): void
     {
-        Major::insert(
+        $majors =
             [
                 ["name" => "CSE", "description" => " Computer Science & Engineering"],
                 ["name" => "ECE", "description" => "Electronics & Communication Engineering"],
-            ]
-        );
+            ];
+
+        foreach ($majors as $major) {
+            Major::create($major);
+        }
     }
 }

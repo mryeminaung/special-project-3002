@@ -16,7 +16,6 @@ class AdminController extends Controller
         return response()->json(ProjectEvent::latest()->get());
     }
 
-  
     public function getProjectAreas()
     {
         return response()->json(ProjectArea::orderBy('name')->get());
