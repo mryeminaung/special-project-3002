@@ -6,7 +6,7 @@ import {
 	IconUserCircle,
 } from "@tabler/icons-react";
 
-import api from "@/api/api";
+import authService from "@/api/auth.service";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
 	DropdownMenu,
@@ -41,7 +41,7 @@ export function NavUser({
 
 	const handleLogout = async () => {
 		try {
-			await api.post("/logout");
+			await authService.logout();
 		} catch (error) {
 			console.error(
 				"Logout request failed, but clearing local session:",

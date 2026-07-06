@@ -1,6 +1,7 @@
 import api from "@/api/api";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+
 export interface AuthUser {
 	id: number;
 	name: string;
