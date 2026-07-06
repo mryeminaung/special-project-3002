@@ -7,4 +7,12 @@ export type AnnouncementItem = {
 	announcer: string;
 	audience: AnnouncementAudience;
 	createdAt: string;
+	updatedAt?: string;
+};
+
+export type AnnouncementFormData = {
+	title: string;
+	description: string;
+	audience: AnnouncementAudience;
+	created_by: number;
 };
