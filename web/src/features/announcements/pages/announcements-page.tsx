@@ -6,6 +6,7 @@ import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { useRoleChecker } from "@/hooks/use-role-checker";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
 import type { AnnouncementItem } from "../announcement.types";
 import AnnouncementCards from "../components/announcement-cards";
 import { NewAnnouncement } from "../components/new-announcement";
@@ -13,7 +14,13 @@ import { NewAnnouncement } from "../components/new-announcement";
 export default function AnnouncementsPage() {
 	useHeaderInitializer("MIIT | Announcements", "Announcements");
 
-	const { data: announcements = [], isLoading } = useQuery<AnnouncementItem[]>({
+	const { isIC } = useRoleChecker();
+
+	const {
+		data: announcements = [],
+		isLoading,
+		error,
+	} = useQuery<AnnouncementItem[]>({
 		queryKey: ["announcements"],
 		queryFn: async () => {
 			const res = await api.get("/announcements");
@@ -21,9 +28,11 @@ export default function AnnouncementsPage() {
 		},
 	});
 
-	const hasAnnouncements = announcements.length > 0;
+	if (error) {
+		toast.error("Failed to load announcements. Please try again.");
+	}
 
-	const { isIC } = useRoleChecker();
+	const hasAnnouncements = announcements.length > 0;
 
 	return (
 		<PageWrapper>
@@ -57,9 +66,13 @@ export default function AnnouncementsPage() {
 					<p className="text-base font-semibold text-neutral-800">
 						No announcements yet
 					</p>
-					{isIC && (
+					{isIC ? (
 						<p className="mt-1 text-sm text-neutral-600">
 							Create your first announcement to notify students and faculties.
+						</p>
+					) : (
+						<p className="mt-1 text-sm text-neutral-600">
+							There are no announcements at this time. Check back later.
 						</p>
 					)}
 				</div>

@@ -12,32 +12,29 @@ import { Field, FieldGroup } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { IconCirclePlus, IconLoader } from "@tabler/icons-react";
+import { IconLoader, IconPencil } from "@tabler/icons-react";
 
 import api from "@/api/api";
 import ErrorMessage from "@/components/error-message";
-import { useAuthStore } from "@/stores/use-auth-store";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import type { AnnouncementAudience } from "../announcement.types";
+import type { AnnouncementAudience, AnnouncementItem } from "../announcement.types";
 
-const announcementSchema = z.object({
+const editAnnouncementSchema = z.object({
 	title: z.string().min(1, "Title is required"),
 	description: z.string().min(1, "Description is required"),
 	audience: z.enum(["students", "faculties", "both"]),
-	created_by: z.number(),
 });
 
-type AnnouncementFormData = z.infer<typeof announcementSchema>;
+type EditAnnouncementFormData = z.infer<typeof editAnnouncementSchema>;
 
-export function NewAnnouncement() {
+export default function EditAnnouncement({ announcement }: { announcement: AnnouncementItem }) {
 	const queryClient = useQueryClient();
-	const authUser = useAuthStore((state) => state.authUser);
 	const [open, setOpen] = useState(false);
+	const [selectedAudience, setSelectedAudience] = useState<AnnouncementAudience>(announcement.audience);
 	const [loading, setLoading] = useState(false);
 
 	const {
@@ -45,29 +42,28 @@ export function NewAnnouncement() {
 		handleSubmit,
 		reset,
 		formState: { errors },
-	} = useForm<AnnouncementFormData>({
-		resolver: zodResolver(announcementSchema),
+	} = useForm<EditAnnouncementFormData>({
 		defaultValues: {
-			title: "",
-			description: "",
-			audience: "both",
-			created_by: authUser.id,
+			title: announcement.title,
+			description: announcement.description,
+			audience: announcement.audience,
 		},
 	});
 
-	const onSubmit = async (data: AnnouncementFormData) => {
+	const onSubmit = async (data: EditAnnouncementFormData) => {
+		const formData = { ...data, audience: selectedAudience };
 		setLoading(true);
 		try {
-			const res = await api.post("/announcements", data);
-			if (res.status === 200 || res.status === 201) {
+			const res = await api.put(`/announcements/${announcement.id}`, formData);
+			if (res.status === 200) {
 				await queryClient.invalidateQueries({ queryKey: ["announcements"] });
-				toast.success("Announcement created successfully");
+				toast.success("Announcement updated successfully");
 				reset();
 				setOpen(false);
 			}
 		} catch (error) {
-			console.error("Error creating announcement:", error);
-			toast.error("Failed to create announcement. Please try again.");
+			console.error("Error updating announcement:", error);
+			toast.error("Failed to update announcement. Please try again.");
 		} finally {
 			setLoading(false);
 		}
@@ -80,41 +76,39 @@ export function NewAnnouncement() {
 				setOpen(isOpen);
 				if (!isOpen) {
 					reset();
+					setSelectedAudience(announcement.audience);
 				}
 			}}>
 			<DialogTrigger asChild>
-				<Button
-					className="hover:cursor-pointer bg-primary-600 hover:bg-primary-600/80 ml-auto hover:text-white text-white"
-					variant={"outline"}>
-					<IconCirclePlus />
-					<span>Create</span>
-				</Button>
+				<IconPencil
+					className="h-4 w-4 cursor-pointer text-muted-foreground hover:text-primary transition-colors"
+				/>
 			</DialogTrigger>
 			<DialogContent className="sm:max-w-sm">
 				<form onSubmit={handleSubmit(onSubmit)}>
 					<DialogHeader>
-						<DialogTitle>Create New Announcement</DialogTitle>
+						<DialogTitle>Edit Announcement</DialogTitle>
 						<DialogDescription className="mb-2">
-							Fill in the details for your new announcement.
+							Update the details for this announcement.
 							<br />
 							Click <b>Save</b> when you&apos;re done.
 						</DialogDescription>
 					</DialogHeader>
 					<FieldGroup>
 						<Field>
-							<Label htmlFor="title">Title</Label>
+							<Label htmlFor="edit-title">Title</Label>
 							<Input
 								{...register("title")}
-								id="title"
+								id="edit-title"
 								name="title"
 							/>
 							{errors.title && <ErrorMessage error={errors.title?.message} />}
 						</Field>
 						<Field>
-							<Label htmlFor="description">Description</Label>
+							<Label htmlFor="edit-description">Description</Label>
 							<Textarea
 								{...register("description")}
-								id="description"
+								id="edit-description"
 								className="min-h-30 resize-none"
 								name="description"
 							/>
@@ -123,31 +117,31 @@ export function NewAnnouncement() {
 							)}
 						</Field>
 						<Field>
-							<Label>Audience</Label>
+							<Label htmlFor="edit-audience">Audience</Label>
 							<div className="flex items-center gap-x-3">
 								<Button
 									type="button"
-									onClick={() => register("audience").onChange({ target: { value: "students" } })}
+									onClick={() => setSelectedAudience("students")}
 									className="flex-1"
 									variant={
-										"default"
+										selectedAudience === "students" ? "default" : "outline"
 									}>
 									Students
 								</Button>
 								<Button
 									type="button"
-									onClick={() => register("audience").onChange({ target: { value: "faculties" } })}
+									onClick={() => setSelectedAudience("faculties")}
 									className="flex-1"
 									variant={
-										"outline"
+										selectedAudience === "faculties" ? "default" : "outline"
 									}>
 									Faculties
 								</Button>
 								<Button
 									type="button"
-									onClick={() => register("audience").onChange({ target: { value: "both" } })}
+									onClick={() => setSelectedAudience("both")}
 									className="flex-1"
-									variant={"outline"}>
+									variant={selectedAudience === "both" ? "default" : "outline"}>
 									Both
 								</Button>
 							</div>
