@@ -1,4 +1,4 @@
-import api from "@/api/api";
+import authService from "@/api/auth.service";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -56,11 +56,9 @@ export function LoginForm() {
 
 	const onSubmit = async (data: z.infer<typeof LoginSchema>) => {
 		try {
-			const res = await api.post("auth/login", data);
-			if (res.data) {
-				setAuthUser(res.data);
-				navigate("/dashboard");
-			}
+			const response = await authService.login(data);
+			setAuthUser(response);
+			navigate("/dashboard");
 		} catch (error: any) {
 			if (error.status === 422) {
 				setError(

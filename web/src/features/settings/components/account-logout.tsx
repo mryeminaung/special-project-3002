@@ -1,4 +1,4 @@
-import api from "@/api/api";
+import authService from "@/api/auth.service";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FieldDescription } from "@/components/ui/field";
@@ -12,7 +12,7 @@ export default function AccountLogout() {
 
 	const handleLogout = async () => {
 		try {
-			await api.post("/logout");
+			await authService.logout();
 		} catch (error) {
 			console.error(
 				"Logout request failed, but clearing local session:",

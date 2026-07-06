@@ -1,4 +1,4 @@
-import api from "@/api/api";
+import authService from "@/api/auth.service";
 import ErrorMessage from "@/components/error-message";
 import { Button } from "@/components/ui/button";
 import {
@@ -56,11 +56,13 @@ export default function ChangePassword() {
 
 	const onSubmit = async (data: z.infer<typeof PasswordSchema>) => {
 		try {
-			const res = await api.post("/reset-password", data);
-			if (res.status === 200) {
-				reset();
-				logout();
-			}
+			await authService.changePassword(
+				data.current_password,
+				data.password,
+				data.password_confirmation,
+			);
+			reset();
+			logout();
 		} catch (error: any) {
 			const validationErrors = error.response?.data?.errors;
 			if (validationErrors?.current_password) {
