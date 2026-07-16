@@ -5,26 +5,32 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProjectAreaRequest;
 use App\Models\ProjectArea;
+use App\Services\ProjectAreaService;
 use App\Traits\ApiResponse;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 
 class ProjectAreaController extends Controller
 {
     use ApiResponse;
 
+    public function __construct(
+        private ProjectAreaService $projectAreaService
+    ) {}
+
     public function index()
     {
-        return $this->successResponse('Project areas retrieved successfully', ProjectArea::all());
+        $areas = $this->projectAreaService->list();
+
+        return $this->successResponse('Project areas retrieved successfully', $areas);
     }
 
     public function store(ProjectAreaRequest $request)
     {
         Gate::authorize('create', ProjectArea::class);
 
-        $projectArea = ProjectArea::create($request->all());
+        $projectArea = $this->projectAreaService->create($request->validated());
 
-        return $this->successResponse('Project area created successfully', $projectArea,  201);
+        return $this->successResponse('Project area created successfully', $projectArea, 201);
     }
 
     public function show(ProjectArea $projectArea)
@@ -36,7 +42,7 @@ class ProjectAreaController extends Controller
     {
         Gate::authorize('update', $projectArea);
 
-        $projectArea->update($request->all());
+        $projectArea = $this->projectAreaService->update($projectArea, $request->validated());
 
         return $this->successResponse('Project area updated successfully', $projectArea);
     }
@@ -45,7 +51,7 @@ class ProjectAreaController extends Controller
     {
         Gate::authorize('delete', $projectArea);
 
-        $projectArea->delete();
+        $this->projectAreaService->delete($projectArea);
 
         return $this->successResponse('Project area deleted successfully', null, 204);
     }

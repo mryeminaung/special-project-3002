@@ -13,7 +13,7 @@ class ProjectAreaPolicy
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -21,7 +21,7 @@ class ProjectAreaPolicy
      */
     public function view(User $user, ProjectArea $projectArea): bool
     {
-        return false;
+        return true;
     }
 
     /**

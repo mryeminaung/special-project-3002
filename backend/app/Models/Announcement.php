@@ -14,12 +14,9 @@ class Announcement extends Model
         'created_by',
     ];
 
-    public function casts()
-    {
-        return [
-            'audience' => AnnouncementAudience::class,
-        ];
-    }
+    protected $casts = [
+        'audience' => AnnouncementAudience::class,
+    ];
 
     public function announcer()
     {

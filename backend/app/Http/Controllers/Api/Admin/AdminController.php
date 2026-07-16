@@ -7,20 +7,27 @@ use App\Models\Department;
 use App\Models\ProjectArea;
 use App\Models\ProjectEvent;
 use App\Models\User;
+use App\Traits\ApiResponse;
 
 class AdminController extends Controller
 {
+    use ApiResponse;
+
     public function getEvents()
     {
-        // Using your ProjectEvent model if that is the specific name
-        return response()->json(ProjectEvent::latest()->get());
+        return $this->successResponse(
+            'Events retrieved successfully.',
+            ProjectEvent::latest()->get()
+        );
     }
 
     public function getProjectAreas()
     {
-        return response()->json(ProjectArea::orderBy('name')->get());
+        return $this->successResponse(
+            'Project areas retrieved successfully.',
+            ProjectArea::orderBy('name')->get()
+        );
     }
-
 
     public function getStudents()
     {
@@ -29,27 +36,27 @@ class AdminController extends Controller
             ->select([
                 'users.name',
                 'users.email',
-                'majors.name as major_name', // Aliased for clarity
+                'majors.name as major_name',
             ])
             ->orderBy('users.name')
             ->get();
 
-        return response()->json($students);
+        return $this->successResponse('Students retrieved successfully.', $students);
     }
 
     public function getFaculties()
     {
-        // Fetches both Faculty and Supervisor roles
         $faculties = User::whereHas('roles', function ($q) {
             $q->whereIn('name', ['Faculty', 'Supervisor']);
         })->latest()->get();
 
-        return response()->json($faculties);
+        return $this->successResponse('Faculties retrieved successfully.', $faculties);
     }
 
     public function getDepartments()
     {
-        return response()->json(
+        return $this->successResponse(
+            'Departments retrieved successfully.',
             Department::select('id', 'name', 'description')->get()
         );
     }
