@@ -3,9 +3,7 @@
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\Auth\ProfileController;
 
-use App\Http\Controllers\Api\Admin\AdminController;
 use App\Http\Controllers\Api\Admin\DepartmentController;
-use App\Http\Controllers\Api\Admin\StudentController;
 use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\DashboardController;
@@ -67,8 +65,6 @@ Route::prefix("v1/")->middleware('auth:sanctum')->group(function () {
     Route::get("/dashboard", DashboardController::class);
 
     Route::prefix("/admin")->middleware('role:admin')->group(function () {
-
-        Route::apiResource("/students", StudentController::class);
         Route::apiResource("/departments", DepartmentController::class);
     });
 
@@ -103,7 +99,6 @@ Route::prefix("v1/")->middleware('auth:sanctum')->group(function () {
         Route::get("/assigned-projects", 'assignedProjects');
         Route::get("/projects/me", 'studentProjects');
         Route::get("/projects/{project:slug}", 'show');
-        Route::patch("/projects/{project:slug}/change-status", 'changeStatus');
         Route::patch("/projects/{project:slug}/seminar-deadlines", 'updateSeminarDeadlines');
         Route::patch("/projects/{project:slug}/seminar-status", 'updateSeminarStatus');
         Route::patch("/projects/{project:slug}/report-status", 'updateReportStatus');
@@ -116,7 +111,6 @@ Route::prefix("v1/")->middleware('auth:sanctum')->group(function () {
 
         // upload or delete proposal document
         Route::post("/upload-to-s3", 'uploadToS3');
-        Route::post("/delete-from-s3", 'deleteFromS3');
 
         // upload or delete report
         Route::post("/upload-report", 'uploadReport');

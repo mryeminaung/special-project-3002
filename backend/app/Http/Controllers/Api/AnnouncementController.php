@@ -3,9 +3,10 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\AnnnouncementRequest;
+use App\Http\Requests\AnnouncementRequest;
 use App\Http\Resources\AnnouncementResource;
 use App\Models\Announcement;
+use App\Services\AnnouncementService;
 use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\Gate;
 
@@ -13,25 +14,26 @@ class AnnouncementController extends Controller
 {
     use ApiResponse;
 
+    public function __construct(
+        private AnnouncementService $announcementService
+    ) {}
+
     public function index()
     {
-        $query = Announcement::query();
+        $audience = request()->query('audience');
+        $announcements = $this->announcementService->list($audience);
 
-        // optional filter by audience query parameter
-        if ($audience = request()->query('audience')) {
-            $query->where('audience', $audience);
-        }
-
-        $announcements = $query->orderBy('created_at', 'desc')->get();
-
-        return $this->successResponse("Announcements retrieved successfully", AnnouncementResource::collection($announcements));
+        return $this->successResponse(
+            "Announcements retrieved successfully",
+            AnnouncementResource::collection($announcements)
+        );
     }
 
-    public function store(AnnnouncementRequest $request)
+    public function store(AnnouncementRequest $request)
     {
         Gate::authorize('create', Announcement::class);
 
-        $announcement = Announcement::create($request->all());
+        $announcement = $this->announcementService->create($request->validated());
 
         return $this->successResponse(
             'Announcement created successfully',
@@ -42,14 +44,17 @@ class AnnouncementController extends Controller
 
     public function show(Announcement $announcement)
     {
-        return $this->successResponse("Announcement retrieved successfully", new AnnouncementResource($announcement));
+        return $this->successResponse(
+            "Announcement retrieved successfully",
+            new AnnouncementResource($announcement)
+        );
     }
 
-    public function update(AnnnouncementRequest $request, Announcement $announcement)
+    public function update(AnnouncementRequest $request, Announcement $announcement)
     {
         Gate::authorize('update', $announcement);
 
-        $announcement->update($request->all());
+        $announcement = $this->announcementService->update($announcement, $request->validated());
 
         return $this->successResponse(
             'Announcement updated successfully',
@@ -62,7 +67,7 @@ class AnnouncementController extends Controller
     {
         Gate::authorize('delete', $announcement);
 
-        $announcement->delete();
+        $this->announcementService->delete($announcement);
 
         return $this->successResponse(
             'Announcement deleted successfully',

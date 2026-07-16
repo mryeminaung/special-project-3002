@@ -2,18 +2,19 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Enums\ProjectProgressStatus;
 use App\Http\Resources\UserResource;
-use App\Models\Project;
+use App\Services\FileService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class FileController extends Controller
 {
     use ApiResponse;
+
+    public function __construct(
+        private FileService $fileService
+    ) {}
 
     public function uploadProfilePicture(Request $request)
     {
@@ -21,123 +22,68 @@ class FileController extends Controller
             'avatar_url' => ['required', 'image'],
         ]);
 
-        $path      = $request->file('avatar_url')->store('avatars', 'public');
-        $avatarURL = 'storage/' . $path;
+        $this->fileService->uploadProfilePicture($request->file('avatar_url'));
 
-        $user = Auth::user();
-
-        if ($user) {
-            $user->update([
-                'avatar_url' => $avatarURL,
-            ]);
-        }
-
-        return response()->json([
-            'user'  => new UserResource(Auth::user()->load(['student', 'faculty'])),
-            'token' => $request->bearerToken(),
-        ], 200);
+        return $this->successResponse(
+            'Profile picture uploaded successfully.',
+            new UserResource(Auth::user()->load(['student', 'faculty']))
+        );
     }
 
-    public function deleteProfilePicture(Request $request)
+    public function deleteProfilePicture()
     {
-        $user = Auth::user();
+        $this->fileService->deleteProfilePicture();
 
-        if (! $user || ! $user->avatar_url) {
-            return response()->json([
-                'user'  => new UserResource(Auth::user()->load(['student', 'faculty'])),
-                'token' => $request->bearerToken(),
-            ], 200);
-        }
-
-        $url  = $user->avatar_url;
-        $path = ltrim($url, '/');
-        if (strpos($path, 'storage/') === 0) {
-            $path = substr($path, strlen('storage/'));
-        }
-
-        if (! empty($path)) {
-            Storage::disk('public')->delete($path);
-        }
-
-        $user->update([
-            'avatar_url' => null,
-        ]);
-
-        return response()->json([
-            'user'  => new UserResource(Auth::user()->load(['student', 'faculty'])),
-            'token' => $request->bearerToken(),
-        ], 200);
+        return $this->successResponse(
+            'Profile picture deleted successfully.',
+            new UserResource(Auth::user()->load(['student', 'faculty']))
+        );
     }
 
     public function uploadReport(Request $request)
     {
-        if ($request->hasFile('file')) {
-            $request->validate([
-                'file' => ['required', 'mimes:pdf,doc,docx', 'max:10240'],
-            ], [
-                'file.required' => 'Please upload a file.',
-                'file.mimes'    => 'Only PDF, DOC, or DOCX files are allowed.',
-                'file.max'      => 'File size must not exceed 10MB.',
-            ]);
+        $request->validate([
+            'file' => ['required', 'mimes:pdf,doc,docx', 'max:10240'],
+        ], [
+            'file.required' => 'Please upload a file.',
+            'file.mimes'    => 'Only PDF, DOC, or DOCX files are allowed.',
+            'file.max'      => 'File size must not exceed 10MB.',
+        ]);
 
-            $file = $request->file('file');
+        $file = $request->file('file');
+        $type = $request->input('type');
+        $slug = $request->input('slug');
 
-            $originalName = $file->getClientOriginalName();
-            $fileName     = time() . '_' . Str::slug(pathinfo($originalName, PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
-
-            $type = $request->input('type');
-            $slug = $request->input('slug');
-            $path = $file->storeAs("reports/$type", $fileName, 'public');
-
-            if ($slug) {
-                $project = Project::where('slug', $slug)->first();
-                if ($project) {
-                    $url = "storage/$path";
-                    if ($type === 'mid') {
-                        $project->mid_report_url = $url;
-                        $project->mid_report     = ProjectProgressStatus::Submitted->value;
-                    } elseif ($type === 'final') {
-                        $project->final_report_url = $url;
-                        $project->final_report     = ProjectProgressStatus::Submitted->value;
-                    }
-                    $project->save();
-                }
-            }
-
-            return $this->successResponse(
-                "Report is stored successfully",
-                ['url' => "storage/$path"],
-            );
+        $projectId = null;
+        if ($slug) {
+            $project = \App\Models\Project::where('slug', $slug)->first();
+            $projectId = $project?->id;
         }
 
-        return $this->errorResponse("File upload failed", 400);
+        $result = $this->fileService->uploadReport($file, $projectId, $type);
+
+        return $this->successResponse(
+            "Report is stored successfully",
+            ['url' => "storage/{$result['path']}"]
+        );
     }
 
     public function uploadToS3(Request $request)
     {
-        if ($request->hasFile('file')) {
-            $request->validate([
-                'file' => ['required', 'mimes:pdf,doc,docx', 'max:10240'],
-            ], [
-                'file.required' => 'Please upload a file.',
-                'file.mimes'    => 'Only PDF, DOC, or DOCX files are allowed.',
-                'file.max'      => 'File size must not exceed 10MB.',
-            ]);
+        $request->validate([
+            'file' => ['required', 'mimes:pdf,doc,docx', 'max:10240'],
+        ], [
+            'file.required' => 'Please upload a file.',
+            'file.mimes'    => 'Only PDF, DOC, or DOCX files are allowed.',
+            'file.max'      => 'File size must not exceed 10MB.',
+        ]);
 
-            $file = $request->file('file');
+        $path = $this->fileService->uploadProposalFile($request->file('file'));
 
-            $originalName = $file->getClientOriginalName();
-            $fileName     = time() . '_' . Str::slug(pathinfo($originalName, PATHINFO_FILENAME)) . '.' . $file->getClientOriginalExtension();
-
-            $path = $file->storeAs('proposals', $fileName, 'public');
-
-            return $this->successResponse(
-                "Proposals is stored successfully",
-                ['url' => "storage/$path"],
-            );
-        }
-
-        return $this->errorResponse("File upload failed", 400);
+        return $this->successResponse(
+            "Proposal file stored successfully",
+            ['url' => "storage/$path"]
+        );
     }
 
     public function deleteReport(Request $request)
@@ -147,30 +93,23 @@ class FileController extends Controller
             'type' => ['required', 'in:mid,final'],
         ]);
 
-        $project = Project::where('slug', $validated['slug'])->first();
+        $project = \App\Models\Project::where('slug', $validated['slug'])->first();
 
         if (! $project) {
             return $this->errorResponse("Project not found", 404);
         }
 
         $reportField = $validated['type'] === 'mid' ? 'mid_report_url' : 'final_report_url';
-        $reportUrl   = $project->{$reportField};
+        $reportUrl = $project->{$reportField};
 
         if ($reportUrl) {
             $path = ltrim($reportUrl, '/');
-            if (strpos($path, 'storage/') === 0) {
+            if (str_starts_with($path, 'storage/')) {
                 $path = substr($path, strlen('storage/'));
             }
-            Storage::disk('public')->delete($path);
-        }
 
-        $project->{$reportField} = null;
-        if ($validated['type'] === 'mid') {
-            $project->mid_report = ProjectProgressStatus::Not_Submitted->value;
-        } else {
-            $project->final_report = ProjectProgressStatus::Not_Submitted->value;
+            $this->fileService->deleteReport($path, $project->id, $validated['type']);
         }
-        $project->save();
 
         return $this->successResponse("Report deleted successfully", null);
     }

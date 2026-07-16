@@ -3,11 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Spatie\Permission\Traits\HasRoles;
 
 class Student extends Model
 {
-    use HasRoles;
     public $timestamps = false;
 
     protected $fillable = ["phone_number", 'address', "gpa", "graduation_status", "user_id", "major_id"];

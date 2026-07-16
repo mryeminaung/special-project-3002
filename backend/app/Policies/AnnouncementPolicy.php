@@ -13,7 +13,7 @@ class AnnouncementPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole('ic');
+        return true;
     }
 
     /**

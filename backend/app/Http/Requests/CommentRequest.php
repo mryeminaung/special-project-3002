@@ -24,8 +24,7 @@ class CommentRequest extends FormRequest
     {
         return [
             'description' => 'required|string',
-            'proposal_id' => 'required',
-            // 'proposal_id' => 'required|exists:proposals,id',
+            'proposal_id' => 'required|exists:proposals,id',
         ];
     }
 
