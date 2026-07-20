@@ -1,4 +1,3 @@
-import authService from "@/api/auth.service";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -24,6 +23,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router";
 import * as z from "zod";
+import authService from "../services/auth.service";
 
 const LoginSchema = z.object({
 	email: z

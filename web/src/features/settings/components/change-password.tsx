@@ -1,20 +1,20 @@
-import authService from "@/api/auth.service";
 import ErrorMessage from "@/components/error-message";
 import { Button } from "@/components/ui/button";
 import {
-	Card,
-	CardContent,
-	CardDescription,
-	CardHeader,
-	CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from "@/components/ui/card";
 import {
-	Field,
-	FieldContent,
-	FieldGroup,
-	FieldLabel,
+    Field,
+    FieldContent,
+    FieldGroup,
+    FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { authService } from "@/features/auth";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconEye, IconEyeOff, IconLoader2 } from "@tabler/icons-react";

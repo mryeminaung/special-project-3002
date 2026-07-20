@@ -18,19 +18,19 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->hasRole('IC')) {
+        if ($user->hasRole('ic')) {
             return $this->successResponse('Dashboard data', $this->dashboardService->getICDashboardData());
         }
 
-        if ($user->hasRole('Admin')) {
+        if ($user->hasRole('admin')) {
             return $this->successResponse('Dashboard data', $this->dashboardService->getAdminDashboardData());
         }
 
-        if ($user->hasRole('Supervisor') || $user->hasRole('Faculty')) {
+        if ($user->hasRole('supervisor') || $user->hasRole('Faculty')) {
             return $this->successResponse('Dashboard data', $this->dashboardService->getFacultyDashboardData($user->id));
         }
 
-        if ($user->hasRole('Student')) {
+        if ($user->hasRole('student')) {
             return $this->successResponse('Dashboard data', $this->dashboardService->getStudentDashboardData($user->id));
         }
 

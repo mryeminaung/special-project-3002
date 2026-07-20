@@ -1,4 +1,4 @@
-import api from "./api";
+import api from "@/api/api";
 
 export interface LoginCredentials {
 	email: string;
@@ -43,7 +43,11 @@ export const authService = {
 		await api.post("auth/forgot-password", { email });
 	},
 
-	async resetPassword(token: string, password: string, passwordConfirmation: string): Promise<void> {
+	async resetPassword(
+		token: string,
+		password: string,
+		passwordConfirmation: string,
+	): Promise<void> {
 		await api.post("auth/reset-password", {
 			token,
 			password,
@@ -51,7 +55,11 @@ export const authService = {
 		});
 	},
 
-	async changePassword(currentPassword: string, newPassword: string, newPasswordConfirmation: string): Promise<void> {
+	async changePassword(
+		currentPassword: string,
+		newPassword: string,
+		newPasswordConfirmation: string,
+	): Promise<void> {
 		await api.post("auth/change-password", {
 			current_password: currentPassword,
 			new_password: newPassword,

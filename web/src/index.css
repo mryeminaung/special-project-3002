@@ -1,4 +1,4 @@
-@import '@fontsource-variable/hanken-grotesk';
+@import '@fontsource-variable/space-grotesk/wght.css';
 @import '@fontsource-variable/geist-mono';
 @import 'tailwindcss';
 @import 'tw-animate-css';
@@ -15,7 +15,7 @@ body::-webkit-scrollbar {
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-sans: 'Hanken Grotesk Variable', sans-serif;
+  --font-sans: 'Space Grotesk Variable', sans-serif;
   --font-mono: 'Geist Mono Variable', monospace;
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);

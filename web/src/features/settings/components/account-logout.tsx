@@ -1,7 +1,7 @@
-import authService from "@/api/auth.service";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { FieldDescription } from "@/components/ui/field";
+import { authService } from "@/features/auth";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { IconLogout } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
