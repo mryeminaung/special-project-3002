@@ -1,87 +1,68 @@
-import api from "@/api/api";
 import PageWrapper from "@/components/common/page-wrapper";
 import Heading from "@/components/heading";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
-import { IconDownload, IconRefresh } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import ProjectProgressTable from "../../components/project-progress-table";
-import ProjectsChart from "../../components/projects-chart";
-import { IcCards } from "./components/ic-cards";
+import ChartsSection from "./components/charts-section";
+import ProjectProgressTable from "./components/project-progress-table";
+import QuickActions from "./components/quick-actions";
+import StatCards from "./components/stat-cards";
+import LatestNotifications from "./components/widgets/latest-notifications";
+import RecentActivities from "./components/widgets/recent-activities";
+import SupervisorWorkload from "./components/widgets/supervisor-workload";
+import UpcomingDeadlines from "./components/widgets/upcoming-deadlines";
+import { getICDashboardData } from "./services/ic-dashboard.service";
 
 export default function ICDashboard() {
 	useHeaderInitializer("MIIT | IC Dashboard", "Dashboard");
 
-	const fetchDashboardData = async () => {
-		const res = await api.get("/dashboard");
-		return res.data;
-	};
-
 	const { data: dashboardData } = useQuery({
-		queryKey: ["dashboardData"],
-		queryFn: fetchDashboardData,
+		queryKey: ["icDashboardData"],
+		queryFn: getICDashboardData,
 	});
 
 	return (
 		<PageWrapper>
-			<div className="mb-5 space-y-3">
+			{/* Page Header */}
+			<div className="mb-6">
 				<Heading
 					title="IC Dashboard"
 					description="Overview of project management activities and statistics"
 				/>
-				{dashboardData && <IcCards dashboardData={dashboardData} />}
 			</div>
 
-			<div className="mb-5 space-y-3">
-				<div className="flex items-center justify-between">
-					<Heading
-						title="Projects Progress"
-						description="Overview of all projects completion status"
-					/>
-					<div className="flex items-center ml-auto gap-x-3">
-						<Button
-							className="hover:cursor-pointer bg-primary-600 hover:bg-primary-600/80 ml-auto hover:text-white text-white"
-							onClick={() => alert("Refreshing...")}
-							variant={"outline"}>
-							<IconRefresh />
-							<span>Refresh</span>
-						</Button>
-						<Button
-							className="hover:cursor-pointer bg-primary-600 hover:bg-primary-600/80 ml-auto hover:text-white text-white"
-							onClick={() => alert("Downloading...")}
-							variant={"outline"}>
-							<IconDownload />
-							<span>Export</span>
-						</Button>
-					</div>
-				</div>
-
-				{dashboardData && (
-					<ProjectProgressTable projects={dashboardData.projectsProgress} />
-				)}
+			{/* KPI Stat Cards */}
+			<div className="mb-6">
+				<StatCards stats={dashboardData?.stats} />
 			</div>
 
-			<Card className="shadow-2xs px-6 mt-8 hidden">
-				<div className="flex flex-row items-center justify-between">
-					<Heading
-						title="Projects Progress"
-						description="Overview of all projects completion status"
-					/>
-					<Button
-						className="hover:cursor-pointer bg-primary-700 hover:bg-primary-700/80 hover:text-white text-white"
-						onClick={() => alert("Downloading...")}
-						variant={"outline"}>
-						<IconDownload />
-						<span>Export</span>
-					</Button>
+			{/* Charts Row */}
+			<div className="mb-6">
+				<ChartsSection data={dashboardData} />
+			</div>
+
+			{/* Project Progress Table */}
+			<div className="mb-6">
+				<ProjectProgressTable projects={dashboardData?.projectProgress} />
+			</div>
+
+			{/* Widgets Grid (2x2) */}
+			<div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+				<RecentActivities activities={dashboardData?.recentActivities} />
+				<UpcomingDeadlines deadlines={dashboardData?.upcomingDeadlines} />
+				<SupervisorWorkload workload={dashboardData?.supervisorWorkload} />
+				<LatestNotifications notifications={dashboardData?.notifications} />
+			</div>
+
+			{/* Quick Actions */}
+			<div className="mb-6">
+				<Heading
+					title="Quick Actions"
+					description="Common tasks and shortcuts"
+				/>
+				<div className="mt-4">
+					<QuickActions />
 				</div>
-				{true ? (
-					<h2 className="text-center text-3xl my-5 font-bold">Coming Soon!</h2>
-				) : (
-					<ProjectsChart />
-				)}
-			</Card>
+			</div>
 		</PageWrapper>
 	);
 }

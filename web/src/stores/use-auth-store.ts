@@ -26,7 +26,7 @@ export interface AuthState {
 type AuthStoreProps = {
 	authUser: any | null;
 	token: string | null;
-	setAuth: (data: { user: any; token: string }) => void;
+	setAuth: (data: any) => void;
 	logout: () => void;
 };
 
@@ -35,16 +35,27 @@ export const useAuthStore = create<AuthStoreProps>()(
 		(set) => ({
 			authUser: null,
 			token: null,
-			setAuth: (data: { user: any; token: string }) =>
+
+			setAuth: (data) => {
+				let { user, token } = data?.data;
+
 				set({
-					authUser: data.user,
-					token: data.token,
-				}),
+					authUser: user,
+					token: token,
+				});
+			},
+
 			logout: () => {
-				(set({ authUser: null, token: null }),
-					delete api.defaults.headers.common["Authorization"]);
+				set({
+					authUser: null,
+					token: null,
+				});
+
+				delete api.defaults.headers.common["Authorization"];
 			},
 		}),
-		{ name: "spms-auth" },
-	) as any,
+		{
+			name: "spms-auth",
+		},
+	),
 );
