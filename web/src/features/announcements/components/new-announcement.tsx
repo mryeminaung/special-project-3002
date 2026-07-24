@@ -14,7 +14,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { IconCirclePlus, IconLoader } from "@tabler/icons-react";
 
-import api from "@/api/api";
 import ErrorMessage from "@/components/error-message";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,6 +23,18 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import type { AnnouncementAudience } from "../announcement.types";
+import { createAnnouncement } from "../services/announcement.service";
+
+type AudienceOption = {
+	value: AnnouncementAudience;
+	label: string;
+};
+
+const AUDIENCE_OPTIONS: AudienceOption[] = [
+	{ value: "students", label: "Students" },
+	{ value: "faculties", label: "Faculties" },
+	{ value: "both", label: "Both" },
+];
 
 const announcementSchema = z.object({
 	title: z.string().min(1, "Title is required"),
@@ -44,6 +55,8 @@ export function NewAnnouncement() {
 		register,
 		handleSubmit,
 		reset,
+		setValue,
+		watch,
 		formState: { errors },
 	} = useForm<AnnouncementFormData>({
 		resolver: zodResolver(announcementSchema),
@@ -55,16 +68,16 @@ export function NewAnnouncement() {
 		},
 	});
 
+	const selectedAudience = watch("audience");
+
 	const onSubmit = async (data: AnnouncementFormData) => {
 		setLoading(true);
 		try {
-			const res = await api.post("/announcements", data);
-			if (res.status === 200 || res.status === 201) {
-				await queryClient.invalidateQueries({ queryKey: ["announcements"] });
-				toast.success("Announcement created successfully");
-				reset();
-				setOpen(false);
-			}
+			await createAnnouncement(data);
+			await queryClient.invalidateQueries({ queryKey: ["announcements"] });
+			toast.success("Announcement created successfully");
+			reset();
+			setOpen(false);
 		} catch (error) {
 			console.error("Error creating announcement:", error);
 			toast.error("Failed to create announcement. Please try again.");
@@ -84,16 +97,18 @@ export function NewAnnouncement() {
 			}}>
 			<DialogTrigger asChild>
 				<Button
-					className="hover:cursor-pointer bg-primary-600 hover:bg-primary-600/80 ml-auto hover:text-white text-white"
+					className="bg-primary-600 hover:bg-primary-600/80 ml-auto text-white hover:text-white"
 					variant={"outline"}>
 					<IconCirclePlus />
 					<span>Create</span>
 				</Button>
 			</DialogTrigger>
-			<DialogContent className="sm:max-w-sm">
+			<DialogContent className="border-t-primary-500 sm:max-w-sm">
 				<form onSubmit={handleSubmit(onSubmit)}>
 					<DialogHeader>
-						<DialogTitle>Create New Announcement</DialogTitle>
+						<DialogTitle className="text-primary-700">
+							Create New Announcement
+						</DialogTitle>
 						<DialogDescription className="mb-2">
 							Fill in the details for your new announcement.
 							<br />
@@ -125,38 +140,32 @@ export function NewAnnouncement() {
 						<Field>
 							<Label>Audience</Label>
 							<div className="flex items-center gap-x-3">
-								<Button
-									type="button"
-									onClick={() => register("audience").onChange({ target: { value: "students" } })}
-									className="flex-1"
-									variant={
-										"default"
-									}>
-									Students
-								</Button>
-								<Button
-									type="button"
-									onClick={() => register("audience").onChange({ target: { value: "faculties" } })}
-									className="flex-1"
-									variant={
-										"outline"
-									}>
-									Faculties
-								</Button>
-								<Button
-									type="button"
-									onClick={() => register("audience").onChange({ target: { value: "both" } })}
-									className="flex-1"
-									variant={"outline"}>
-									Both
-								</Button>
+								{AUDIENCE_OPTIONS.map((option) => (
+									<Button
+										key={option.value}
+										type="button"
+										onClick={() =>
+											setValue("audience", option.value, {
+												shouldValidate: true,
+											})
+										}
+										className={`flex-1 ${selectedAudience === option.value ? "bg-primary-600  hover:bg-primary-600/80 ml-auto text-white hover:text-white" : ""}`}
+										variant={
+											selectedAudience === option.value ? "default" : "outline"
+										}
+										color={
+											selectedAudience === option.value ? "primary" : "default"
+										}>
+										{option.label}
+									</Button>
+								))}
 							</div>
 						</Field>
 					</FieldGroup>
 					<DialogFooter className="mt-5">
 						<Button
 							type="submit"
-							className="w-full"
+							className="w-full bg-primary-600 hover:bg-primary-600/80 ml-auto text-white hover:text-white"
 							disabled={loading}>
 							{loading && (
 								<IconLoader

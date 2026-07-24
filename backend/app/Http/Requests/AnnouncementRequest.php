@@ -25,17 +25,8 @@ class AnnouncementRequest extends FormRequest
         return [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
+            'created_by' => 'required|exists:users,id',
             'audience' => 'required|in:students,faculties,both',
         ];
-    }
-
-    /**
-     * Handle a passed validation attempt.
-     */
-    public function passedValidation()
-    {
-        $this->merge([
-            'created_by' => Auth::id()
-        ]);
     }
 }

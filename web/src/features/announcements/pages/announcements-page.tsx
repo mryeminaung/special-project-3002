@@ -1,4 +1,3 @@
-import api from "@/api/api";
 import PageWrapper from "@/components/common/page-wrapper";
 import Heading from "@/components/heading";
 import Loading from "@/components/loading";
@@ -10,6 +9,7 @@ import { toast } from "sonner";
 import type { AnnouncementItem } from "../announcement.types";
 import AnnouncementCards from "../components/announcement-cards";
 import { NewAnnouncement } from "../components/new-announcement";
+import { getAnnouncements } from "../services/announcement.service";
 
 export default function AnnouncementsPage() {
 	useHeaderInitializer("MIIT | Announcements", "Announcements");
@@ -22,10 +22,7 @@ export default function AnnouncementsPage() {
 		error,
 	} = useQuery<AnnouncementItem[]>({
 		queryKey: ["announcements"],
-		queryFn: async () => {
-			const res = await api.get("/announcements");
-			return res.data;
-		},
+		queryFn: getAnnouncements,
 	});
 
 	if (error) {

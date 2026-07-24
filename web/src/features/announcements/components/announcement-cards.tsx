@@ -1,4 +1,3 @@
-import api from "@/api/api";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,13 +7,11 @@ import {
 	DialogFooter,
 	DialogHeader,
 	DialogTitle,
-	DialogTrigger,
 } from "@/components/ui/dialog";
 import { useRoleChecker } from "@/hooks/use-role-checker";
 import { cn } from "@/lib/utils";
 import {
 	IconCalendarEvent,
-	IconPencil,
 	IconSpeakerphone,
 	IconTrash,
 	IconUser,
@@ -26,6 +23,7 @@ import type {
 	AnnouncementAudience,
 	AnnouncementItem,
 } from "../announcement.types";
+import { deleteAnnouncement } from "../services/announcement.service";
 import EditAnnouncement from "./edit-announcement";
 
 function formatAnnouncementDate(value: string) {
@@ -66,11 +64,12 @@ export default function AnnouncementCards({
 }) {
 	const queryClient = useQueryClient();
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-	const [announcementToDelete, setAnnouncementToDelete] = useState<number | null>(null);
+	const [announcementToDelete, setAnnouncementToDelete] = useState<
+		number | null
+	>(null);
 
 	const deleteMutation = useMutation({
-		mutationFn: (announcementId: number) =>
-			api.delete(`/announcements/${announcementId}`),
+		mutationFn: deleteAnnouncement,
 		onSuccess: () => {
 			queryClient.invalidateQueries({ queryKey: ["announcements"] });
 			toast.success("Announcement deleted successfully");
@@ -151,18 +150,25 @@ export default function AnnouncementCards({
 							</div>
 						</div>
 
-						<p className="mt-4 leading-6">{announcement.description}</p>
+						<p className="mt-4 leading-6 text-[14px]">
+							{announcement.description}
+						</p>
 					</article>
 				))}
 			</div>
 
 			{/* Delete Confirmation Dialog */}
-			<Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-				<DialogContent>
+			<Dialog
+				open={deleteDialogOpen}
+				onOpenChange={setDeleteDialogOpen}>
+				<DialogContent className="border-t-primary-500">
 					<DialogHeader>
-						<DialogTitle>Delete Announcement</DialogTitle>
+						<DialogTitle className="text-primary-700">
+							Delete Announcement
+						</DialogTitle>
 						<DialogDescription>
-							Are you sure you want to delete this announcement? This action cannot be undone.
+							Are you sure you want to delete this announcement? This action
+							cannot be undone.
 						</DialogDescription>
 					</DialogHeader>
 					<DialogFooter>
