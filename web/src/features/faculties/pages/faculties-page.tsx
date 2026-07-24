@@ -8,7 +8,7 @@ export default function FacultiesPage() {
 	useHeaderInitializer("MIIT | Faculties", "Faculties List");
 
 	const getFacultyData = async () => {
-		const res = await api.get("/faculties/lists");
+		const res = await api.get("/faculties");
 		return res.data;
 	};
 

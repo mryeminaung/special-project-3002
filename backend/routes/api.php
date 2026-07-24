@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Admin\DepartmentController;
 use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\FacultyController;
 use App\Http\Controllers\Api\FileController;
 use App\Http\Controllers\Api\ProjectAreaController;
 use App\Http\Controllers\Api\ProjectController;
@@ -62,6 +63,13 @@ Route::prefix("v1/")->middleware('auth:sanctum')->group(function () {
         Route::delete("/project-areas/{projectArea:slug}", 'destroy');
     });
 
+    // faculty routes
+    Route::controller(FacultyController::class)->group(function () {
+        Route::get("/faculties", 'index');
+        Route::get("/faculties/{faculty}/detail", 'detail');
+        Route::get("/faculties/{faculty:id}", 'show');
+    });
+
     Route::get("/dashboard", DashboardController::class);
 
     Route::prefix("/admin")->middleware('role:admin')->group(function () {
@@ -71,7 +79,6 @@ Route::prefix("v1/")->middleware('auth:sanctum')->group(function () {
     Route::controller(UserController::class)->group(function () {
         Route::get("/faculties-for-proposal", "getFacultiesForProposal");
         Route::get("/students-for-proposal", "getStudentsForProposal");
-        Route::get("/faculties/lists", 'showFacultiesList');
     });
 
     Route::controller(ProposalController::class)->group(function () {
