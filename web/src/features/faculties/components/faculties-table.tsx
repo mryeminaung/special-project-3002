@@ -1,7 +1,6 @@
 import Loading from "@/components/loading";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
 	DropdownMenu,
 	DropdownMenuCheckboxItem,
@@ -21,28 +20,15 @@ import {
 } from "@/components/ui/table";
 import { cn, PROJECT_STATUS_COLOR } from "@/lib/utils";
 import type { UsersData } from "@/types";
-import { IconDownload, IconRefresh } from "@tabler/icons-react";
+import { IconDownload } from "@tabler/icons-react";
 import {
-	Briefcase,
-	ClipboardList,
 	Eye,
-	Plus,
 	Search,
 	Settings2,
-	Shield,
 	Users,
-	X,
 } from "lucide-react";
-import type React from "react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
-
-const ROLE_ICONS: Record<string, React.ReactNode> = {
-	IC: <Briefcase className="h-4 w-4" />,
-	"Student Affairs": <ClipboardList className="h-4 w-4" />,
-	Faculty: <Users className="h-4 w-4" />,
-	Supervisor: <Shield className="h-4 w-4" />,
-};
 
 export default function FacultiesTable({
 	facultyData,
@@ -50,17 +36,12 @@ export default function FacultiesTable({
 	facultyData: UsersData[];
 }) {
 	const [searchTerm, setSearchTerm] = useState("");
-	const [selectedRoles, setSelectedRoles] = useState<Set<string>>(new Set());
-	const [selectedRanks, setSelectedRanks] = useState<Set<string>>(new Set());
 	const [currentPage, setCurrentPage] = useState(1);
 	const [visibleColumns, setVisibleColumns] = useState<Set<string>>(
-		new Set(["name", "email", "role", "rank", "status", "department"]),
+		new Set(["name", "email", "rank", "status", "department"]),
 	);
-	const [sortColumn, setSortColumn] = useState<string | null>(null);
-	const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-	const itemsPerPage = 7;
+	const itemsPerPage = 10;
 
-	const allRoles = ["IC", "Student Affairs", "Faculty", "Supervisor"];
 	const allRanks = [
 		"Rector",
 		"Pro-Rector",
@@ -70,17 +51,6 @@ export default function FacultiesTable({
 		"Assistant Lecturer",
 		"Tutor",
 	];
-
-	const roleCounts = useMemo(() => {
-		const counts: Record<string, number> = {};
-		allRoles.forEach((role) => {
-			counts[role] = 0;
-		});
-		facultyData.forEach((user) => {
-			counts[user.role] = (counts[user.role] ?? 0) + 1;
-		});
-		return counts;
-	}, [facultyData]);
 
 	const rankCounts = useMemo(() => {
 		const counts: Record<string, number> = {};
@@ -94,40 +64,15 @@ export default function FacultiesTable({
 	}, [facultyData]);
 
 	const filteredUsers = useMemo(() => {
-		const filtered = facultyData.filter((user) => {
+		return facultyData.filter((user) => {
 			const matchesSearch =
 				user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				user.email.toLowerCase().includes(searchTerm.toLowerCase());
-			const matchesRole =
-				selectedRoles.size === 0 ? true : selectedRoles.has(user.role);
-			const matchesRank =
-				selectedRanks.size === 0 ? true : selectedRanks.has(user.rank);
-			return matchesSearch && matchesRole && matchesRank;
+			return matchesSearch;
 		});
-
-		if (sortColumn) {
-			filtered.sort((a, b) => {
-				let aVal: any = a[sortColumn as keyof UsersData];
-				let bVal: any = b[sortColumn as keyof UsersData];
-
-				if (typeof aVal === "string") {
-					aVal = aVal.toLowerCase();
-					bVal = (bVal as string).toLowerCase();
-				}
-
-				const comparison = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
-				return sortDirection === "asc" ? comparison : -comparison;
-			});
-		}
-
-		return filtered;
 	}, [
 		facultyData,
 		searchTerm,
-		selectedRoles,
-		selectedRanks,
-		sortColumn,
-		sortDirection,
 	]);
 
 	const paginatedUsers = useMemo(() => {
@@ -137,34 +82,6 @@ export default function FacultiesTable({
 
 	const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
-	const handleRoleToggle = (role: string) => {
-		const newRoles = new Set(selectedRoles);
-		if (newRoles.has(role)) {
-			newRoles.delete(role);
-		} else {
-			newRoles.add(role);
-		}
-		setSelectedRoles(newRoles);
-	};
-
-	const handleRankToggle = (rank: string) => {
-		const newRanks = new Set(selectedRanks);
-		if (newRanks.has(rank)) {
-			newRanks.delete(rank);
-		} else {
-			newRanks.add(rank);
-		}
-		setSelectedRanks(newRanks);
-	};
-
-	const handleResetRoles = () => {
-		setSelectedRoles(new Set());
-	};
-
-	const handleResetRanks = () => {
-		setSelectedRanks(new Set());
-	};
-
 	const handleColumnToggle = (column: string) => {
 		const newColumns = new Set(visibleColumns);
 		if (newColumns.has(column)) {
@@ -173,15 +90,6 @@ export default function FacultiesTable({
 			newColumns.add(column);
 		}
 		setVisibleColumns(newColumns);
-	};
-
-	const handleSort = (column: string) => {
-		if (sortColumn === column) {
-			setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-		} else {
-			setSortColumn(column);
-			setSortDirection("asc");
-		}
 	};
 
 	return (
@@ -205,62 +113,27 @@ export default function FacultiesTable({
 									}}
 								/>
 							</div>
-							{/* Role Filter Button */}
-							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<Button
-										variant="outline"
-										className="gap-2 bg-transparent hidden">
-										<Plus className="h-4 w-4" />
-										<span>Role</span>
-									</Button>
-								</DropdownMenuTrigger>
-								<DropdownMenuContent
-									align="start"
-									className="w-56">
-									<DropdownMenuLabel>Filter by Role</DropdownMenuLabel>
-									<DropdownMenuSeparator />
-									<div className="p-2">
-										{allRoles.map((role) => (
-											<div
-												key={role}
-												onClick={() => handleRoleToggle(role)}
-												className="flex items-center gap-2 py-2 cursor-pointer hover:bg-muted rounded px-2">
-												<div className="flex items-center justify-center">
-													{ROLE_ICONS[role]}
-												</div>
-												<span className="flex-1 text-sm">{role}</span>
-												<span className="text-xs text-muted-foreground">
-													{roleCounts[role]}
-												</span>
-											</div>
-										))}
-									</div>
-								</DropdownMenuContent>
-							</DropdownMenu>
 
-							{/* Rank Filter Button */}
+							{/* Rank Dropdown Display */}
 							<DropdownMenu>
 								<DropdownMenuTrigger asChild>
 									<Button
 										variant="outline"
 										className="gap-2 bg-transparent">
-										<Plus className="h-4 w-4" />
+										<Users className="h-4 w-4" />
 										<span>Rank</span>
 									</Button>
 								</DropdownMenuTrigger>
 								<DropdownMenuContent
 									align="start"
 									className="w-56">
-									<DropdownMenuLabel>Filter by Rank</DropdownMenuLabel>
+									<DropdownMenuLabel>Ranks</DropdownMenuLabel>
 									<DropdownMenuSeparator />
 									<div className="p-2">
-										{allRanks.map((rank) => (
+										{allRanks.filter(rank => (rankCounts[rank] ?? 0) > 0).map((rank) => (
 											<div
 												key={rank}
-												onClick={() => handleRankToggle(rank)}
-												className="flex items-center gap-2 py-2 cursor-pointer hover:bg-muted rounded px-2">
-												<Checkbox checked={selectedRanks.has(rank)} />
+												className="flex items-center gap-2 py-2 rounded px-2">
 												<span className="flex-1 text-sm">{rank}</span>
 												<span className="text-xs text-muted-foreground">
 													{rankCounts[rank]}
@@ -297,12 +170,6 @@ export default function FacultiesTable({
 										Email
 									</DropdownMenuCheckboxItem>
 									<DropdownMenuCheckboxItem
-										className="hidden"
-										checked={visibleColumns.has("role")}
-										onCheckedChange={() => handleColumnToggle("role")}>
-										Role
-									</DropdownMenuCheckboxItem>
-									<DropdownMenuCheckboxItem
 										checked={visibleColumns.has("rank")}
 										onCheckedChange={() => handleColumnToggle("rank")}>
 										Rank
@@ -322,77 +189,12 @@ export default function FacultiesTable({
 
 							<div className="flex items-center ml-auto gap-x-3">
 								<Button
-									className="hover:cursor-pointer hidden bg-primary-800 hover:bg-primary-800/80 ml-auto hover:text-white text-white"
-									onClick={() => alert("Refreshing...")}
-									variant={"outline"}>
-									<IconRefresh />
-									<span>Refresh</span>
-								</Button>
-								<Button
 									className="hover:cursor-pointer bg-primary-800 hover:bg-primary-800/80 ml-auto hover:text-white text-white"
 									onClick={() => alert("Downloading...")}
 									variant={"outline"}>
 									<IconDownload />
 									<span>Export</span>
 								</Button>
-							</div>
-						</div>
-
-						<div className="flex flex-wrap items-center gap-3 pt-2 border-t border-border">
-							{/* Combined selected filters and controls */}
-							<div className="flex flex-wrap items-center gap-2">
-								{/* Count badge for selected filters */}
-								{(selectedRoles.size > 0 || selectedRanks.size > 0) && (
-									<span className="text-sm text-muted-foreground ">
-										{selectedRoles.size + selectedRanks.size} selected
-									</span>
-								)}
-
-								{/* Selected role pills */}
-								{Array.from(selectedRoles).map((role) => (
-									<button
-										key={role}
-										onClick={() => handleRoleToggle(role)}
-										className="bg-primary-950 px-2 rounded-full text-white hover:underline text-[12px]">
-										{role}
-									</button>
-								))}
-
-								{/* Selected rank pills */}
-								{Array.from(selectedRanks).map((rank) => (
-									<button
-										key={rank}
-										onClick={() => handleRankToggle(rank)}
-										className="bg-primary-950 px-2 rounded-full text-white hover:underline text-[12px]">
-										{rank}
-									</button>
-								))}
-
-								{/* Reset and Close buttons */}
-								{(selectedRoles.size > 0 || selectedRanks.size > 0) && (
-									<>
-										<Button
-											variant="ghost"
-											size="sm"
-											onClick={() => {
-												handleResetRoles();
-												handleResetRanks();
-											}}
-											className="h-auto py-0 px-0 text-sm text-muted-foreground hover:text-foreground">
-											Reset
-										</Button>
-										<Button
-											variant="ghost"
-											size="sm"
-											onClick={() => {
-												handleResetRoles();
-												handleResetRanks();
-											}}
-											className="h-auto py-0 px-0 text-muted-foreground hover:text-foreground">
-											<X className="h-4 w-4" />
-										</Button>
-									</>
-								)}
 							</div>
 						</div>
 					</div>
@@ -404,16 +206,7 @@ export default function FacultiesTable({
 								<TableRow>
 									{visibleColumns.has("name") && <TableHead>Name</TableHead>}
 									{visibleColumns.has("email") && (
-										<TableHead
-											className="cursor-pointer select-none hover:bg-muted"
-											onClick={() => handleSort("email")}>
-											Email{" "}
-											{sortColumn === "email" &&
-												(sortDirection === "asc" ? "↑" : "↓")}
-										</TableHead>
-									)}
-									{visibleColumns.has("role") && (
-										<TableHead className="hidden">Role</TableHead>
+										<TableHead>Email</TableHead>
 									)}
 									{visibleColumns.has("rank") && <TableHead>Rank</TableHead>}
 									{visibleColumns.has("status") && (
@@ -429,7 +222,7 @@ export default function FacultiesTable({
 								{paginatedUsers.length === 0 ? (
 									<TableRow className="">
 										<TableCell
-											colSpan={Object.keys(visibleColumns).length + 2}
+											colSpan={visibleColumns.size + 1}
 											className="text-center py-8">
 											<div className="flex flex-col items-center gap-3">
 												<Search className="h-12 w-12 text-muted-foreground opacity-50" />
@@ -455,14 +248,6 @@ export default function FacultiesTable({
 											{visibleColumns.has("email") && (
 												<TableCell>{user.email}</TableCell>
 											)}
-											{visibleColumns.has("role") && (
-												<TableCell className="hidden">
-													<div className="flex items-center gap-2">
-														{ROLE_ICONS[user.role]}
-														<span className="text-sm">{user.role}</span>
-													</div>
-												</TableCell>
-											)}
 											{visibleColumns.has("rank") && (
 												<TableCell>{user.rank}</TableCell>
 											)}
@@ -482,7 +267,7 @@ export default function FacultiesTable({
 											)}
 											<TableCell className="border">
 												<Link
-													to={`/supervisors/${user.id}/detail`}
+													to={`/faculties/${user.id}/detail`}
 													className="bg-primary-800 hover:cursor-pointer hover:bg-primary-800/80 flex items-center text-white px-2 py-1.5 rounded-md gap-x-1">
 													<Eye className="size-4" />
 													<span className="text-[12px]">View</span>
@@ -510,7 +295,14 @@ export default function FacultiesTable({
 							</Button>
 							<div className="flex gap-1">
 								{Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-									const pageNum = i + 1;
+									const startPage = Math.max(
+										1,
+										Math.min(
+											currentPage - 2,
+											totalPages - Math.min(5, totalPages),
+										),
+									);
+									const pageNum = startPage + i;
 									return (
 										<Button
 											key={pageNum}

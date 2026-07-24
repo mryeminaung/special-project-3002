@@ -2,6 +2,7 @@ import ProtectedRoute from "@/components/auth/protected-route";
 import NotFoundPage from "@/components/common/not-found";
 
 import { adminRoutes } from "@/features/admin";
+import { facultiesRoutes } from "@/features/faculties";
 import { projectsRoutes } from "@/features/projects";
 import { proposalRoutes } from "@/features/proposals";
 import { settingsRoutes } from "@/features/settings";
@@ -9,7 +10,6 @@ import { settingsRoutes } from "@/features/settings";
 import { AnnouncementsPage } from "@/features/announcements";
 import { LoginPage } from "@/features/auth";
 import { DashboardPage } from "@/features/dashboard";
-import { FacultiesPage } from "@/features/faculties";
 import { SupervisorsPage } from "@/features/supervisors";
 
 import EventsPage from "@/features/events/event-page";
@@ -33,17 +33,14 @@ export const routes = [
 				Component: AnnouncementsPage,
 			},
 			{
-				path: "/faculties",
-				Component: FacultiesPage,
+				path: "/supervisors/:id/detail",
+				Component: SupervisorDetailPage,
 			},
 			{
 				path: "/supervisors",
 				Component: SupervisorsPage,
 			},
-			{
-				path: "/supervisors/:id/detail",
-				Component: SupervisorDetailPage,
-			},
+			...facultiesRoutes,
 			...adminRoutes,
 			...projectsRoutes,
 			...proposalRoutes,
