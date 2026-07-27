@@ -21,7 +21,7 @@ const defaultStats: StatCardData[] = [
 		value: 12,
 		icon: "FileDescription",
 		color: "text-amber-600 bg-amber-50 dark:bg-amber-950 dark:text-amber-400",
-		pageUrl: "/project-proposals",
+		pageUrl: "/proposals",
 		trend: { value: 3, direction: "up" },
 	},
 	{

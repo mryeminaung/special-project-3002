@@ -36,13 +36,15 @@ export default function EventCard({
 		<div
 			className={`group relative min-w-70 rounded-xl border-neutral-200 bg-white p-3 py-5 shadow-sm transition-all duration-300 hover:shadow-lg border-t-4 ${
 				isEnrollmentOpen ? "border-t-green-500" : "border-t-red-500"
-			}`}>
+			}`}
+		>
 			<Badge
 				className={`absolute right-5 top-8 z-10 border-0 ${
 					isEnrollmentOpen
 						? "bg-green-100 text-green-700"
 						: "bg-red-100 text-red-700"
-				}`}>
+				}`}
+			>
 				{isEnrollmentOpen ? "Active" : "Closed"}
 			</Badge>
 
@@ -60,8 +62,8 @@ export default function EventCard({
 					<div className="bg-red-50 p-3 rounded-md flex items-start gap-x-3">
 						<CircleX className="h-8 w-10 " />
 						<div>
-							<h3 className="text-md">Registration Closed</h3>
-							<p className="text-sm">{statusText}</p>
+							<h3 className="text-sm">Registration Closed</h3>
+							<p className="text-[13px]">{statusText}</p>
 						</div>
 					</div>
 				)}
@@ -69,13 +71,15 @@ export default function EventCard({
 				<div className={canApplyProposals ? "block" : "hidden"}>
 					<div className="flex flex-col gap-y-3 text-center">
 						<Link
-							to={"/project-proposals/new/student"}
-							className="cursor-pointer rounded-full bg-primary-600 px-5 py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-primary-700 hover:shadow-md">
+							to={"/proposals/new/student"}
+							className="cursor-pointer rounded-full bg-primary-600 px-5 py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-primary-700 hover:shadow-md"
+						>
 							Create a New Proposal
 						</Link>
 						<Link
-							to={"/project-proposals/faculties"}
-							className="cursor-pointer rounded-full bg-primary-600 px-5 py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-primary-700 hover:shadow-md">
+							to={"/proposals/faculties"}
+							className="cursor-pointer rounded-full bg-primary-600 px-5 py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-primary-700 hover:shadow-md"
+						>
 							Browse Faculty Proposals
 						</Link>
 					</div>
@@ -84,8 +88,9 @@ export default function EventCard({
 				<div className={canCreateProposal ? "block" : "hidden"}>
 					<div className="flex flex-col gap-y-3 text-center">
 						<Link
-							to={"/project-proposals/new/faculty"}
-							className="cursor-pointer rounded-full bg-primary-600 px-5 py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-primary-700 hover:shadow-md">
+							to={"/proposals/new/faculty"}
+							className="cursor-pointer rounded-full bg-primary-600 px-5 py-3 text-sm font-medium text-white transition-all duration-200 hover:bg-primary-700 hover:shadow-md"
+						>
 							Create a New Proposal
 						</Link>
 					</div>

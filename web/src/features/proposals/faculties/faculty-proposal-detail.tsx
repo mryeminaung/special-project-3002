@@ -4,7 +4,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { type ProposalStatus } from "@/lib/utils";
+import {
+	type ProposalStatus,
+	PROPOSAL_APPLIED_TYPE_COLOR,
+	PROPOSAL_PROJECT_TYPE_COLOR,
+} from "@/lib/utils";
 
 import {
 	CalendarIcon,
@@ -171,12 +175,12 @@ export default function FacultyProposalDetailPage() {
 			<PageWrapper>
 				{isSupervisor && isFaculty ? (
 					<NavigateTo
-						to="/project-proposals/browse"
+						to="/proposals/browse"
 						label="Back To Proposals"
 					/>
 				) : (
 					<NavigateTo
-						to="/project-proposals"
+						to="/proposals"
 						label="Back To Proposals"
 					/>
 				)}
@@ -208,10 +212,12 @@ export default function FacultyProposalDetailPage() {
 										<StatusCard
 											label="Applied Type:"
 											status={proposal.type}
+											colorFn={PROPOSAL_APPLIED_TYPE_COLOR}
 										/>
 										<StatusCard
 											label="Project Type:"
 											status={proposal.projectType}
+											colorFn={PROPOSAL_PROJECT_TYPE_COLOR}
 										/>
 									</div>
 								</div>

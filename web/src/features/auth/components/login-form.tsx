@@ -14,6 +14,7 @@ import {
 	TooltipContent,
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { PAGE_META } from "@/constants/navigation";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { useTheme } from "@/hooks/use-theme";
 import { useAuthStore } from "@/stores/use-auth-store";
@@ -38,7 +39,7 @@ export function LoginForm() {
 	const [showPwd, setShowPwd] = useState(false);
 	const { theme } = useTheme();
 	const setAuthUser = useAuthStore((state) => state.setAuth);
-	useHeaderInitializer("MIIT | Log In to the site", "");
+	useHeaderInitializer(PAGE_META.login.title, PAGE_META.login.subtitle);
 
 	const {
 		register,

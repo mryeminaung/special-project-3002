@@ -26,13 +26,15 @@ type User = {
 };
 
 export default function MembersSelection({ control, error }: Props) {
-	const { data: students = [] } = useQuery<User[]>({
+	const { data: studentsRes } = useQuery({
 		queryKey: ["students-for-proposal"],
 		queryFn: async () => {
-			const studentsRes = await api.get("students-for-proposal");
-			return studentsRes.data;
+			const res = await api.get("students-for-proposal");
+			return res.data;
 		},
 	});
+
+	const students = Array.isArray(studentsRes) ? studentsRes : (studentsRes?.data as User[]) ?? [];
 	const [filterKey, setFilterKey] = useState<"all" | "cse" | "ece">("all");
 
 	const filteredStudents = students.filter((student) => {

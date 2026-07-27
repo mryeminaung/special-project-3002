@@ -1,4 +1,5 @@
 import api from "@/api/api";
+import { PAGE_META } from "@/constants/navigation";
 import PageWrapper from "@/components/common/page-wrapper";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,7 +33,7 @@ type SupervisorDetailResponse = {
 };
 
 export default function SupervisorDetail() {
-	useHeaderInitializer("MIIT | Supervisor Detail", "Supervisor Detail");
+	useHeaderInitializer(PAGE_META.supervisorDetail.title, PAGE_META.supervisorDetail.subtitle);
 	const navigate = useNavigate();
 	const { id } = useParams();
 

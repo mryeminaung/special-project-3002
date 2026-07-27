@@ -37,7 +37,7 @@ export function StudentAffairCard() {
 			title: 3,
 			cardIcon: IconFileDescription,
 			description: "Tota Proposals",
-			pageUrl: "/project-proposals",
+			pageUrl: "/proposals",
 		},
 		{
 			title: 12,

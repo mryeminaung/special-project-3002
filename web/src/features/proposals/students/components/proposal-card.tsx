@@ -29,7 +29,7 @@ export default function ProposalCard({ proposal }: ProposalCardProps) {
 	if (!proposal) return null;
 
 	return (
-		<Link to={`/project-proposals/student/${proposal.slug}/detail`}>
+		<Link to={`/proposals/student/${proposal.slug}/detail`}>
 			<Card className="flex flex-col justify-between border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
 				<CardHeader>
 					<div className="flex items-start justify-between gap-x-3">

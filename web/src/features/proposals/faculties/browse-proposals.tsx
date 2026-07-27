@@ -1,4 +1,5 @@
 import api from "@/api/api";
+import { PAGE_META, HEADINGS } from "@/constants/navigation";
 import PageWrapper from "@/components/common/page-wrapper";
 import Heading from "@/components/heading";
 import { useCurrentPage } from "@/hooks/use-current-page";
@@ -8,7 +9,7 @@ import Pagination from "../components/pagination";
 import ProposalsTable from "../components/proposals-table";
 
 export default function BrowseProposalsPage() {
-	useHeaderInitializer("MIIT | Browse Proposals", "Browse Proposals");
+	useHeaderInitializer(PAGE_META.browseProposals.title, PAGE_META.browseProposals.subtitle);
 	const currentPage = useCurrentPage();
 
 	const fetchBrowseProposals = async () => {
@@ -28,7 +29,7 @@ export default function BrowseProposalsPage() {
 	return (
 		<PageWrapper>
 			<Heading
-				title="Browse Proposals"
+				title={HEADINGS.browseProposals.title}
 				description="Browse and manage project proposals with team assignments and
 				supervisors."
 			/>

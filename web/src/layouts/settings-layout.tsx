@@ -1,4 +1,5 @@
 import PageWrapper from "@/components/common/page-wrapper";
+import { HEADINGS } from "@/constants/navigation";
 import Heading from "@/components/heading";
 import { useRoleChecker } from "@/hooks/use-role-checker";
 import { IconCalendarEvent } from "@tabler/icons-react";
@@ -58,8 +59,8 @@ export default function SettingsLayout({
 	return (
 		<PageWrapper>
 			<Heading
-				title="Settings"
-				description="Manage your account, security, and preferences"
+				title={HEADINGS.settings.title}
+				description={HEADINGS.settings.description}
 			/>
 			<section className="grid grid-cols-1 md:grid-cols-6 gap-10 mt-5">
 				<div className="md:col-span-2 lg:col-span-1">

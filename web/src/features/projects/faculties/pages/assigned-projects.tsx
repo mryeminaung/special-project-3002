@@ -1,4 +1,5 @@
 import api from "@/api/api";
+import { HEADINGS } from "@/constants/navigation";
 import PageWrapper from "@/components/common/page-wrapper";
 import Heading from "@/components/heading";
 import { useQuery } from "@tanstack/react-query";
@@ -36,8 +37,8 @@ export default function AssignedProjects() {
 	return (
 		<PageWrapper className="space-y-6">
 			<Heading
-				title="Assigned Projects"
-				description="Overview of project teams and student proposals currently under your supervision."
+				title={HEADINGS.assignedProjects.title}
+				description={HEADINGS.assignedProjects.description}
 			/>
 
 			{assignedProjects && (

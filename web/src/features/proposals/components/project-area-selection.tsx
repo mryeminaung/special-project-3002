@@ -32,6 +32,10 @@ export function ProjectAreaSelection({ control, error }: Props) {
 		queryFn: fetchProjectAreas,
 	});
 
+	const areas = Array.isArray(projectAreas)
+		? projectAreas
+		: (projectAreas?.data as ProjectArea[]) ?? [];
+
 	return (
 		<>
 			<Controller
@@ -47,7 +51,7 @@ export function ProjectAreaSelection({ control, error }: Props) {
 						</SelectTrigger>
 						<SelectContent>
 							<SelectGroup>
-								{projectAreas?.map((area: ProjectArea) => (
+								{areas.map((area: ProjectArea) => (
 									<SelectItem
 										key={area.id}
 										value={area.id.toString()}>

@@ -1,4 +1,5 @@
 import PageWrapper from "@/components/common/page-wrapper";
+import { PAGE_META, HEADINGS } from "@/constants/navigation";
 import Heading from "@/components/heading";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { useQuery } from "@tanstack/react-query";
@@ -13,7 +14,7 @@ import UpcomingDeadlines from "./components/widgets/upcoming-deadlines";
 import { getICDashboardData } from "./services/ic-dashboard.service";
 
 export default function ICDashboard() {
-	useHeaderInitializer("MIIT | IC Dashboard", "Dashboard");
+	useHeaderInitializer(PAGE_META.icDashboard.title, PAGE_META.icDashboard.subtitle);
 
 	const { data: dashboardData } = useQuery({
 		queryKey: ["icDashboardData"],
@@ -25,8 +26,8 @@ export default function ICDashboard() {
 			{/* Page Header */}
 			<div className="mb-6">
 				<Heading
-					title="IC Dashboard"
-					description="Overview of project management activities and statistics"
+					title={HEADINGS.icDashboard.title}
+					description={HEADINGS.icDashboard.description}
 				/>
 			</div>
 

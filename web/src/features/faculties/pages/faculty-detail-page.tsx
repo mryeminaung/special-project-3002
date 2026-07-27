@@ -1,4 +1,5 @@
 import PageWrapper from "@/components/common/page-wrapper";
+import { PAGE_META } from "@/constants/navigation";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -15,7 +16,7 @@ import { useNavigate, useParams } from "react-router";
 import { getFacultyDetail } from "../services/faculty.service";
 
 export default function FacultyDetailPage() {
-	useHeaderInitializer("MIIT | Faculty Detail", "Faculty Detail");
+	useHeaderInitializer(PAGE_META.facultyDetail.title, PAGE_META.facultyDetail.subtitle);
 	const navigate = useNavigate();
 	const { id } = useParams();
 

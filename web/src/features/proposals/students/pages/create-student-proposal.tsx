@@ -1,4 +1,5 @@
 import api from "@/api/api";
+import { PAGE_META, HEADINGS } from "@/constants/navigation";
 import UnAuthorized from "@/components/auth/un-authorized";
 import PageWrapper from "@/components/common/page-wrapper";
 import ErrorMessage from "@/components/error-message";
@@ -49,7 +50,7 @@ const ProposalSchema = z.object({
 });
 
 export default function CreateStudentProposalPage() {
-	useHeaderInitializer("MIIT | Proposal Submission", "Create New Proposal");
+	useHeaderInitializer(PAGE_META.createProposal.title, PAGE_META.createProposal.subtitle);
 
 	const authUser = useAuthStore((state) => state.authUser);
 
@@ -83,19 +84,23 @@ export default function CreateStudentProposalPage() {
 	const onSubmit = async (data: z.infer<typeof ProposalSchema>) => {
 		const formattedData = {
 			...data,
-			members: [...data.members.map((id) => parseInt(id, 10)), authUser?.id],
+			members: [
+				...data.members.map((id) => parseInt(id, 10)),
+				authUser?.id,
+			],
 			supervisor_id: parseInt(data.supervisor_id, 10),
 		};
 
 		try {
 			const res = await api.post("/proposals", formattedData);
 			if (res.status === 201) {
-				navigate("/project-proposals/me");
+				navigate("/proposals/me");
 			}
 		} catch (error: any) {
 			const validationErrors = error.response?.data?.errors;
 			console.log(validationErrors);
-			if (error.response.data.message) toast.error(error.response.data.message);
+			if (error.response.data.message)
+				toast.error(error.response.data.message);
 
 			if (validationErrors?.title) {
 				setError("title", {
@@ -115,22 +120,21 @@ export default function CreateStudentProposalPage() {
 			<PageWrapper>
 				<div className="space-y-1 mb-5">
 					<Heading
-						title="Submit Your Proposal"
+						title={HEADINGS.createProposal.title}
 						description="	Complete the form below to submit your academic project proposal for
-						review"
+							review"
 					/>
 				</div>
 
 				<Card className="px-6 py-6 border-gray-200 shadow-sm">
-					<form
-						autoComplete="off"
-						onSubmit={handleSubmit(onSubmit)}>
+					<form autoComplete="off" onSubmit={handleSubmit(onSubmit)}>
 						<div className="space-y-5">
-							<div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-5">
-								{/* project name */}
-								<Field>
+							{/* Row 1: Project Name (wider) + Project Area */}
+							<div className="grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-5">
+								<Field className="md:col-span-2">
 									<FieldLabel htmlFor="title">
-										Project Name <span className="text-red-500">*</span>
+										Project Name{" "}
+										<span className="text-red-500">*</span>
 									</FieldLabel>
 									<Input
 										id="title"
@@ -140,13 +144,15 @@ export default function CreateStudentProposalPage() {
 										type="text"
 									/>
 									{errors.title && (
-										<ErrorMessage error={errors.title.message} />
+										<ErrorMessage
+											error={errors.title.message}
+										/>
 									)}
 								</Field>
-								{/* project area */}
-								<Field>
+								<Field className="md:col-span-1">
 									<FieldLabel htmlFor="area_id">
-										Project Area <span className="text-red-500">*</span>
+										Project Area{" "}
+										<span className="text-red-500">*</span>
 									</FieldLabel>
 									<ProjectAreaSelection
 										control={control}
@@ -154,24 +160,28 @@ export default function CreateStudentProposalPage() {
 									/>
 								</Field>
 							</div>
-							<div className="grid grid-cols-2 gap-x-10 gap-y-5">
-								{/* supervisor selection */}
-								<SupervisorSelection
-									control={control}
-									error={errors.supervisor_id?.message}
-								/>
 
-								{/* project type */}
-								<ProjectTypeSelection
-									control={control}
-									error={errors.project_type?.message}
-								/>
+							{/* Row 2: Supervisor (wider) + Project Type */}
+							<div className="grid grid-cols-1 md:grid-cols-3 gap-x-10 gap-y-5">
+								<div className="md:col-span-2">
+									<SupervisorSelection
+										control={control}
+										error={errors.supervisor_id?.message}
+									/>
+								</div>
+								<div className="md:col-span-1">
+									<ProjectTypeSelection
+										control={control}
+										error={errors.project_type?.message}
+									/>
+								</div>
 							</div>
 
-							{/* project description */}
+							{/* Project Description */}
 							<Field>
 								<FieldLabel htmlFor="description">
-									Project Description <span className="text-red-500">*</span>
+									Project Description{" "}
+									<span className="text-red-500">*</span>
 								</FieldLabel>
 								<Textarea
 									id="description"
@@ -180,11 +190,13 @@ export default function CreateStudentProposalPage() {
 									placeholder="Describe your project, its objectives, scope, and expected outcomes"
 								/>
 								{errors.description && (
-									<ErrorMessage error={errors.description.message} />
+									<ErrorMessage
+										error={errors.description.message}
+									/>
 								)}
 							</Field>
 
-							{/* team member selection */}
+							{/* Team Member Selection */}
 							<MembersSelection
 								control={control}
 								error={errors.members?.message}
@@ -202,7 +214,8 @@ export default function CreateStudentProposalPage() {
 								type="submit"
 								disabled={isSubmitting}
 								className="hover:cursor-pointer w-full sm:w-fit order-1 sm:order-2 bg-primary-700 hover:bg-primary-700/80 hover:text-white text-white"
-								variant={"outline"}>
+								variant={"outline"}
+							>
 								{isSubmitting ? (
 									<>
 										<span>Submitting...</span>
