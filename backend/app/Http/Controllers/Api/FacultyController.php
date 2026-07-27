@@ -4,9 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
+use App\Models\Project;
+use App\Models\User;
 use App\Services\FacultyService;
 use App\Traits\ApiResponse;
-use Illuminate\Http\Request;
 
 class FacultyController extends Controller
 {
@@ -51,5 +52,34 @@ class FacultyController extends Controller
                 ]),
             ]
         );
+    }
+
+    public function getFacultiesForProposal()
+    {
+        $faculties = User::where('is_student', false,)
+            ->whereNotIn('id', function ($query) {
+                $query->select('model_id')->from('model_has_roles')
+                    ->where('model_type', User::class)
+                    ->whereIn('role_id', function ($q) {
+                        $q->select('id')->from('roles')
+                            ->whereIn('name', ['admin', 'student-affairs']);
+                    });
+            })
+            ->with('faculty')
+            ->get();
+
+        $data = $faculties->map(fn($user) => [
+            'id'             => $user->id,
+            'name'           => $user->name,
+            'role'           => $user->roles->pluck('name'),
+            'email'          => $user->email,
+            'department'     => $user->faculty?->department?->name,
+            'workload_count' => Project::where('supervisor_id', $user->id)
+                ->where('status', 'active')
+                ->count(),
+            'max_capacity'   => 5,
+        ]);
+
+        return $this->successResponse('Faculties retrieved successfully.', $data);
     }
 }

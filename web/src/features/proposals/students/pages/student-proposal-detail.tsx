@@ -13,6 +13,10 @@ import { CalendarIcon, Loader2, TrashIcon } from "lucide-react";
 
 import api from "@/api/api";
 import { PencilSquareIcon } from "@heroicons/react/24/solid";
+import {
+	PROPOSAL_APPLIED_TYPE_COLOR,
+	PROPOSAL_PROJECT_TYPE_COLOR,
+} from "@/lib/utils";
 import { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -104,13 +108,13 @@ export default function StudentProposalDetailPage() {
 			<PageWrapper>
 				{isStudent && (
 					<NavigateTo
-						to="/project-proposals/me"
+						to="/proposals/me"
 						label="Back to Proposals"
 					/>
 				)}
 				{isIC && (
 					<NavigateTo
-						to="/project-proposals"
+						to="/proposals"
 						label="Back to Proposals"
 					/>
 				)}
@@ -142,10 +146,12 @@ export default function StudentProposalDetailPage() {
 										<StatusCard
 											label="Applied Type:"
 											status={proposal.type}
+											colorFn={PROPOSAL_APPLIED_TYPE_COLOR}
 										/>
 										<StatusCard
 											label="Project Type:"
 											status={proposal.projectType}
+											colorFn={PROPOSAL_PROJECT_TYPE_COLOR}
 										/>
 									</div>
 								</div>

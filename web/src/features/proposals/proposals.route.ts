@@ -11,44 +11,44 @@ import StudentProposalDetailPage from "./students/pages/student-proposal-detail"
 export const proposalRoutes = [
 	// Base path for proposals
 	{
-		path: "/project-proposals",
+		path: "/proposals",
 		Component: ProjectsProposalPage,
 	},
 	// Student proposal routes
 	{
-		path: "/project-proposals/new/student",
+		path: "/proposals/new/student",
 		Component: CreateStudentProposalPage,
 	},
 	// Faculty proposal routes
 	{
-		path: "/project-proposals/new/faculty",
+		path: "/proposals/new/faculty",
 		Component: CreateFacultyProposalPage,
 	},
 	// Student proposals
 	{
-		path: "/project-proposals/me",
+		path: "/proposals/me",
 		Component: MyProposasPage,
 	},
 	{
-		path: "/project-proposals/me/:id/edit",
+		path: "/proposals/me/:id/edit",
 		Component: EditProposalPage,
 	},
 	// Faculty proposals
 	{
-		path: "/project-proposals/browse",
+		path: "/proposals/browse",
 		Component: BrowseProposalsPage,
 	},
 	{
-		path: "/project-proposals/faculties",
+		path: "/proposals/faculties",
 		Component: FacultiesProposalsPage,
 	},
 	// Proposal details for students and faculty
 	{
-		path: "/project-proposals/student/:slug/detail",
+		path: "/proposals/student/:slug/detail",
 		Component: StudentProposalDetailPage,
 	},
 	{
-		path: "/project-proposals/faculty/:slug/detail",
+		path: "/proposals/faculty/:slug/detail",
 		Component: FacultyProposalDetailPage,
 	},
 ];

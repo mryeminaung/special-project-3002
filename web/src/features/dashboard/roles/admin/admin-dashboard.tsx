@@ -3,6 +3,7 @@ import PageWrapper from "@/components/common/page-wrapper";
 import Heading from "@/components/heading";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { PAGE_META, HEADINGS } from "@/constants/navigation";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { IconDownload, IconRefresh } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
@@ -11,7 +12,7 @@ import ProjectsChart from "../../components/projects-chart";
 import { AdminCards } from "./components/admin-cards";
 
 export default function AdminDashboard() {
-	useHeaderInitializer("MIIT | Admin Dashboard", "Dashboard");
+	useHeaderInitializer(PAGE_META.adminDashboard.title, PAGE_META.adminDashboard.subtitle);
 
 	const fetchDashboardData = async () => {
 		const res = await api.get("/dashboard");
@@ -27,8 +28,8 @@ export default function AdminDashboard() {
 		<PageWrapper>
 			<div className="mb-5 space-y-3">
 				<Heading
-					title="Admin Dashboard"
-					description="Overview of project management activities and statistics"
+					title={HEADINGS.adminDashboard.title}
+					description={HEADINGS.adminDashboard.description}
 				/>
 				{dashboardData && <AdminCards dashboardData={dashboardData} />}
 			</div>

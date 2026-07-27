@@ -23,18 +23,48 @@ type Faculty = {
 	name: string;
 	email: string;
 	department?: string;
+	workload_count?: number;
+	max_capacity?: number;
 };
+
+function WorkloadDot({
+	count,
+	capacity,
+}: {
+	count?: number;
+	capacity?: number;
+}) {
+	if (count === undefined || capacity === undefined || capacity === 0)
+		return null;
+
+	const ratio = count / capacity;
+	let color: string;
+	if (ratio <= 0.5) color = "bg-green-500";
+	else if (ratio <= 0.8) color = "bg-yellow-500";
+	else color = "bg-red-500";
+
+	return (
+		<span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+			<span className={`inline-block h-2 w-2 rounded-full ${color}`} />
+			{count}/{capacity}
+		</span>
+	);
+}
 
 export default function SupervisorSelection({ control, error }: Props) {
 	const [selectedDepartment, setSelectedDepartment] = useState("");
 
-	const { data: supervisors = [] } = useQuery<Faculty[]>({
+	const { data: supervisorsRes } = useQuery({
 		queryKey: ["faculties-for-proposal"],
 		queryFn: async () => {
 			const res = await api.get("faculties-for-proposal");
 			return res.data;
 		},
 	});
+
+	const supervisors: Faculty[] = Array.isArray(supervisorsRes)
+		? supervisorsRes
+		: ((supervisorsRes?.data as Faculty[]) ?? []);
 
 	const departmentNames = useMemo(() => {
 		const names = supervisors
@@ -62,7 +92,8 @@ export default function SupervisorSelection({ control, error }: Props) {
 					<>
 						<div className="flex flex-col md:flex-row gap-y-2 md:items-center justify-between">
 							<FieldLabel htmlFor="supervisor">
-								Project Supervisor <span className="text-red-500">*</span>
+								Project Supervisor{" "}
+								<span className="text-red-500">*</span>
 							</FieldLabel>
 							<DepartmentDropdown
 								departments={departmentNames}
@@ -76,18 +107,28 @@ export default function SupervisorSelection({ control, error }: Props) {
 
 						<Select
 							onValueChange={field.onChange}
-							value={field.value || ""}>
-							<SelectTrigger
-								id="supervisor"
-								className="py-5">
+							value={field.value || ""}
+						>
+							<SelectTrigger id="supervisor" className="py-5">
 								<SelectValue placeholder="Choose your supervisor" />
 							</SelectTrigger>
 							<SelectContent>
 								{filteredSupervisors.map((supervisor) => (
 									<SelectItem
 										key={supervisor.id}
-										value={supervisor.id.toString()}>
-										<p className="flex flex-col itemstar">{supervisor.name}</p>
+										value={supervisor.id.toString()}
+									>
+										<div className="flex items-center justify-between w-full gap-4">
+											<span>{supervisor.name}</span>
+											<WorkloadDot
+												count={
+													supervisor.workload_count
+												}
+												capacity={
+													supervisor.max_capacity
+												}
+											/>
+										</div>
 									</SelectItem>
 								))}
 							</SelectContent>

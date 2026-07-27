@@ -1,6 +1,8 @@
 import PageWrapper from "@/components/common/page-wrapper";
 import Heading from "@/components/heading";
 import { Button } from "@/components/ui/button";
+import { PAGE_META, HEADINGS } from "@/constants/navigation";
+import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { HasRole } from "@/lib/utils";
 import { useEventStore } from "@/stores/use-event-store";
 import {
@@ -30,6 +32,7 @@ function formatDate(dateValue: string) {
 }
 
 export default function EventsPage() {
+	useHeaderInitializer(PAGE_META.events.title, PAGE_META.events.subtitle);
 	const isIC = HasRole("ic");
 
 	const eventConfigurations = useEventStore(
@@ -54,7 +57,10 @@ export default function EventsPage() {
 
 	return (
 		<PageWrapper>
-			<Heading title="Choose Event Type" />
+			<Heading
+				title={HEADINGS.events.title}
+				description={HEADINGS.events.description}
+			/>
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-5">
 				<EventCard
 					eventType="special"

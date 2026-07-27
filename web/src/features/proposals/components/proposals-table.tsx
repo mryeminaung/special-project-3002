@@ -125,7 +125,7 @@ export default function ProposalsTable({
 									</TableCell>
 									<TableCell className="text-center">
 										<Link
-											to={`/project-proposals/${proposal.type.toLowerCase()}/${proposal.slug}/detail`}
+											to={`/proposals/${proposal.type.toLowerCase()}/${proposal.slug}/detail`}
 											className="bg-primary-600 hover:bg-primary-700 transition-colors flex items-center justify-center text-white px-2 py-1.5 rounded-md gap-x-1">
 											<Eye className="size-3.5" />
 											<span className="text-[11px]">View</span>

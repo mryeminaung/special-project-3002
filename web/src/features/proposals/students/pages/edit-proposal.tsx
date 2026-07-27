@@ -1,4 +1,5 @@
 import api from "@/api/api";
+import { PAGE_META } from "@/constants/navigation";
 import UnAuthorized from "@/components/auth/un-authorized";
 import ErrorMessage from "@/components/error-message";
 import { Button } from "@/components/ui/button";
@@ -40,7 +41,7 @@ const ProposalSchema = z.object({
 });
 
 export default function EditProposalPage() {
-	useHeaderInitializer("MIIT | Proposal Editing", "Edit Proposal");
+	useHeaderInitializer(PAGE_META.editProposal.title, PAGE_META.editProposal.subtitle);
 
 	const [students, setStudents] = useState<User[]>([]);
 

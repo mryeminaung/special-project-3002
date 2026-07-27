@@ -29,6 +29,9 @@ Route::prefix("v1/auth")->group(function () {
 
 Route::prefix("v1/")->middleware('auth:sanctum')->group(function () {
 
+    // dashboard routes
+    Route::get("/dashboard", DashboardController::class);
+
     // profile routes
     Route::controller(ProfileController::class)->group(function () {
         Route::get("/profile", 'showProfile');
@@ -67,17 +70,15 @@ Route::prefix("v1/")->middleware('auth:sanctum')->group(function () {
     Route::controller(FacultyController::class)->group(function () {
         Route::get("/faculties", 'index');
         Route::get("/faculties/{faculty}/detail", 'detail');
-        Route::get("/faculties/{faculty:id}", 'show');
+        Route::get("/faculties-for-proposal", "getFacultiesForProposal");
+        // Route::get("/faculties/{faculty:id}", 'show');
     });
-
-    Route::get("/dashboard", DashboardController::class);
 
     Route::prefix("/admin")->middleware('role:admin')->group(function () {
         Route::apiResource("/departments", DepartmentController::class);
     });
 
     Route::controller(UserController::class)->group(function () {
-        Route::get("/faculties-for-proposal", "getFacultiesForProposal");
         Route::get("/students-for-proposal", "getStudentsForProposal");
     });
 

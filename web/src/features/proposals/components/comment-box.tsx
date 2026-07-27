@@ -34,7 +34,7 @@ export default function CommentBox({
 
 	const fetchInitialCommits = async () => {
 		const res = await api.get(`/comments/${proposalId}`);
-		setComments(res.data);
+		setComments(res.data.data);
 	};
 
 	useEffect(() => {

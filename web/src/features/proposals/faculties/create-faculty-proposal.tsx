@@ -1,4 +1,5 @@
 import api from "@/api/api";
+import { PAGE_META, HEADINGS } from "@/constants/navigation";
 import PageWrapper from "@/components/common/page-wrapper";
 import ErrorMessage from "@/components/error-message";
 import Heading from "@/components/heading";
@@ -54,7 +55,7 @@ const ProposalSchema = z.object({
 });
 
 export default function CreateFacultyProposalPage() {
-	useHeaderInitializer("MIIT | Proposal Submission", "Create New Proposal");
+	useHeaderInitializer(PAGE_META.createProposal.title, PAGE_META.createProposal.subtitle);
 
 	const authUser = useAuthStore((state) => state.authUser);
 	const navigate = useNavigate();
@@ -93,7 +94,7 @@ export default function CreateFacultyProposalPage() {
 		try {
 			const res = await api.post("/proposals", formattedData);
 			if (res.status === 201) {
-				navigate("/project-proposals/browse");
+				navigate("/proposals/browse");
 			}
 		} catch (error: any) {
 			const validationErrors = error.response?.data?.errors;
@@ -117,7 +118,7 @@ export default function CreateFacultyProposalPage() {
 			<PageWrapper>
 				<div className="space-y-1 mb-5">
 					<Heading
-						title="Submit Your Proposal"
+						title={HEADINGS.createProposal.title}
 						description="	Complete the form below to submit your academic project proposal for
             review"
 					/>

@@ -77,7 +77,9 @@ const FileUpload = forwardRef<FileUploadHandle, Props>(
 				}
 			} catch (err: any) {
 				const msg =
-					err?.response?.data?.message || err.message || "Upload failed";
+					err?.response?.data?.message ||
+					err.message ||
+					"Upload failed";
 				setFileUrlError(msg);
 
 				setFileUrl("");
@@ -87,22 +89,27 @@ const FileUpload = forwardRef<FileUploadHandle, Props>(
 		};
 
 		const hasUploadedFile = Boolean(fileUrl);
-		const uploadedFileName = hasUploadedFile ? getFileNameFromUrl(fileUrl) : "";
+		const uploadedFileName = hasUploadedFile
+			? getFileNameFromUrl(fileUrl)
+			: "";
 
 		return (
 			<Field className="mt-5">
 				<div className="mb-3 flex items-center justify-between gap-3">
 					<FieldLabel
 						htmlFor="proposal"
-						className="mb-0 block text-lg font-semibold text-foreground">
-						Project Documents <span className="text-red-500">*</span>
+						className="mb-0 block font-semibold text-foreground"
+					>
+						Project Documents{" "}
+						<span className="text-red-500">*</span>
 					</FieldLabel>
 					{hasUploadedFile && (
 						<Button
 							type="button"
 							variant="outline"
 							onClick={clearFile}
-							className="gap-2">
+							className="gap-2"
+						>
 							<Trash2 className="h-4 w-4" />
 							Clear
 						</Button>
@@ -110,7 +117,8 @@ const FileUpload = forwardRef<FileUploadHandle, Props>(
 				</div>
 
 				<div
-					className={`relative group overflow-hidden rounded-xl border-2 border-dashed p-4 transition-all duration-200 ${hasUploadedFile ? "border-primary/50 bg-primary/5" : "border-muted-foreground/20 hover:border-primary/40 hover:bg-muted/30"}`}>
+					className={`relative group overflow-hidden rounded-xl border-2 border-dashed p-4 transition-all duration-200 ${hasUploadedFile ? "border-primary/50 bg-primary/5" : "border-muted-foreground/20 hover:border-primary/40 hover:bg-muted/30"}`}
+				>
 					<input
 						type="file"
 						id="proposal"
@@ -175,7 +183,8 @@ const FileUpload = forwardRef<FileUploadHandle, Props>(
 							onClick={(e) => {
 								e.stopPropagation();
 								clearFile();
-							}}>
+							}}
+						>
 							<X className="h-4 w-4" />
 						</Button>
 					)}

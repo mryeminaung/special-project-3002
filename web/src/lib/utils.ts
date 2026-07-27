@@ -45,6 +45,34 @@ export const PROPOSAL_STATUS_COLOR = (status: ProposalStatus): string => {
 	return styles[status] || "bg-gray-100 text-gray-800 border-gray-200";
 };
 
+export type ProposalAppliedType = "Student" | "Faculty";
+
+export const PROPOSAL_APPLIED_TYPE_COLOR = (type: ProposalAppliedType): string => {
+	const styles: Record<ProposalAppliedType, string> = {
+		Student:
+			"bg-sky-100 text-sky-800 border-sky-200 dark:bg-sky-900/30 dark:text-sky-400 dark:border-sky-800",
+		Faculty:
+			"bg-violet-100 text-violet-800 border-violet-200 dark:bg-violet-900/30 dark:text-violet-400 dark:border-violet-800",
+	};
+
+	return styles[type] || "bg-gray-100 text-gray-800 border-gray-200";
+};
+
+export type ProposalProjectType = "Special" | "Capstone" | "Master";
+
+export const PROPOSAL_PROJECT_TYPE_COLOR = (type: ProposalProjectType): string => {
+	const styles: Record<ProposalProjectType, string> = {
+		Special:
+			"bg-teal-100 text-teal-800 border-teal-200 dark:bg-teal-900/30 dark:text-teal-400 dark:border-teal-800",
+		Capstone:
+			"bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800",
+		Master:
+			"bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-900/30 dark:text-indigo-400 dark:border-indigo-800",
+	};
+
+	return styles[type] || "bg-gray-100 text-gray-800 border-gray-200";
+};
+
 export type ProjectStatus = "active" | "pending" | "under_review" | "completed";
 
 export const PROJECT_STATUS_COLOR = (status: ProjectStatus): string => {

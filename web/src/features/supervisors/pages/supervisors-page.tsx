@@ -1,4 +1,5 @@
 import api from "@/api/api";
+import { PAGE_META } from "@/constants/navigation";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { useRoleChecker } from "@/hooks/use-role-checker";
 import { useQuery } from "@tanstack/react-query";
@@ -6,7 +7,7 @@ import UnAuthorized from "../../../components/auth/un-authorized";
 import SupervisorsTable from "../components/supervisors-table";
 
 export default function SupervisorsPage() {
-	useHeaderInitializer("MIIT| Supervisors", "Assigned Supervisors");
+	useHeaderInitializer(PAGE_META.supervisors.title, PAGE_META.supervisors.subtitle);
 
 	const fetchSupervisors = async () => {
 		const res = await api.get("/supervisors");
