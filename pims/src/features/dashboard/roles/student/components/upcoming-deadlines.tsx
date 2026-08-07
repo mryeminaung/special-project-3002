@@ -1,0 +1,93 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+	IconFileText,
+	IconCalendarEvent,
+	IconClipboardCheck,
+	IconMicrophone,
+} from "@tabler/icons-react";
+import type { StudentDashboardData } from "../services/student-dashboard.service";
+
+const iconMap: Record<string, React.ComponentType<{ className?: string; size?: number }>> = {
+	report: IconClipboardCheck,
+	proposal: IconFileText,
+	defense: IconMicrophone,
+	seminar: IconCalendarEvent,
+};
+
+const urgencyColors: Record<string, string> = {
+	urgent: "bg-red-50 border-l-red-500 text-red-700 dark:bg-red-950 dark:text-red-400",
+	moderate: "bg-amber-50 border-l-amber-500 text-amber-700 dark:bg-amber-950 dark:text-amber-400",
+	safe: "bg-emerald-50 border-l-emerald-500 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-400",
+};
+
+const badgeColors: Record<string, string> = {
+	report: "bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300",
+	proposal: "bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-400",
+	defense: "bg-violet-100 text-violet-700 dark:bg-violet-950 dark:text-violet-400",
+	seminar: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-400",
+};
+
+function getUrgency(dateStr: string): "urgent" | "moderate" | "safe" {
+	const days = Math.ceil(
+		(new Date(dateStr).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
+	);
+	if (days <= 7) return "urgent";
+	if (days <= 14) return "moderate";
+	return "safe";
+}
+
+function formatDate(dateStr: string) {
+	return new Date(dateStr).toLocaleDateString("en-US", {
+		month: "short",
+		day: "numeric",
+	});
+}
+
+export default function UpcomingDeadlines({
+	deadlines,
+}: {
+	deadlines?: StudentDashboardData["upcomingDeadlines"];
+}) {
+	if (!deadlines || deadlines.length === 0) return null;
+
+	return (
+		<Card className="rounded-xl border-0 shadow-sm">
+			<CardHeader className="pb-3">
+				<CardTitle className="text-sm font-semibold text-foreground">
+					Upcoming Deadlines
+				</CardTitle>
+			</CardHeader>
+			<CardContent className="p-0 px-5 pb-5">
+				<div className="space-y-2.5">
+					{deadlines.map((deadline) => {
+						const Icon = iconMap[deadline.type] || IconCalendarEvent;
+						const urgency = getUrgency(deadline.date);
+						return (
+							<div
+								key={deadline.id}
+								className={`flex items-center gap-3 rounded-lg border-l-4 p-3 ${urgencyColors[urgency]}`}>
+								<div className="flex-shrink-0">
+									<Icon size={18} />
+								</div>
+								<div className="min-w-0 flex-1">
+									<p className="text-sm font-medium text-foreground truncate">
+										{deadline.title}
+									</p>
+									<p className="text-xs text-muted-foreground">
+										{formatDate(deadline.date)}
+									</p>
+								</div>
+								<Badge
+									variant="secondary"
+									className={`text-xs flex-shrink-0 ${badgeColors[deadline.type]}`}>
+									{deadline.type}
+								</Badge>
+							</div>
+						);
+					})}
+				</div>
+			</CardContent>
+		</Card>
+	);
+}

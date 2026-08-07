@@ -1,0 +1,17 @@
+# Normalize line endings to LF for the web (frontend) folder
+web/** text eol=lf
+
+# Normalize backend too (optional, adjust as needed)
+backend/** text eol=lf
+
+# Binary files
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+*.eot binary
+*.ttf binary
+*.otf binary
