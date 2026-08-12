@@ -4,6 +4,7 @@ export type FacultyDetailResponse = {
 	id: number;
 	name: string;
 	email: string;
+	roles?: string[];
 	rank?: string | null;
 	department?: string | null;
 	phone?: string | null;

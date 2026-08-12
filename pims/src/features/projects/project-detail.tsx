@@ -1,5 +1,4 @@
 import api from "@/api/api";
-import PageWrapper from "@/components/common/page-wrapper";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -51,7 +50,7 @@ export default function ProjectDetailPage() {
 	console.log(proposal);
 
 	return (
-		<PageWrapper className="dark:bg-neutral-950">
+		<div className="dark:bg-neutral-950">
 			<Button
 				onClick={() => navigate(-1)}
 				variant="ghost"
@@ -158,6 +157,6 @@ export default function ProjectDetailPage() {
 
 			{/* project activities */}
 			<ProjectActivity project={proposal} />
-		</PageWrapper>
+		</div>
 	);
 }

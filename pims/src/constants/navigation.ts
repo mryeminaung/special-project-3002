@@ -103,8 +103,8 @@ export const HEADINGS = {
 
 	// Events
 	events: {
-		title: "Choose Event Type",
-		description: "Select an event type to manage project events and deadlines.",
+		title: "Events",
+		description: "Choose a project type to view registration details and submit your proposal.",
 	},
 
 	// Proposals

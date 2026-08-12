@@ -1,6 +1,5 @@
 import api from "@/api/api";
 import { PAGE_META, HEADINGS } from "@/constants/navigation";
-import PageWrapper from "@/components/common/page-wrapper";
 import Heading from "@/components/heading";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { useRoleChecker } from "@/hooks/use-role-checker";
@@ -23,14 +22,14 @@ export default function ProjectsPage() {
 
 	if (isIC) {
 		return (
-			<PageWrapper>
+			<>
 				<Heading
 					title={HEADINGS.projects.title}
 					description="Browse and manage project proposals with team assignments and
 					supervisors."
 				/>
 				{projects && <ProjectsTable projects={projects} />}
-			</PageWrapper>
+			</>
 		);
 	} else {
 		return <UnAuthorized />;

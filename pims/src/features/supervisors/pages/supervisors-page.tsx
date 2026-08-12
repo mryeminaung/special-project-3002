@@ -24,7 +24,7 @@ export default function SupervisorsPage() {
 	if (isStudent) return <UnAuthorized />;
 
 	return (
-		<div className="mx-auto max-w-7xl">
+		<>
 			<h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100">
 				Supervisors
 			</h1>
@@ -33,6 +33,6 @@ export default function SupervisorsPage() {
 				departments.
 			</p>
 			{supervisors && <SupervisorsTable supervisors={supervisors} />}
-		</div>
+		</>
 	);
 }

@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('rank_id')->constrained("ranks")->cascadeOnDelete();
             $table->foreignId('department_id')->constrained("departments")->cascadeOnDelete();
+            $table->timestamps();
         });
     }
 

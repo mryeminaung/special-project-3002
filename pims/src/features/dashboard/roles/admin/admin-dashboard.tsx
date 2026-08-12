@@ -1,5 +1,4 @@
 import api from "@/api/api";
-import PageWrapper from "@/components/common/page-wrapper";
 import Heading from "@/components/heading";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -25,7 +24,7 @@ export default function AdminDashboard() {
 	});
 
 	return (
-		<PageWrapper>
+		<>
 			<div className="mb-5 space-y-3">
 				<Heading
 					title={HEADINGS.adminDashboard.title}
@@ -83,6 +82,6 @@ export default function AdminDashboard() {
 					<ProjectsChart />
 				)}
 			</Card>
-		</PageWrapper>
+		</>
 	);
 }

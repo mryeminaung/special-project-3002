@@ -27,7 +27,11 @@ class DashboardController extends Controller
             return $this->successResponse('Dashboard data', $this->dashboardService->getAdminDashboardData());
         }
 
-        if ($user->hasRole('supervisor') || $user->hasRole('Faculty')) {
+        if ($user->hasRole('student-affairs')) {
+            return $this->successResponse('Dashboard data', $this->dashboardService->getStudentAffairsDashboardData());
+        }
+
+        if ($user->hasRole('supervisor') || $user->hasRole('faculty')) {
             return $this->successResponse('Dashboard data', $this->dashboardService->getFacultyDashboardData($user->id));
         }
 

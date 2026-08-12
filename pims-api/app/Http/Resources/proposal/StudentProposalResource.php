@@ -7,30 +7,22 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class StudentProposalResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
         return [
-            'id'          => $this->id,
-            'title'       => $this->title,
-            'slug'        => $this->slug,
-            'description' => $this->description,
-            'file'        => $this->fileUrl,
-            'type'        => ucfirst($this->type),
-            'projectType' => ucfirst($this->project_type),
-            'submittedBy' => new MemberResource($this->leader),
-            'supervisor'  => new MemberResource($this->supervisor),
-            'status'      => $this->status,
-            'members'     => MemberResource::collection(
-                $this->resource->relationLoaded('members')
-                    ? $this->resource->getRelation('members')
-                    : collect()
-            ),
-            'submittedAt' => $this->submitted_at->format('d-m-Y'),
+            'id'             => $this->id,
+            'title'          => $this->title,
+            'slug'           => $this->slug,
+            'description'    => $this->description,
+            'file'           => $this->fileUrl,
+            'type'           => $this->type->value,
+            'projectType'    => $this->project_type->value,
+            'eligibleMajors' => $this->eligible_majors->value,
+            'submittedBy'    => $this->leader ? new MemberResource($this->leader) : null,
+            'supervisor'     => $this->supervisor ? new MemberResource($this->supervisor) : null,
+            'status'         => $this->status->value,
+            'members'        => MemberResource::collection($this->whenLoaded('members', fn() => $this->members, collect())),
+            'submittedAt'    => $this->submitted_at->format('d-m-Y'),
         ];
     }
 }

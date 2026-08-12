@@ -22,6 +22,10 @@ type EventStoreState = {
 		eventType: EventType,
 		configuration: EventConfiguration,
 	) => Promise<boolean>;
+	updateProjectEvent: (
+		eventType: EventType,
+		configuration: EventConfiguration,
+	) => Promise<boolean>;
 	deleteEventConfiguration: (eventType: EventType) => Promise<void>;
 };
 
@@ -186,6 +190,28 @@ export const useEventStore = create<EventStoreState>()(
 
 			await api.post<ApiSuccessResponse<BackendProjectEvent>>(
 				"/project-events",
+				payload,
+			);
+
+			await get().fetchEventStatuses();
+			return true;
+		},
+
+		updateProjectEvent: async (eventType, configuration) => {
+			const eventId = get().eventIdByType[eventType];
+			if (!eventId) throw new Error("No event found to update");
+
+			const payload = {
+				title: configuration.title.trim(),
+				detail: configuration.description.trim(),
+				type: eventTypeToBackend[eventType],
+				start_date: configuration.startDate,
+				end_date: configuration.endDate,
+				is_active: get().enrollmentByEvent[eventType],
+			};
+
+			await api.patch<ApiSuccessResponse<BackendProjectEvent>>(
+				`/project-events/${eventId}`,
 				payload,
 			);
 

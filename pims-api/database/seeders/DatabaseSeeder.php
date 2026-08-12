@@ -8,9 +8,6 @@ use Spatie\Permission\PermissionRegistrar;
 
 class DatabaseSeeder extends Seeder
 {
-    // The WithoutModelEvents trait is typically used at the class level
-    // use WithoutModelEvents;
-
     public function run(): void
     {
         $this->call([
@@ -29,44 +26,26 @@ class DatabaseSeeder extends Seeder
         $adminRole          = Role::findByName('admin');
         $icRole             = Role::findByName('ic');
         $studentAffairsRole = Role::findByName('student-affairs');
-        $supervisorRole     = Role::findByName('supervisor');
-        $studentRole        = Role::findByName('student');
         $facultyRole        = Role::findByName('faculty');
+        $studentRole        = Role::findByName('student');
 
         $adminUser = User::where('email', 'admin@miit.edu.mm')->first();
         $adminUser->assignRole($adminRole);
-        $adminUser->save();
-        $adminUser->refresh();
 
-        // $icRole->syncPermissions(['approve proposal', 'reject proposal']);
-
-        $superUsers = User::where('is_student', false)->take(3)->get();
-        foreach ($superUsers as $user) {
-            $user->assignRole($icRole);
-            $user->save();
-            $user->refresh();
-        }
+        $icEmails = ['win_aye@miit.edu.mm', 'myat_thuzar_tun@miit.edu.mm', 'khaing_nyunt_myaing@miit.edu.mm'];
+        User::whereIn('email', $icEmails)->each(fn($u) => $u->assignRole($icRole));
 
         $studentAffairs = User::where('email', 'student_affairs@miit.edu.mm')->first();
         $studentAffairs->assignRole($studentAffairsRole);
-        $studentAffairs->save();
-        $studentAffairs->refresh();
 
-        $faculties = User::where('is_student', false)
-            ->offset(6)
-            ->orderBy('id', 'desc')
-            ->get();
-        foreach ($faculties as $faculty) {
-            $faculty->assignRole($facultyRole);
-            $faculty->save();
-            $faculty->refresh();
-        }
+        // faculty = all non-student emails excluding known admin/ic/student-affairs accounts
+        $excludedEmails = array_merge($icEmails, ['admin@miit.edu.mm', 'student_affairs@miit.edu.mm']);
+        User::whereNotLike('email', '____-miit-%')
+            ->whereNotIn('email', $excludedEmails)
+            ->each(fn($u) => $u->assignRole($facultyRole));
 
-        $students = User::where('is_student', true)->get();
-        foreach ($students as $student) {
-            $student->assignRole($studentRole);
-            $student->save();
-            $student->refresh();
-        }
+        // students have emails matching: {year}-miit-{major}-{roll}@miit.edu.mm
+        User::whereLike('email', '____-miit-%')
+            ->each(fn($u) => $u->assignRole($studentRole));
     }
 }

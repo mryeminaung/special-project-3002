@@ -19,7 +19,7 @@ class FilePolicy
 
     public function uploadReport(User $user): bool
     {
-        if ($user->hasRole('Student')) {
+        if ($user->hasRole('student')) {
             return false;
         }
 
@@ -28,7 +28,7 @@ class FilePolicy
 
     public function deleteReport(User $user): bool
     {
-        if ($user->hasRole('Student')) {
+        if ($user->hasRole('student')) {
             return false;
         }
 

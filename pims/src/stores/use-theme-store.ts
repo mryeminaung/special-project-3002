@@ -31,12 +31,6 @@ export const useThemeStore = create<ThemeStoreProps>((set, get) => ({
   setTheme: (theme: Theme) => {
     set({ theme });
     localStorage.setItem('theme', theme);
-    const root = document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
-    }
   },
   toggleTheme: () => {
     const newTheme = get().theme === 'dark' ? 'light' : 'dark';

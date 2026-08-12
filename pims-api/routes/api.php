@@ -1,10 +1,8 @@
 <?php
 
-use App\Http\Controllers\Api\Auth\AuthController;
-use App\Http\Controllers\Api\Auth\ProfileController;
-
 use App\Http\Controllers\Api\Admin\DepartmentController;
 use App\Http\Controllers\Api\AnnouncementController;
+use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\FacultyController;
@@ -15,117 +13,114 @@ use App\Http\Controllers\Api\ProjectEventController;
 use App\Http\Controllers\Api\ProposalController;
 use App\Http\Controllers\Api\SupervisorController;
 use App\Http\Controllers\Api\UserController;
-
 use Illuminate\Support\Facades\Route;
 
-Route::prefix("v1/auth")->group(function () {
-    // Authentication routes
-    Route::controller(AuthController::class)->group(function () {
+Route::prefix('v1')->group(function () {
+
+    // Auth routes
+    Route::prefix('auth')->controller(AuthController::class)->group(function () {
         Route::post('/login', 'login')->middleware('guest');
-        Route::post('/logout', 'logout')->middleware('auth:sanctum');
-        Route::post('/logout-all', 'logoutAll')->middleware('auth:sanctum');
-    });
-});
 
-Route::prefix("v1/")->middleware('auth:sanctum')->group(function () {
-
-    // dashboard routes
-    Route::get("/dashboard", DashboardController::class);
-
-    // profile routes
-    Route::controller(ProfileController::class)->group(function () {
-        Route::get("/profile", 'showProfile');
-        Route::patch("/update-profile", 'updateProfile');
-        Route::post("/reset-password", 'resetPassword');
+        Route::middleware('auth:sanctum')->group(function () {
+            Route::post('/logout', 'logout');
+            Route::post('/logout-all', 'logoutAll');
+            Route::get('/profile', 'showProfile');
+            Route::patch('/profile', 'updateProfile');
+            Route::post('/reset-password', 'resetPassword');
+        });
     });
 
-    // comment routes
-    Route::controller(CommentController::class)->group(function () {
-        Route::get("/comments", 'index');
-        Route::get("/comments/{proposal:id}", 'show');
-        Route::post("/comments", 'store');
-        Route::patch("/comments/{proposal:id}/{comment}", 'update');
-        Route::delete("/comments/{comment}", 'destroy');
+    // Protected routes
+    Route::middleware('auth:sanctum')->group(function () {
+
+        Route::get('/dashboard', DashboardController::class);
+
+        // Announcements
+        Route::controller(AnnouncementController::class)->prefix('announcements')->group(function () {
+            Route::get('/', 'index');
+            Route::post('/', 'store');
+            Route::get('/{announcement}', 'show');
+            Route::patch('/{announcement}', 'update');
+            Route::delete('/{announcement}', 'destroy');
+        });
+
+        // Comments
+        Route::controller(CommentController::class)->prefix('comments')->group(function () {
+            Route::get('/', 'index');
+            Route::post('/', 'store');
+            Route::get('/{proposal:id}', 'show');
+            Route::patch('/{proposal:id}/{comment}', 'update');
+            Route::delete('/{comment}', 'destroy');
+        });
+
+        // Project areas
+        Route::controller(ProjectAreaController::class)->prefix('project-areas')->group(function () {
+            Route::get('/', 'index');
+            Route::post('/', 'store');
+            Route::get('/{projectArea:slug}', 'show');
+            Route::patch('/{projectArea:slug}', 'update');
+            Route::delete('/{projectArea:slug}', 'destroy');
+        });
+
+        // Project events
+        Route::apiResource('project-events', ProjectEventController::class)->except(['create', 'show', 'edit']);
+        Route::post('project-events/{projectEvent}/toggle-active', [ProjectEventController::class, 'toggleActive']);
+
+        // Projects
+        Route::controller(ProjectController::class)->prefix('projects')->group(function () {
+            Route::get('/', 'index');
+            Route::get('/me', 'studentProjects');
+            Route::get('/assigned', 'assignedProjects');
+            Route::get('/{project:slug}', 'show');
+            Route::patch('/{project:slug}/seminar-deadlines', 'updateSeminarDeadlines');
+            Route::patch('/{project:slug}/seminar-status', 'updateSeminarStatus');
+            Route::patch('/{project:slug}/report-status', 'updateReportStatus');
+        });
+
+        // Proposals
+        Route::controller(ProposalController::class)->prefix('proposals')->group(function () {
+            Route::get('/', 'index');
+            Route::post('/', 'store');
+            Route::get('/me', 'myProposals');
+            Route::get('/browse', 'browseProposals');
+            Route::get('/faculties', 'facultyProposals');
+            Route::get('/{proposal:slug}', 'show');
+            Route::delete('/{proposal:slug}', 'destroy');
+            Route::post('/{proposal:slug}/approve', 'approveByIC');
+            Route::post('/{proposal:slug}/reject', 'rejectByIC');
+            Route::post('/{proposal:slug}/join', 'joinFacultyProposal');
+            Route::post('/{proposal:slug}/applications/{student:id}/accept', 'acceptApplicant');
+            Route::post('/{proposal:slug}/applications/{student:id}/reject', 'rejectApplicant');
+        });
+
+        // Faculties
+        Route::controller(FacultyController::class)->prefix('faculties')->group(function () {
+            Route::get('/', 'index');
+            Route::get('/{faculty}/detail', 'detail');
+        });
+        Route::get('/faculties-for-proposal', [FacultyController::class, 'getFacultiesForProposal']);
+
+        // Supervisors
+        Route::controller(SupervisorController::class)->prefix('supervisors')->group(function () {
+            Route::get('/', 'index');
+            Route::get('/{supervisor:id}/detail', 'show');
+        });
+
+        // Users
+        Route::get('/students-for-proposal', [UserController::class, 'getStudentsForProposal']);
+
+        // Files
+        Route::controller(FileController::class)->group(function () {
+            Route::post('/upload-profile-picture', 'uploadProfilePicture');
+            Route::delete('/delete-profile-picture', 'deleteProfilePicture');
+            Route::post('/upload-to-s3', 'uploadToS3');
+            Route::post('/upload-report', 'uploadReport');
+            Route::post('/delete-report', 'deleteReport');
+        });
+
+        // Admin
+        Route::prefix('admin')->middleware('role:admin')->group(function () {
+            Route::apiResource('departments', DepartmentController::class);
+        });
     });
-
-    // announcement routes
-    Route::controller(AnnouncementController::class)->group(function () {
-        Route::get("/announcements", 'index');
-        Route::get("/announcements/{announcement}", 'show');
-        Route::post("/announcements", 'store');
-        Route::patch("/announcements/{announcement}", 'update');
-        Route::delete("/announcements/{announcement}", 'destroy');
-    });
-
-    // project area routes
-    Route::controller(ProjectAreaController::class)->group(function () {
-        Route::get("/project-areas", 'index');
-        Route::get("/project-areas/{projectArea:slug}", 'show');
-        Route::post("/project-areas", 'store');
-        Route::patch("/project-areas/{projectArea:slug}", 'update');
-        Route::delete("/project-areas/{projectArea:slug}", 'destroy');
-    });
-
-    // faculty routes
-    Route::controller(FacultyController::class)->group(function () {
-        Route::get("/faculties", 'index');
-        Route::get("/faculties/{faculty}/detail", 'detail');
-        Route::get("/faculties-for-proposal", "getFacultiesForProposal");
-        // Route::get("/faculties/{faculty:id}", 'show');
-    });
-
-    Route::prefix("/admin")->middleware('role:admin')->group(function () {
-        Route::apiResource("/departments", DepartmentController::class);
-    });
-
-    Route::controller(UserController::class)->group(function () {
-        Route::get("/students-for-proposal", "getStudentsForProposal");
-    });
-
-    Route::controller(ProposalController::class)->group(function () {
-        Route::get("/proposals", 'index');
-        Route::post("/proposals", 'store');
-        Route::get("/proposals/me", 'myProposals');
-        Route::get("/proposals/browse", 'browseProposals');
-        Route::get("/proposals/faculties", 'facultyProposals');
-        Route::post("/proposals/{proposal:slug}/join", 'joinFacultyProposal');
-        Route::post("/proposals/{proposal:slug}/applications/{student:id}/accept", 'acceptApplicant');
-        Route::post("/proposals/{proposal:slug}/applications/{student:id}/reject", 'rejectApplicant');
-        Route::get("/proposals/{proposal:slug}", 'show');
-        Route::delete("/proposals/{proposal:slug}", 'destroy');
-        Route::post("/proposals/{proposal:slug}/approve", 'approveByIC');
-        Route::post("/proposals/{proposal:slug}/reject", 'rejectByIC');
-    });
-
-    Route::controller(SupervisorController::class)->group(function () {
-        Route::get("/supervisors", 'index');
-        Route::get("/supervisors/{supervisor:id}/detail", 'show');
-    });
-
-    Route::controller(ProjectController::class)->group(function () {
-        Route::get("/projects", 'index');
-        Route::get("/assigned-projects", 'assignedProjects');
-        Route::get("/projects/me", 'studentProjects');
-        Route::get("/projects/{project:slug}", 'show');
-        Route::patch("/projects/{project:slug}/seminar-deadlines", 'updateSeminarDeadlines');
-        Route::patch("/projects/{project:slug}/seminar-status", 'updateSeminarStatus');
-        Route::patch("/projects/{project:slug}/report-status", 'updateReportStatus');
-    });
-
-    Route::controller(FileController::class)->group(function () {
-        // upload or delete profile document
-        Route::post("/upload-profile-picture", 'uploadProfilePicture');
-        Route::delete("/delete-profile-picture", 'deleteProfilePicture');
-
-        // upload or delete proposal document
-        Route::post("/upload-to-s3", 'uploadToS3');
-
-        // upload or delete report
-        Route::post("/upload-report", 'uploadReport');
-        Route::post("/delete-report", 'deleteReport');
-    });
-
-    Route::apiResource("/project-events", ProjectEventController::class)->except(['create', 'show', 'edit']);
-
-    Route::post("/project-events/{projectEvent}/toggle-active", [ProjectEventController::class, 'toggleActive']);
 });

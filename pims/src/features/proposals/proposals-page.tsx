@@ -1,6 +1,5 @@
 import api from "@/api/api";
 import { PAGE_META, HEADINGS } from "@/constants/navigation";
-import PageWrapper from "@/components/common/page-wrapper";
 import Heading from "@/components/heading";
 import { useCurrentPage } from "@/hooks/use-current-page";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
@@ -32,7 +31,7 @@ export default function ProjectsProposalPage() {
 	if (!isIC) return <UnAuthorized />;
 
 	return (
-		<PageWrapper>
+		<>
 			<Heading
 				title={HEADINGS.proposals.title}
 				description="Browse and manage project proposals with team assignments and
@@ -45,6 +44,6 @@ export default function ProjectsProposalPage() {
 				/>
 				{proposals?.data?.meta && <Pagination meta={proposals.data.meta} />}
 			</div>
-		</PageWrapper>
+		</>
 	);
 }
