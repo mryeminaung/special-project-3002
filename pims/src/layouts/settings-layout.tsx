@@ -1,4 +1,3 @@
-import PageWrapper from "@/components/common/page-wrapper";
 import { HEADINGS } from "@/constants/navigation";
 import Heading from "@/components/heading";
 import { useRoleChecker } from "@/hooks/use-role-checker";
@@ -57,7 +56,7 @@ export default function SettingsLayout({
 	}
 
 	return (
-		<PageWrapper>
+		<div>
 			<Heading
 				title={HEADINGS.settings.title}
 				description={HEADINGS.settings.description}
@@ -85,6 +84,6 @@ export default function SettingsLayout({
 				</div>
 				<div className="md:col-span-4 lg:col-span-5">{children}</div>
 			</section>
-		</PageWrapper>
+		</div>
 	);
 }

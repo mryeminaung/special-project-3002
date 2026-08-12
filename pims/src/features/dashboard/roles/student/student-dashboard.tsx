@@ -1,4 +1,3 @@
-import PageWrapper from "@/components/common/page-wrapper";
 import { PAGE_META } from "@/constants/navigation";
 import Heading from "@/components/heading";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
@@ -32,7 +31,7 @@ export default function StudentDashboard() {
 	};
 
 	return (
-		<PageWrapper>
+		<>
 			<div className="mb-6">
 				<Heading
 					title={`Welcome Back, ${authUser.name}!`}
@@ -72,6 +71,6 @@ export default function StudentDashboard() {
 				<RecentActivities activities={data.recentActivities} />
 				<LatestNotifications notifications={data.notifications} />
 			</div>
-		</PageWrapper>
+		</>
 	);
 }

@@ -1,6 +1,5 @@
 import api from "@/api/api";
 import { PAGE_META } from "@/constants/navigation";
-import PageWrapper from "@/components/common/page-wrapper";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -50,18 +49,38 @@ export default function SupervisorDetail() {
 		enabled: Boolean(id),
 	});
 
-	if (isLoading || !supervisor) {
+	if (isLoading) {
 		return (
-			<PageWrapper>
-				<div className="text-sm text-muted-foreground">
-					Loading supervisor detail...
+			<div className="space-y-6 animate-pulse">
+				<div className="h-5 w-36 rounded bg-muted" />
+				<div className="rounded-lg bg-card border p-6">
+					<div className="flex gap-5 items-center">
+						<div className="h-28 w-28 rounded-2xl bg-muted shrink-0" />
+						<div className="space-y-2 flex-1">
+							<div className="h-6 w-52 rounded bg-muted" />
+							<div className="h-4 w-40 rounded bg-muted" />
+							<div className="h-4 w-32 rounded bg-muted" />
+						</div>
+						<div className="h-9 w-28 rounded-md bg-muted ml-auto" />
+					</div>
 				</div>
-			</PageWrapper>
+				<div className="grid grid-cols-3 gap-4">
+					{[...Array(3)].map((_, i) => <div key={i} className="h-20 rounded-lg bg-muted" />)}
+				</div>
+				<div className="grid grid-cols-3 gap-8">
+					<div className="space-y-3">
+						{[...Array(3)].map((_, i) => <div key={i} className="h-16 rounded-lg bg-muted" />)}
+					</div>
+					<div className="col-span-2 h-56 rounded-lg bg-muted" />
+				</div>
+			</div>
 		);
 	}
 
+	if (!supervisor) return null;
+
 	return (
-		<PageWrapper>
+		<>
 			<Button
 				onClick={() => navigate("/supervisors")}
 				variant="ghost"
@@ -207,6 +226,6 @@ export default function SupervisorDetail() {
 					</Card>
 				</div>
 			</div>
-		</PageWrapper>
+		</>
 	);
 }

@@ -1,15 +1,13 @@
-import Loading from "@/components/loading";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-	DropdownMenu,
-	DropdownMenuCheckboxItem,
-	DropdownMenuContent,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import {
 	Table,
 	TableBody,
@@ -18,319 +16,203 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { cn, PROJECT_STATUS_COLOR } from "@/lib/utils";
-import type { UsersData } from "@/types";
-import { IconDownload } from "@tabler/icons-react";
-import {
-	Eye,
-	Search,
-	Settings2,
-	Users,
-} from "lucide-react";
+import TableRowSkeleton from "@/components/table-row-skeleton";
+import { ROLE_COLORS, ROLE_LABELS } from "@/constants/badge-colors";
+import { Eye, Search } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
 
+type Faculty = {
+	id: number;
+	name: string;
+	email: string;
+	avatar_url: string | null;
+	roles: string[];
+	status: string;
+	profile: {
+		phoneNumber: string | null;
+		address: string | null;
+		rank: string;
+		department: string;
+	};
+};
+
+
 export default function FacultiesTable({
 	facultyData,
+	isLoading = false,
 }: {
-	facultyData: UsersData[];
+	facultyData: Faculty[];
+	isLoading?: boolean;
 }) {
-	const [searchTerm, setSearchTerm] = useState("");
+	const [search, setSearch] = useState("");
+	const [rankFilter, setRankFilter] = useState("all");
+	const [roleFilter, setRoleFilter] = useState("all");
+	const [deptFilter, setDeptFilter] = useState("all");
 	const [currentPage, setCurrentPage] = useState(1);
-	const [visibleColumns, setVisibleColumns] = useState<Set<string>>(
-		new Set(["name", "email", "rank", "status", "department"]),
-	);
 	const itemsPerPage = 10;
 
-	const allRanks = [
-		"Rector",
-		"Pro-Rector",
-		"Professor",
-		"Associate Professor",
-		"Lecturer",
-		"Assistant Lecturer",
-		"Tutor",
-	];
+	const ranks = useMemo(
+		() => [...new Set(facultyData.map((f) => f.profile?.rank).filter(Boolean))].sort(),
+		[facultyData],
+	);
+	const roles = useMemo(
+		() => [...new Set(facultyData.flatMap((f) => f.roles))].sort(),
+		[facultyData],
+	);
+	const depts = useMemo(
+		() => [...new Set(facultyData.map((f) => f.profile?.department).filter(Boolean))].sort(),
+		[facultyData],
+	);
 
-	const rankCounts = useMemo(() => {
-		const counts: Record<string, number> = {};
-		allRanks.forEach((rank) => {
-			counts[rank] = 0;
-		});
-		facultyData.forEach((user) => {
-			counts[user?.rank] = (counts[user?.rank] ?? 0) + 1;
-		});
-		return counts;
-	}, [facultyData]);
+	const resetPage = () => setCurrentPage(1);
 
-	const filteredUsers = useMemo(() => {
-		return facultyData.filter((user) => {
-			const matchesSearch =
-				user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				user.email.toLowerCase().includes(searchTerm.toLowerCase());
-			return matchesSearch;
+	const filtered = useMemo(() => {
+		const q = search.toLowerCase();
+		return facultyData.filter((f) => {
+			if (q && !f.name.toLowerCase().includes(q) && !f.email.toLowerCase().includes(q)) return false;
+			if (rankFilter !== "all" && f.profile?.rank !== rankFilter) return false;
+			if (roleFilter !== "all" && !f.roles.includes(roleFilter)) return false;
+			if (deptFilter !== "all" && f.profile?.department !== deptFilter) return false;
+			return true;
 		});
-	}, [
-		facultyData,
-		searchTerm,
-	]);
+	}, [facultyData, search, rankFilter, roleFilter, deptFilter]);
 
-	const paginatedUsers = useMemo(() => {
+	const totalPages = Math.max(1, Math.ceil(filtered.length / itemsPerPage));
+	const paginated = useMemo(() => {
 		const start = (currentPage - 1) * itemsPerPage;
-		return filteredUsers.slice(start, start + itemsPerPage);
-	}, [filteredUsers, currentPage]);
-
-	const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-
-	const handleColumnToggle = (column: string) => {
-		const newColumns = new Set(visibleColumns);
-		if (newColumns.has(column)) {
-			newColumns.delete(column);
-		} else {
-			newColumns.add(column);
-		}
-		setVisibleColumns(newColumns);
-	};
+		return filtered.slice(start, start + itemsPerPage);
+	}, [filtered, currentPage]);
 
 	return (
-		<>
-			{facultyData.length === 0 ? (
-				<Loading message="faculties" />
-			) : (
-				<div className="space-y-4 mt-5">
-					{/* Search and Filters */}
-					<div className="flex flex-col gap-4">
-						<div className="flex gap-3">
-							<div className="relative flex-1 max-w-sm">
-								<Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-								<Input
-									placeholder="Filter users..."
-									className="pl-10"
-									value={searchTerm}
-									onChange={(e) => {
-										setSearchTerm(e.target.value);
-										setCurrentPage(1);
-									}}
-								/>
-							</div>
+		<div className="space-y-4 mt-5">
+			{/* Search + Filters */}
+			<div className="flex flex-wrap gap-3">
+				<div className="relative min-w-56 flex-1">
+					<Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+					<Input
+						placeholder="Search by name or email…"
+						className="pl-9"
+						value={search}
+						onChange={(e) => { setSearch(e.target.value); resetPage(); }}
+					/>
+				</div>
+				<Select value={rankFilter} onValueChange={(v) => { setRankFilter(v); resetPage(); }}>
+					<SelectTrigger className="w-40">
+						<SelectValue placeholder="Rank" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="all">All Ranks</SelectItem>
+						{ranks.map((r) => (
+							<SelectItem key={r} value={r}>{r}</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+				<Select value={roleFilter} onValueChange={(v) => { setRoleFilter(v); resetPage(); }}>
+					<SelectTrigger className="w-40">
+						<SelectValue placeholder="Role" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="all">All Roles</SelectItem>
+						{roles.map((r) => (
+							<SelectItem key={r} value={r}>{ROLE_LABELS[r] ?? r}</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+				<Select value={deptFilter} onValueChange={(v) => { setDeptFilter(v); resetPage(); }}>
+					<SelectTrigger className="w-52">
+						<SelectValue placeholder="Department" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="all">All Departments</SelectItem>
+						{depts.map((d) => (
+							<SelectItem key={d} value={d}>{d}</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+			</div>
 
-							{/* Rank Dropdown Display */}
-							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<Button
-										variant="outline"
-										className="gap-2 bg-transparent">
-										<Users className="h-4 w-4" />
-										<span>Rank</span>
-									</Button>
-								</DropdownMenuTrigger>
-								<DropdownMenuContent
-									align="start"
-									className="w-56">
-									<DropdownMenuLabel>Ranks</DropdownMenuLabel>
-									<DropdownMenuSeparator />
-									<div className="p-2">
-										{allRanks.filter(rank => (rankCounts[rank] ?? 0) > 0).map((rank) => (
-											<div
-												key={rank}
-												className="flex items-center gap-2 py-2 rounded px-2">
-												<span className="flex-1 text-sm">{rank}</span>
-												<span className="text-xs text-muted-foreground">
-													{rankCounts[rank]}
-												</span>
-											</div>
-										))}
-									</div>
-								</DropdownMenuContent>
-							</DropdownMenu>
-
-							{/* View Toggle Button */}
-							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<Button
-										variant="outline"
-										className="gap-2 bg-transparent">
-										<Settings2 className="h-4 w-4" />
-										View
-									</Button>
-								</DropdownMenuTrigger>
-								<DropdownMenuContent
-									align="end"
-									className="w-48">
-									<DropdownMenuLabel>Toggle Columns</DropdownMenuLabel>
-									<DropdownMenuSeparator />
-									<DropdownMenuCheckboxItem
-										checked={visibleColumns.has("name")}
-										onCheckedChange={() => handleColumnToggle("name")}>
-										Name
-									</DropdownMenuCheckboxItem>
-									<DropdownMenuCheckboxItem
-										checked={visibleColumns.has("email")}
-										onCheckedChange={() => handleColumnToggle("email")}>
-										Email
-									</DropdownMenuCheckboxItem>
-									<DropdownMenuCheckboxItem
-										checked={visibleColumns.has("rank")}
-										onCheckedChange={() => handleColumnToggle("rank")}>
-										Rank
-									</DropdownMenuCheckboxItem>
-									<DropdownMenuCheckboxItem
-										checked={visibleColumns.has("status")}
-										onCheckedChange={() => handleColumnToggle("status")}>
-										Status
-									</DropdownMenuCheckboxItem>
-									<DropdownMenuCheckboxItem
-										checked={visibleColumns.has("department")}
-										onCheckedChange={() => handleColumnToggle("department")}>
-										Department
-									</DropdownMenuCheckboxItem>
-								</DropdownMenuContent>
-							</DropdownMenu>
-
-							<div className="flex items-center ml-auto gap-x-3">
-								<Button
-									className="hover:cursor-pointer bg-primary-800 hover:bg-primary-800/80 ml-auto hover:text-white text-white"
-									onClick={() => alert("Downloading...")}
-									variant={"outline"}>
-									<IconDownload />
-									<span>Export</span>
-								</Button>
-							</div>
-						</div>
-					</div>
-
-					{/* Table */}
-					<div className="rounded-lg border border-border">
-						<Table>
-							<TableHeader className="bg-muted">
-								<TableRow>
-									{visibleColumns.has("name") && <TableHead>Name</TableHead>}
-									{visibleColumns.has("email") && (
-										<TableHead>Email</TableHead>
-									)}
-									{visibleColumns.has("rank") && <TableHead>Rank</TableHead>}
-									{visibleColumns.has("status") && (
-										<TableHead>Status</TableHead>
-									)}
-									{visibleColumns.has("department") && (
-										<TableHead>Department</TableHead>
-									)}
-									<TableHead className="w-12">Action</TableHead>
+			{/* Table */}
+			<div className="rounded-lg border border-border overflow-hidden">
+				<Table>
+					<TableHeader className="bg-muted">
+						<TableRow>
+							<TableHead>Name</TableHead>
+							<TableHead>Rank</TableHead>
+							<TableHead>Department</TableHead>
+							<TableHead>Role</TableHead>
+							<TableHead className="w-16 text-center">Action</TableHead>
+						</TableRow>
+					</TableHeader>
+					<TableBody>
+						{isLoading ? (
+							<TableRowSkeleton rows={5} colSpan={5} />
+						) : paginated.length === 0 ? (
+							<TableRow>
+								<TableCell colSpan={5} className="py-10 text-center text-muted-foreground">
+									No faculty members found.
+								</TableCell>
+							</TableRow>
+						) : (
+							paginated.map((faculty, idx) => (
+								<TableRow key={faculty.id}>
+									<TableCell>
+										<p className="font-medium leading-tight">{faculty.name}</p>
+										<p className="text-xs text-muted-foreground mt-0.5">{faculty.email}</p>
+									</TableCell>
+									<TableCell className="text-sm">{faculty.profile?.rank ?? "—"}</TableCell>
+									<TableCell className="text-sm">{faculty.profile?.department ?? "—"}</TableCell>
+									<TableCell>
+										<div className="flex flex-wrap gap-1">
+											{faculty.roles.map((role) => (
+												<Badge
+													key={role}
+													variant="outline"
+													className={`text-[11px] capitalize ${ROLE_COLORS[role] ?? "bg-muted text-muted-foreground"}`}>
+													{ROLE_LABELS[role] ?? role}
+												</Badge>
+											))}
+										</div>
+									</TableCell>
+									<TableCell className="text-center">
+										<Link
+											to={`/faculties/${faculty.id}/detail`}
+											className="inline-flex items-center gap-1 bg-primary-600 hover:bg-primary-700 transition-colors text-white px-2 py-1.5 rounded-md">
+											<Eye className="size-3.5" />
+											<span className="text-[11px]">View</span>
+										</Link>
+									</TableCell>
 								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{paginatedUsers.length === 0 ? (
-									<TableRow className="">
-										<TableCell
-											colSpan={visibleColumns.size + 1}
-											className="text-center py-8">
-											<div className="flex flex-col items-center gap-3">
-												<Search className="h-12 w-12 text-muted-foreground opacity-50" />
-												<div>
-													<h3 className="font-semibold text-foreground">
-														No users found
-													</h3>
-													<p className="text-sm text-muted-foreground">
-														Try adjusting your search or filters
-													</p>
-												</div>
-											</div>
-										</TableCell>
-									</TableRow>
-								) : (
-									paginatedUsers.map((user) => (
-										<TableRow
-											key={user.id}
-											className="px-3">
-											{visibleColumns.has("name") && (
-												<TableCell>{user.name}</TableCell>
-											)}
-											{visibleColumns.has("email") && (
-												<TableCell>{user.email}</TableCell>
-											)}
-											{visibleColumns.has("rank") && (
-												<TableCell>{user.rank}</TableCell>
-											)}
-											{visibleColumns.has("status") && (
-												<TableCell>
-													<Badge
-														className={cn(
-															PROJECT_STATUS_COLOR("active"),
-															"px-3 font-mono rounded-md capitalize",
-														)}>
-														{user.status}
-													</Badge>
-												</TableCell>
-											)}
-											{visibleColumns.has("department") && (
-												<TableCell>{user.departmentName}</TableCell>
-											)}
-											<TableCell className="border">
-												<Link
-													to={`/faculties/${user.id}/detail`}
-													className="bg-primary-800 hover:cursor-pointer hover:bg-primary-800/80 flex items-center text-white px-2 py-1.5 rounded-md gap-x-1">
-													<Eye className="size-4" />
-													<span className="text-[12px]">View</span>
-												</Link>
-											</TableCell>
-										</TableRow>
-									))
-								)}
-							</TableBody>
-						</Table>
-					</div>
+							))
+						)}
+					</TableBody>
+				</Table>
+			</div>
 
-					{/* Pagination */}
-					<div className="flex items-center justify-between">
-						<div className="text-sm text-muted-foreground">
-							Page {currentPage} of {totalPages}
-						</div>
-						<div className="flex gap-2">
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-								disabled={currentPage === 1}>
-								Previous
-							</Button>
-							<div className="flex gap-1">
-								{Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-									const startPage = Math.max(
-										1,
-										Math.min(
-											currentPage - 2,
-											totalPages - Math.min(5, totalPages),
-										),
-									);
-									const pageNum = startPage + i;
-									return (
-										<Button
-											key={pageNum}
-											variant={currentPage === pageNum ? "default" : "outline"}
-											size="sm"
-											className={cn(
-												currentPage === pageNum &&
-													"bg-primary-800 hover:cursor-pointer hover:bg-primary-800/80",
-											)}
-											onClick={() => setCurrentPage(pageNum)}>
-											{pageNum}
-										</Button>
-									);
-								})}
-							</div>
-							<Button
-								variant="outline"
-								size="sm"
-								onClick={() =>
-									setCurrentPage(Math.min(totalPages, currentPage + 1))
-								}
-								disabled={currentPage === totalPages}>
-								Next
-							</Button>
-						</div>
+			{/* Pagination */}
+			{totalPages > 1 && (
+				<div className="flex items-center justify-between">
+					<p className="text-sm text-muted-foreground">
+						Page {currentPage} of {totalPages}
+					</p>
+					<div className="flex gap-2">
+						<Button
+							variant="outline"
+							size="sm"
+							disabled={currentPage === 1}
+							onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}>
+							Previous
+						</Button>
+						<Button
+							variant="outline"
+							size="sm"
+							disabled={currentPage === totalPages}
+							onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}>
+							Next
+						</Button>
 					</div>
 				</div>
 			)}
-		</>
+		</div>
 	);
 }

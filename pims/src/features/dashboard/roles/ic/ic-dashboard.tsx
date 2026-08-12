@@ -1,4 +1,3 @@
-import PageWrapper from "@/components/common/page-wrapper";
 import { PAGE_META, HEADINGS } from "@/constants/navigation";
 import Heading from "@/components/heading";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
@@ -22,7 +21,7 @@ export default function ICDashboard() {
 	});
 
 	return (
-		<PageWrapper>
+		<>
 			{/* Page Header */}
 			<div className="mb-6">
 				<Heading
@@ -64,6 +63,6 @@ export default function ICDashboard() {
 					<QuickActions />
 				</div>
 			</div>
-		</PageWrapper>
+		</>
 	);
 }

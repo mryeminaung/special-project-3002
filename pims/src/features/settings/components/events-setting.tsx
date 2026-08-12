@@ -1,6 +1,6 @@
 import Heading from "@/components/heading";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import type { EventType } from "@/features/events/events.type";
+import type { EventType } from "@/features/events";
 import { useEventStore } from "@/stores/use-event-store";
 import { AppWindowIcon, SettingsIcon } from "lucide-react";
 import { useEffect, useState } from "react";

@@ -1,5 +1,9 @@
 <?php
 
+use App\Enums\EligibleMajors;
+use App\Enums\ProjectType;
+use App\Enums\ProposalStatus;
+use App\Enums\ProposalType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,13 +21,13 @@ return new class extends Migration
             $table->string('slug')->unique();
             $table->text('description');
             $table->string('fileUrl')->unique();
-            $table->enum('type', ['student', 'faculty'])->default('student');
+            $table->enum('type', ProposalType::cases())->default(ProposalType::Student);
             $table->integer('max_students')->nullable();
-            $table->enum('project_type', ['special', 'capstone', 'master'])->default('special');
-            $table->enum('eligible_majors', ['cse', 'ece', 'both'])->default("both");
-            $table->enum('status', ["approved", 'pending', 'rejected'])->default("pending");
+            $table->enum('project_type', ProjectType::cases())->default(ProjectType::Special);
+            $table->enum('eligible_majors', EligibleMajors::cases())->default(EligibleMajors::Both);
+            $table->enum('status', ProposalStatus::cases())->default(ProposalStatus::Pending);
             $table->timestamp('submitted_at');
-            $table->foreignId('area_id')->constrained('project_areas')->onDelete('set null');
+            $table->foreignId('area_id')->nullable()->constrained('project_areas')->nullOnDelete();
             $table->foreignId("student_id")->nullable()->constrained('users')->cascadeOnDelete();
             $table->foreignId('supervisor_id')->constrained('users')->cascadeOnDelete();
             $table->timestamps();

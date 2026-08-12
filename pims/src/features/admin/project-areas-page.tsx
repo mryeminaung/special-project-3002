@@ -1,5 +1,4 @@
 import api from "@/api/api";
-import PageWrapper from "@/components/common/page-wrapper";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -47,64 +46,71 @@ export default function ProjectAreasPage() {
 	}
 
 	return (
-		<PageWrapper>
-			<div className="space-y-6">
-				<div className="flex items-center justify-between">
-					<div>
-						<h1 className="text-3xl font-bold tracking-tight">Project Areas</h1>
-						<p className="text-muted-foreground mt-1">
-							Categorize student proposals by technical domain.
-						</p>
-					</div>
-					<Button className="gap-2 shadow-sm">
-						<Plus className="h-4 w-4" /> New Area
-					</Button>
+		<div className="space-y-6">
+			<div className="flex items-center justify-between">
+				<div>
+					<h1 className="text-3xl font-bold tracking-tight">
+						Project Areas
+					</h1>
+					<p className="text-muted-foreground mt-1">
+						Categorize student proposals by technical domain.
+					</p>
 				</div>
-				<div className="rounded-xl border bg-white shadow-sm overflow-hidden">
-					<Table>
-						<TableHeader className="bg-slate-50/50">
-							<TableRow>
-								<TableHead className="w-[250px]">Domain Name</TableHead>
-								<TableHead>Description</TableHead>
-								<TableHead className="text-center">Active Projects</TableHead>
-								<TableHead className="text-right">Actions</TableHead>
-							</TableRow>
-						</TableHeader>
-						<TableBody>
-							{areas?.map((area) => (
-								<TableRow
-									key={area.id}
-									className="hover:bg-slate-50/20 transition-colors">
-									<TableCell className="font-semibold text-slate-900">
-										<div className="flex items-center gap-3">
-											<AreaIcon name={area.name} />
-											{area.name}
-										</div>
-									</TableCell>
-									<TableCell className="text-slate-500 text-sm max-w-md truncate">
-										{area.description || "No description provided."}
-									</TableCell>
-									<TableCell className="text-center">
-										<Badge
-											variant="outline"
-											className="font-mono bg-blue-50 text-blue-700 border-blue-200">
-											{area.projects_count || 0}
-										</Badge>
-									</TableCell>
-									<TableCell className="text-right">
-										<Button
-											variant="ghost"
-											size="icon">
-											<MoreHorizontal className="h-4 w-4 text-slate-400" />
-										</Button>
-									</TableCell>
-								</TableRow>
-							))}
-						</TableBody>
-					</Table>
-				</div>
+				<Button className="gap-2 shadow-sm">
+					<Plus className="h-4 w-4" /> New Area
+				</Button>
 			</div>
-		</PageWrapper>
+			<div className="rounded-xl border bg-white shadow-sm overflow-hidden">
+				<Table>
+					<TableHeader className="bg-slate-50/50">
+						<TableRow>
+							<TableHead className="w-[250px]">
+								Domain Name
+							</TableHead>
+							<TableHead>Description</TableHead>
+							<TableHead className="text-center">
+								Active Projects
+							</TableHead>
+							<TableHead className="text-right">
+								Actions
+							</TableHead>
+						</TableRow>
+					</TableHeader>
+					<TableBody>
+						{areas?.map((area) => (
+							<TableRow
+								key={area.id}
+								className="hover:bg-slate-50/20 transition-colors"
+							>
+								<TableCell className="font-semibold text-slate-900">
+									<div className="flex items-center gap-3">
+										<AreaIcon name={area.name} />
+										{area.name}
+									</div>
+								</TableCell>
+								<TableCell className="text-slate-500 text-sm max-w-md truncate">
+									{area.description ||
+										"No description provided."}
+								</TableCell>
+								<TableCell className="text-center">
+									<Badge
+										variant="outline"
+										className="font-mono bg-blue-50 text-blue-700 border-blue-200"
+									>
+										{area.projects_count || 0}
+									</Badge>
+								</TableCell>
+								<TableCell className="text-right">
+									<Button variant="ghost" size="icon">
+										<MoreHorizontal className="h-4 w-4 text-slate-400" />
+									</Button>
+								</TableCell>
+							</TableRow>
+						))}
+					</TableBody>
+				</Table>
+			</div>
+		</div>
 	);
 }
 

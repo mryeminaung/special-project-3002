@@ -2,13 +2,16 @@
 
 namespace App\Services;
 
+use App\Enums\ProjectEventType;
+use App\Enums\ProjectType;
+use App\Enums\ProposalStatus;
+use App\Enums\ProposalType;
 use App\Events\ProposalApproved;
 use App\Models\Proposal;
 use App\Models\ProjectEvent;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -16,12 +19,11 @@ class ProposalService
 {
     public function listPaginated(): LengthAwarePaginator
     {
-        return Proposal::orderBy('id')->paginate(5);
+        return Proposal::with('supervisor:id,name', 'area:id,name')->orderBy('id')->paginate(5);
     }
 
     public function create(array $data, User $user): array
     {
-        // Validate project event is active and within date range
         $eventType = $data['project_type'] ?? null;
         if ($eventType) {
             $eventCheck = $this->validateProjectEvent($eventType);
@@ -30,10 +32,10 @@ class ProposalService
             }
         }
 
-        $data['slug'] = Str::slug($data['title'], '-');
+        $data['slug']         = Str::slug($data['title'], '-');
         $data['submitted_at'] = now();
 
-        if ($data['type'] === 'student') {
+        if (($data['type'] ?? ProposalType::Student->value) === ProposalType::Student->value) {
             $studentId = $user->id;
 
             $isLeader = Proposal::where('student_id', $studentId)
@@ -42,6 +44,7 @@ class ProposalService
 
             $isMember = DB::table('proposal_student')
                 ->where('user_id', $studentId)
+                ->where('status', 'accepted')
                 ->exists();
 
             if ($isLeader || $isMember) {
@@ -71,18 +74,18 @@ class ProposalService
 
     public function approveByIC(Proposal $proposal): array
     {
-        if ($proposal->status === 'approved') {
+        if ($proposal->status === ProposalStatus::Approved) {
             return ['success' => false, 'message' => 'This proposal is already a project.'];
         }
 
-        if ($proposal->type === 'faculty') {
-            $proposal->update(['status' => 'approved']);
+        if ($proposal->type === ProposalType::Faculty) {
+            $proposal->update(['status' => ProposalStatus::Approved]);
 
             return ['success' => true, 'message' => 'Proposal approved successfully!'];
         }
 
         return DB::transaction(function () use ($proposal) {
-            $proposal->update(['status' => 'approved']);
+            $proposal->update(['status' => ProposalStatus::Approved]);
 
             event(new ProposalApproved($proposal->fresh()));
 
@@ -92,7 +95,7 @@ class ProposalService
 
     public function rejectByIC(Proposal $proposal): array
     {
-        $proposal->update(['status' => 'rejected']);
+        $proposal->update(['status' => ProposalStatus::Rejected]);
 
         return ['success' => true, 'message' => 'Proposal Rejected!'];
     }
@@ -106,8 +109,8 @@ class ProposalService
 
     public function listFacultyProposals(): Collection
     {
-        return Proposal::where('type', 'faculty')
-            ->where('status', 'approved')
+        return Proposal::where('type', ProposalType::Faculty)
+            ->where('status', ProposalStatus::Approved)
             ->with(['applications:id', 'supervisor:id,name'])
             ->withCount('applications')
             ->orderBy('id')
@@ -123,16 +126,15 @@ class ProposalService
 
     public function joinFacultyProposal(Proposal $proposal, User $user): array
     {
-        if (! $user->hasRole('Student')) {
+        if (! $user->hasRole('student')) {
             return ['success' => false, 'message' => 'Only students can join faculty proposals.', 'status' => 403];
         }
 
-        if ($proposal->type !== 'faculty' || $proposal->status !== 'approved') {
+        if ($proposal->type !== ProposalType::Faculty || $proposal->status !== ProposalStatus::Approved) {
             return ['success' => false, 'message' => 'Only approved faculty proposals can be joined.', 'status' => 422];
         }
 
-        // Validate project event is active and within date range
-        $eventCheck = $this->validateProjectEvent($proposal->project_type);
+        $eventCheck = $this->validateProjectEvent($proposal->project_type->value);
         if (! $eventCheck['valid']) {
             return ['success' => false, 'message' => $eventCheck['message'], 'status' => 422];
         }
@@ -153,7 +155,7 @@ class ProposalService
         }
 
         $currentMembersCount = $proposal->applications()->count();
-        $maxStudents = $proposal->max_students ?? 0;
+        $maxStudents         = $proposal->max_students ?? 0;
 
         if ($maxStudents > 0 && $currentMembersCount >= $maxStudents) {
             return ['success' => false, 'message' => 'This proposal has no available slots left.', 'status' => 422];
@@ -168,14 +170,14 @@ class ProposalService
         return [
             'success' => true,
             'message' => 'Joined proposal successfully.',
-            'data' => [
+            'data'    => [
                 'proposal_id'        => $proposal->id,
                 'available_slots'    => max($maxStudents - ($currentMembersCount + 1), 0),
                 'joined_proposals'   => $joinedProposalsCount + 1,
                 'joined_proposal'    => true,
                 'application_status' => 'pending',
             ],
-            'status' => 201,
+            'status'  => 201,
         ];
     }
 
@@ -212,43 +214,38 @@ class ProposalService
         DB::table('proposal_student')
             ->where('proposal_id', $proposal->id)
             ->where('user_id', $student->id)
-            ->update([
-                'status'     => 'accepted',
-                'updated_at' => now(),
-            ]);
+            ->update(['status' => 'accepted', 'updated_at' => now()]);
 
         $acceptedCount = DB::table('proposal_student')
             ->where('proposal_id', $proposal->id)
             ->where('status', 'accepted')
             ->count();
 
-        if ($maxStudents > 0 && $acceptedCount >= $maxStudents) {
-            if (! $proposal->project()->exists()) {
-                $leaderId = DB::table('proposal_student')
-                    ->where('proposal_id', $proposal->id)
-                    ->where('status', 'accepted')
-                    ->orderBy('id')
-                    ->value('user_id');
+        if ($maxStudents > 0 && $acceptedCount >= $maxStudents && ! $proposal->project()->exists()) {
+            $leaderId = DB::table('proposal_student')
+                ->where('proposal_id', $proposal->id)
+                ->where('status', 'accepted')
+                ->orderBy('id')
+                ->value('user_id');
 
-                if ($leaderId) {
-                    $proposal->update([
-                        'student_id' => $leaderId,
-                        'status'     => 'approved',
-                    ]);
+            if ($leaderId) {
+                $proposal->update([
+                    'student_id' => $leaderId,
+                    'status'     => ProposalStatus::Approved,
+                ]);
 
-                    event(new ProposalApproved($proposal->fresh()));
-                }
+                event(new ProposalApproved($proposal->fresh()));
             }
         }
 
         return [
             'success' => true,
             'message' => 'Student accepted successfully.',
-            'data' => [
+            'data'    => [
                 'accepted_count' => $acceptedCount,
                 'max_students'   => $maxStudents,
             ],
-            'status' => 200,
+            'status'  => 200,
         ];
     }
 
@@ -282,16 +279,12 @@ class ProposalService
         return $proposal->delete();
     }
 
-    /**
-     * Validate that a project event is active and within its submission date range.
-     */
     private function validateProjectEvent(string $projectType): array
     {
-        // Map frontend project_type to backend event type
         $eventTypeMap = [
-            'special'  => 'special',
-            'capstone' => 'capstone',
-            'master'   => 'master/thesis',
+            ProjectType::Special->value  => ProjectEventType::Special->value,
+            ProjectType::Capstone->value => ProjectEventType::Capstone->value,
+            ProjectType::Master->value   => ProjectEventType::Master->value,
         ];
 
         $eventType = $eventTypeMap[$projectType] ?? $projectType;

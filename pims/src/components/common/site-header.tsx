@@ -31,7 +31,7 @@ export function SiteHeader() {
 	return (
 		<header
 			className={[
-				"flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-all ease-linear sticky top-0 z-10 py-8",
+				"flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-all ease-linear sticky top-0 z-20 py-8",
 				isScrolled ? "bg-transparent backdrop-blur-md shadow" : "bg-background",
 			].join(" ")}>
 			<div className="flex w-full items-center gap-1 px-4 lg:gap-2 lg:px-6">

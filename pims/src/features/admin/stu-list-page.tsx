@@ -1,4 +1,3 @@
-import PageWrapper from "@/components/common/page-wrapper";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,8 +51,7 @@ export default function StuListPage() {
 	const students = mockStudents;
 	const { isAdmin } = useRoleChecker();
 	return (
-		<PageWrapper>
-			<div className="animate-in fade-in duration-500">
+		<div className="animate-in fade-in duration-500">
 				<div className="mb-6 flex justify-between items-end">
 					<div>
 						<h1 className="text-2xl font-bold text-slate-800">Students List</h1>
@@ -114,6 +112,5 @@ export default function StuListPage() {
 					</div>
 				</div>
 			</div>
-		</PageWrapper>
 	);
 }

@@ -1,8 +1,9 @@
 <?php
+
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\SupervisorResource;
+use App\Http\Resources\UserResource;
 use App\Services\SupervisorService;
 use App\Traits\ApiResponse;
 
@@ -20,7 +21,7 @@ class SupervisorController extends Controller
 
         return $this->successResponse(
             'Supervisors retrieved successfully.',
-            SupervisorResource::collection($supervisors)
+            UserResource::collection($supervisors)
         );
     }
 
@@ -35,15 +36,15 @@ class SupervisorController extends Controller
                 'name'           => $data['supervisor']->name,
                 'email'          => $data['supervisor']->email,
                 'rank'           => $data['supervisor']->faculty?->rank?->name,
-                'faculty'        => $data['supervisor']->faculty?->department?->name,
+                'department'     => $data['supervisor']->faculty?->department?->name,
                 'phone'          => $data['supervisor']->faculty?->phone_number,
                 'imageUrl'       => $data['supervisor']->avatar_url,
-                'activeProjects' => $data['activeProjects']->map(fn ($p) => [
+                'activeProjects' => $data['activeProjects']->map(fn($p) => [
                     'id'       => $p->id,
                     'title'    => $p->name,
                     'students' => $p->members->count() . ' Students',
                 ]),
-                'pastProjects'   => $data['pastProjects']->map(fn ($p) => [
+                'pastProjects'   => $data['pastProjects']->map(fn($p) => [
                     'id'      => $p->id,
                     'title'   => $p->name,
                     'year'    => optional($p->start_date)->format('Y'),

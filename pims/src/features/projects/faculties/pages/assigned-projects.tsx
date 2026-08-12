@@ -1,6 +1,5 @@
 import api from "@/api/api";
 import { HEADINGS } from "@/constants/navigation";
-import PageWrapper from "@/components/common/page-wrapper";
 import Heading from "@/components/heading";
 import { useQuery } from "@tanstack/react-query";
 import AssignedProjectsTable from "../components/assigned-projects-table";
@@ -25,7 +24,7 @@ type ProjectData = {
 
 export default function AssignedProjects() {
 	const fetchAssignedProjects = async () => {
-		const res = await api.get("/assigned-projects");
+		const res = await api.get("/projects/assigned");
 		return res.data.data;
 	};
 
@@ -35,7 +34,7 @@ export default function AssignedProjects() {
 	});
 
 	return (
-		<PageWrapper className="space-y-6">
+		<div className="space-y-6">
 			<Heading
 				title={HEADINGS.assignedProjects.title}
 				description={HEADINGS.assignedProjects.description}
@@ -44,6 +43,6 @@ export default function AssignedProjects() {
 			{assignedProjects && (
 				<AssignedProjectsTable projects={assignedProjects} />
 			)}
-		</PageWrapper>
+		</div>
 	);
 }

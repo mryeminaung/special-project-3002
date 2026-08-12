@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -8,13 +9,10 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-// #[ApiResource]
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasRoles, HasFactory, Notifiable, HasApiTokens;
-
-    public $timestamps = false;
 
     /**
      * The attributes that are mass assignable.
@@ -24,7 +22,6 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'is_student',
         'avatar_url',
         'password',
     ];
@@ -47,8 +44,7 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            // 'email_verified_at' => 'datetime',
-            // 'password' => 'hashed',
+            'password' => 'hashed',
         ];
     }
 
@@ -67,7 +63,7 @@ class User extends Authenticatable
         return $this->hasMany(Project::class, 'supervisor_id');
     }
 
-    public function proposals()
+    public function ledProposals()
     {
         return $this->hasMany(Proposal::class, 'student_id');
     }
@@ -82,13 +78,4 @@ class User extends Authenticatable
     {
         return $this->hasMany(Announcement::class, 'created_by');
     }
-
-    // public function getAvatarPathAttribute()
-    // {
-    //     if (! $this->avatar_url) {
-    //         return null; // Fallback to initials if no image exists
-    //     }
-
-    //     return asset('storage/' . $this->avatar_url);
-    // }
 }

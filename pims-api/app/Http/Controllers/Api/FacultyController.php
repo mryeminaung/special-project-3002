@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\ProjectStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
-use App\Models\Project;
 use App\Models\User;
 use App\Services\FacultyService;
 use App\Traits\ApiResponse;
@@ -19,7 +19,7 @@ class FacultyController extends Controller
 
     public function index()
     {
-        return UserResource::collection($this->facultyService->list());
+        return $this->successResponse('Faculties retrieved successfully.', UserResource::collection($this->facultyService->list()));
     }
 
     public function show(string $id) {}
@@ -56,28 +56,19 @@ class FacultyController extends Controller
 
     public function getFacultiesForProposal()
     {
-        $faculties = User::where('is_student', false,)
-            ->whereNotIn('id', function ($query) {
-                $query->select('model_id')->from('model_has_roles')
-                    ->where('model_type', User::class)
-                    ->whereIn('role_id', function ($q) {
-                        $q->select('id')->from('roles')
-                            ->whereIn('name', ['admin', 'student-affairs']);
-                    });
-            })
-            ->with('faculty')
+        $faculties = User::role('faculty')
+            ->with('faculty.rank', 'faculty.department')
+            ->withCount(['projects as workload_count' => fn($q) => $q->where('status', ProjectStatus::Active)])
             ->get();
 
         $data = $faculties->map(fn($user) => [
-            'id'             => $user->id,
-            'name'           => $user->name,
-            'role'           => $user->roles->pluck('name'),
-            'email'          => $user->email,
-            'department'     => $user->faculty?->department?->name,
-            'workload_count' => Project::where('supervisor_id', $user->id)
-                ->where('status', 'active')
-                ->count(),
-            'max_capacity'   => 5,
+            'id'           => $user->id,
+            'name'         => $user->name,
+            'email'        => $user->email,
+            'rank'         => $user->faculty?->rank?->name,
+            'department'   => $user->faculty?->department?->name,
+            'workloadCount' => $user->workload_count,
+            'maxCapacity'  => 5,
         ]);
 
         return $this->successResponse('Faculties retrieved successfully.', $data);

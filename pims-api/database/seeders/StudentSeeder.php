@@ -11,25 +11,22 @@ class StudentSeeder extends Seeder
     {
         $student_data = [];
 
-        $studentUsers = User::where('is_student', true)->get();
+        $studentUsers = User::whereLike('email', '____-miit-%')->get();
 
         foreach ($studentUsers as $user) {
-            // e.g., 2019-miit-CSE-001
+            // e.g., 2019-miit-cse-001@miit.edu.mm
             $emailBase = explode('@', $user->email)[0];
-            $parts     = explode('-', $emailBase); // [2019, miit, CSE, 001]
+            $parts     = explode('-', $emailBase); // [2019, miit, cse, 001]
 
-            $year       = $parts[0];
-            $major      = $parts[2];
-            $rollNumber = (int) $parts[3];
-
-            $majorId = $major == 'CSE' ? 1 : 2;
+            $major   = strtoupper($parts[2]);
+            $majorId = $major === 'CSE' ? 1 : 2;
 
             $student_data[] = [
                 'user_id'           => $user->id,
                 'gpa'               => mt_rand(200, 390) / 100,
                 'major_id'          => $majorId,
                 'phone_number'      => $this->generateMyanmarPhoneNumber(),
-                "graduation_status" => "Active",
+                'graduation_status' => 'Active',
             ];
         }
 

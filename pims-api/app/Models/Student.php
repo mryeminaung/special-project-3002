@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Student extends Model
 {
-    public $timestamps = false;
-
     protected $fillable = ["phone_number", 'address', "gpa", "graduation_status", "user_id", "major_id"];
 
     public function major()

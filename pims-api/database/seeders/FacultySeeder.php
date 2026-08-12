@@ -7,19 +7,18 @@ use Illuminate\Database\Seeder;
 
 class FacultySeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $adminUsers = User::where('is_student', false)->take(3)->get();
-        $stuAffair  = User::where('email', "student_affairs@miit.edu.mm")->first();
-        $superUser  = User::where('email', "khaine_aye_san@miit.edu.mm")->first();
-        $adminUser  = User::where('email', "admin@miit.edu.mm")->first();
+        $icEmails     = ['win_aye@miit.edu.mm', 'myat_thuzar_tun@miit.edu.mm', 'khaing_nyunt_myaing@miit.edu.mm'];
+        $adminUsers   = User::whereIn('email', $icEmails)->orderBy('id')->get();
+        $stuAffair    = User::where('email', 'student_affairs@miit.edu.mm')->first();
+        $superUser    = User::where('email', 'khaine_aye_san@miit.edu.mm')->first();
+        $adminUser    = User::where('email', 'admin@miit.edu.mm')->first();
 
-        $facultyUsers = User::where('is_student', false)
+        $excludedEmails = array_merge($icEmails, ['admin@miit.edu.mm', 'student_affairs@miit.edu.mm', 'khaine_aye_san@miit.edu.mm']);
+        $facultyUsers = User::whereNotLike('email', '____-miit-%')
+            ->whereNotIn('email', $excludedEmails)
             ->orderBy('id', 'asc')
-            ->offset(6)
             ->get();
 
         $rector     = $adminUsers->first();
@@ -72,6 +71,7 @@ class FacultySeeder extends Seeder
                 'department_id' => fake()->numberBetween(3, 8),
             ];
         }
+
         Faculty::insert($faculty_data);
     }
 

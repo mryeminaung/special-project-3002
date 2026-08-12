@@ -25,8 +25,4 @@ export const adminRoutes = [
 		path: "/admin/departments",
 		Component: DepartmentsListPage,
 	},
-	{
-		path: "/students",
-		Component: StuListPage,
-	},
 ];

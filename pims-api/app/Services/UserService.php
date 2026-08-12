@@ -9,14 +9,7 @@ class UserService
 {
     public function getFacultiesForProposal(): Collection
     {
-        return User::where('is_student', false)
-            ->whereNotIn('id', function ($query) {
-                $query->select('user_id')->from('model_has_roles')
-                    ->whereIn('role_id', function ($q) {
-                        $q->select('id')->from('roles')
-                            ->whereIn('name', ['admin', 'student-affairs']);
-                    });
-            })
+        return User::role('faculty')
             ->with('faculty')
             ->get();
     }
@@ -27,7 +20,7 @@ class UserService
             ->pluck('user_id')
             ->toArray();
 
-        return User::where('is_student', true)
+        return User::role('student')
             ->where('id', '!=', $currentUserId)
             ->whereNotIn('id', $existingMemberIds)
             ->with('student')
@@ -36,14 +29,6 @@ class UserService
 
     public function getFacultiesList(): Collection
     {
-        return User::where('is_student', false)
-            ->whereNotIn('id', function ($query) {
-                $query->select('user_id')->from('model_has_roles')
-                    ->whereIn('role_id', function ($q) {
-                        $q->select('id')->from('roles')
-                            ->whereIn('name', ['admin', 'student-affairs']);
-                    });
-            })
-            ->get();
+        return User::role('faculty')->get();
     }
 }

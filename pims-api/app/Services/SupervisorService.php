@@ -11,7 +11,7 @@ class SupervisorService
     {
         return User::whereHas('faculty')
             ->whereHas('projects')
-            ->with('faculty')
+            ->with('faculty.rank', 'faculty.department')
             ->get();
     }
 

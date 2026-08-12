@@ -1,6 +1,5 @@
 import api from "@/api/api";
 import { PAGE_META, HEADINGS } from "@/constants/navigation";
-import PageWrapper from "@/components/common/page-wrapper";
 import Heading from "@/components/heading";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { useQuery } from "@tanstack/react-query";
@@ -19,14 +18,12 @@ export default function FacultyDashboard() {
 	});
 
 	return (
-		<PageWrapper>
-			<div className="mb-5 space-y-3">
-				<Heading
-					title={HEADINGS.facultyDashboard.title}
-					description={HEADINGS.facultyDashboard.description}
-				/>
-				{facultyDashboardData && <FacultyCards data={facultyDashboardData} />}
-			</div>
-		</PageWrapper>
+		<div className="mb-5 space-y-3">
+			<Heading
+				title={HEADINGS.facultyDashboard.title}
+				description={HEADINGS.facultyDashboard.description}
+			/>
+			{facultyDashboardData && <FacultyCards data={facultyDashboardData} />}
+		</div>
 	);
 }
