@@ -1,15 +1,14 @@
-import Loading from "@/components/loading";
+import TablePagination from "@/components/table-pagination";
+import TableRowSkeleton from "@/components/table-row-skeleton";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-	DropdownMenu,
-	DropdownMenuCheckboxItem,
-	DropdownMenuContent,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import {
 	Table,
 	TableBody,
@@ -18,52 +17,50 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { cn, PROJECT_STATUS_COLOR } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { projectStatusColor } from "@/constants/badge-colors";
 import type { SupervisorData } from "@/types";
-import { IconDownload, IconRefresh } from "@tabler/icons-react";
-import { Eye, Search, Settings2, ShieldCheckIcon } from "lucide-react";
+import { Eye, Search, ShieldCheckIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
 
 export default function SupervisorsTable({
 	supervisors,
+	isLoading = false,
 }: {
 	supervisors: SupervisorData[];
+	isLoading?: boolean;
 }) {
 	const [searchTerm, setSearchTerm] = useState("");
+	const [departmentFilter, setDepartmentFilter] = useState("all");
+	const [rankFilter, setRankFilter] = useState("all");
 	const [currentPage, setCurrentPage] = useState(1);
-	const [visibleColumns, setVisibleColumns] = useState<Set<string>>(
-		new Set(["name", "email", "role", "rank", "status", "department"]),
-	);
-	const [sortColumn, setSortColumn] = useState<string | null>(null);
-	const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 	const itemsPerPage = 10;
 
+	const departments = useMemo(() => {
+		const depts = supervisors.map((s) => s.department?.name).filter(Boolean);
+		return Array.from(new Set(depts)) as string[];
+	}, [supervisors]);
+
+	const ranks = useMemo(() => {
+		const r = supervisors.map((s) => s.rank?.name).filter(Boolean);
+		return Array.from(new Set(r)) as string[];
+	}, [supervisors]);
+
 	const filteredUsers = useMemo(() => {
-		const filtered = supervisors.filter((user) => {
+		const q = searchTerm.toLowerCase();
+		return supervisors.filter((user) => {
 			const matchesSearch =
-				user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				user.email.toLowerCase().includes(searchTerm.toLowerCase());
-			return matchesSearch;
+				!q ||
+				user.name.toLowerCase().includes(q) ||
+				user.email.toLowerCase().includes(q);
+			const matchesDept =
+				departmentFilter === "all" || user.department?.name === departmentFilter;
+			const matchesRank =
+				rankFilter === "all" || user.rank?.name === rankFilter;
+			return matchesSearch && matchesDept && matchesRank;
 		});
-
-		if (sortColumn) {
-			filtered.sort((a, b) => {
-				let aVal: any = a[sortColumn as keyof SupervisorData];
-				let bVal: any = b[sortColumn as keyof SupervisorData];
-
-				if (typeof aVal === "string") {
-					aVal = aVal.toLowerCase();
-					bVal = (bVal as string).toLowerCase();
-				}
-
-				const comparison = aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
-				return sortDirection === "asc" ? comparison : -comparison;
-			});
-		}
-
-		return filtered;
-	}, [supervisors, searchTerm, sortColumn, sortDirection]);
+	}, [supervisors, searchTerm, departmentFilter, rankFilter]);
 
 	const paginatedSupervisor = useMemo(() => {
 		const start = (currentPage - 1) * itemsPerPage;
@@ -72,157 +69,80 @@ export default function SupervisorsTable({
 
 	const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
-	const handleColumnToggle = (column: string) => {
-		const newColumns = new Set(visibleColumns);
-		if (newColumns.has(column)) {
-			newColumns.delete(column);
-		} else {
-			newColumns.add(column);
-		}
-		setVisibleColumns(newColumns);
-	};
-
-	const handleSort = (column: string) => {
-		if (sortColumn === column) {
-			setSortDirection(sortDirection === "asc" ? "desc" : "asc");
-		} else {
-			setSortColumn(column);
-			setSortDirection("asc");
-		}
-	};
-
 	return (
-		<>
-			{supervisors.length === 0 ? (
-				<Loading message="supervisors" />
-			) : (
-				<div className="space-y-4 mt-5">
-					{/* Search and Filters */}
-					<div className="flex flex-col md:flex-row gap-4">
-						<div className="flex gap-3">
-							<div className="relative flex-1 max-w-sm">
-								<Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-								<Input
-									placeholder="Filter users..."
-									className="pl-10"
-									value={searchTerm}
-									onChange={(e) => {
-										setSearchTerm(e.target.value);
-										setCurrentPage(1);
-									}}
-								/>
-							</div>
-							{/* View Toggle Button */}
-							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<Button
-										variant="outline"
-										className="gap-2 bg-transparent">
-										<Settings2 className="h-4 w-4" />
-										View
-									</Button>
-								</DropdownMenuTrigger>
-								<DropdownMenuContent
-									align="end"
-									className="w-48">
-									<DropdownMenuLabel>Toggle Columns</DropdownMenuLabel>
-									<DropdownMenuSeparator />
-									<DropdownMenuCheckboxItem
-										checked={visibleColumns.has("name")}
-										onCheckedChange={() => handleColumnToggle("name")}>
-										Name
-									</DropdownMenuCheckboxItem>
-									<DropdownMenuCheckboxItem
-										checked={visibleColumns.has("email")}
-										onCheckedChange={() => handleColumnToggle("email")}>
-										Email
-									</DropdownMenuCheckboxItem>
-									<DropdownMenuCheckboxItem
-										checked={visibleColumns.has("role")}
-										onCheckedChange={() => handleColumnToggle("role")}>
-										Role
-									</DropdownMenuCheckboxItem>
-									<DropdownMenuCheckboxItem
-										checked={visibleColumns.has("rank")}
-										onCheckedChange={() => handleColumnToggle("rank")}>
-										Rank
-									</DropdownMenuCheckboxItem>
-									<DropdownMenuCheckboxItem
-										checked={visibleColumns.has("status")}
-										onCheckedChange={() => handleColumnToggle("status")}>
-										Status
-									</DropdownMenuCheckboxItem>
-									<DropdownMenuCheckboxItem
-										checked={visibleColumns.has("department")}
-										onCheckedChange={() => handleColumnToggle("department")}>
-										Department
-									</DropdownMenuCheckboxItem>
-								</DropdownMenuContent>
-							</DropdownMenu>
+		<div className="space-y-4 mt-5">
+				{/* Search and Filters */}
+				<div className="flex flex-wrap items-center gap-3">
+						{/* Search */}
+						<div className="relative flex-1 min-w-48">
+							<Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+							<Input
+								value={searchTerm}
+								onChange={(e) => {
+									setSearchTerm(e.target.value);
+									setCurrentPage(1);
+								}}
+								placeholder="Search by name or email…"
+								className="pl-9 h-9 text-sm"
+							/>
 						</div>
-						<div className="flex items-center ml-auto gap-x-3">
-							<Button
-								className="hover:cursor-pointer bg-primary-800 hover:bg-primary-800/80 ml-auto hover:text-white text-white"
-								onClick={() => alert("Refreshing...")}
-								variant={"outline"}>
-								<IconRefresh />
-								<span>Refresh</span>
-							</Button>
-							<Button
-								className="hover:cursor-pointer bg-primary-800 hover:bg-primary-800/80 ml-auto hover:text-white text-white"
-								onClick={() => alert("Downloading...")}
-								variant={"outline"}>
-								<IconDownload />
-								<span>Export</span>
-							</Button>
-						</div>
-					</div>
 
-					<div className="pt-2 border-t border-border"></div>
+						{/* Department */}
+						<Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+							<SelectTrigger className="w-48">
+								<SelectValue placeholder="Department" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="all">All Departments</SelectItem>
+								{departments.map((dept) => (
+									<SelectItem key={dept} value={dept}>
+										{dept}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+
+						{/* Rank */}
+						<Select value={rankFilter} onValueChange={setRankFilter}>
+							<SelectTrigger className="w-44">
+								<SelectValue placeholder="Rank" />
+							</SelectTrigger>
+							<SelectContent>
+								<SelectItem value="all">All Ranks</SelectItem>
+								{ranks.map((rank) => (
+									<SelectItem key={rank} value={rank}>
+										{rank}
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
+					</div>
 
 					{/* Table */}
 					<div className="rounded-lg border border-border">
 						<Table>
 							<TableHeader className="bg-muted">
 								<TableRow>
-									{visibleColumns.has("name") && <TableHead>Name</TableHead>}
-									{visibleColumns.has("email") && (
-										<TableHead
-											className="cursor-pointer select-none hover:bg-muted"
-											onClick={() => handleSort("email")}>
-											Email{" "}
-											{sortColumn === "email" &&
-												(sortDirection === "asc" ? "↑" : "↓")}
-										</TableHead>
-									)}
-									{visibleColumns.has("role") && <TableHead>Role</TableHead>}
-									{visibleColumns.has("rank") && <TableHead>Rank</TableHead>}
-									{visibleColumns.has("status") && (
-										<TableHead>Status</TableHead>
-									)}
-									{visibleColumns.has("department") && (
-										<TableHead>Department</TableHead>
-									)}
+									<TableHead>Name</TableHead>
+									<TableHead>Email</TableHead>
+									<TableHead>Role</TableHead>
+									<TableHead>Rank</TableHead>
+									<TableHead>Department</TableHead>
 									<TableHead className="w-12">Action</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
-								{paginatedSupervisor.length === 0 ? (
-									<TableRow className="">
+								{isLoading ? (
+									<TableRowSkeleton
+										rows={8}
+										cells={["h-4 w-36", "h-4 w-44", "h-4 w-24", "h-4 w-28", "h-4 w-32", "h-8 w-16 rounded-md mx-auto"]}
+									/>
+								) : paginatedSupervisor.length === 0 ? (
+									<TableRow>
 										<TableCell
-											colSpan={visibleColumns.size + 1}
-											className="text-center py-8">
-											<div className="flex flex-col items-center gap-3">
-												<Search className="h-12 w-12 text-muted-foreground opacity-50" />
-												<div>
-													<h3 className="font-semibold text-foreground">
-														No users found
-													</h3>
-													<p className="text-sm text-muted-foreground">
-														Try adjusting your search or filters
-													</p>
-												</div>
-											</div>
+											colSpan={6}
+											className="text-center py-10">
+											No supervisors match your filters.
 										</TableCell>
 									</TableRow>
 								) : (
@@ -230,39 +150,18 @@ export default function SupervisorsTable({
 										<TableRow
 											key={supervisor.id}
 											className="px-3">
-											{visibleColumns.has("name") && (
-												<TableCell className="font-semibold">
-													{supervisor.name}
-												</TableCell>
-											)}
-											{visibleColumns.has("email") && (
-												<TableCell>{supervisor.email}</TableCell>
-											)}
-											{visibleColumns.has("role") && (
-												<TableCell>
-													<div className="flex items-center gap-2">
-														<ShieldCheckIcon className="h-5 w-5 text-primary-700" />
-														<span className="text-sm">{supervisor.role}</span>
-													</div>
-												</TableCell>
-											)}
-											{visibleColumns.has("rank") && (
-												<TableCell>{supervisor.rank.name}</TableCell>
-											)}
-											{visibleColumns.has("status") && (
-												<TableCell>
-													<Badge
-														className={cn(
-															PROJECT_STATUS_COLOR("active"),
-															"px-3 font-mono rounded-md capitalize",
-														)}>
-														{supervisor.status}
-													</Badge>
-												</TableCell>
-											)}
-											{visibleColumns.has("department") && (
-												<TableCell>{supervisor.department.name}</TableCell>
-											)}
+											<TableCell className="font-semibold">
+												{supervisor.name}
+											</TableCell>
+											<TableCell>{supervisor.email}</TableCell>
+											<TableCell>
+												<div className="flex items-center gap-2">
+													<ShieldCheckIcon className="h-5 w-5 text-primary-700" />
+													<span className="text-sm">{supervisor.role}</span>
+												</div>
+											</TableCell>
+											<TableCell>{supervisor.rank?.name ?? "N/A"}</TableCell>
+											<TableCell>{supervisor.department?.name ?? "N/A"}</TableCell>
 											<TableCell className="border">
 												<Link
 													to={`/faculties/${supervisor.id}/detail`}
@@ -279,53 +178,13 @@ export default function SupervisorsTable({
 					</div>
 
 					{/* Pagination */}
-					{totalPages > 1 && (
-						<div className="flex items-center justify-between">
-							<div className="text-sm text-muted-foreground">
-								Page {currentPage} of {totalPages}
-							</div>
-							<div className="flex gap-2">
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-									disabled={currentPage === 1}>
-									Previous
-								</Button>
-								<div className="flex gap-1">
-									{Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-										const pageNum = i + 1;
-										return (
-											<Button
-												key={pageNum}
-												variant={
-													currentPage === pageNum ? "default" : "outline"
-												}
-												size="sm"
-												className={cn(
-													currentPage === pageNum &&
-														"bg-primary-800 hover:cursor-pointer hover:bg-primary-800/80",
-												)}
-												onClick={() => setCurrentPage(pageNum)}>
-												{pageNum}
-											</Button>
-										);
-									})}
-								</div>
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={() =>
-										setCurrentPage(Math.min(totalPages, currentPage + 1))
-									}
-									disabled={currentPage === totalPages}>
-									Next
-								</Button>
-							</div>
-						</div>
-					)}
-				</div>
-			)}
-		</>
+					<TablePagination
+						currentPage={currentPage}
+						lastPage={totalPages}
+						total={filteredUsers.length}
+						perPage={itemsPerPage}
+						onPageChange={setCurrentPage}
+					/>
+		</div>
 	);
 }

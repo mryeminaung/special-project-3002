@@ -52,8 +52,8 @@ export default function EventSelectionModal({
 		if (open && mode === "edit" && initialValues) {
 			setTitle(initialValues.title);
 			setDescription(initialValues.description);
-			setStartDate(initialValues.startDate);
-			setEndDate(initialValues.endDate);
+			setStartDate(initialValues.startDate?.split("T")[0] ?? "");
+			setEndDate(initialValues.endDate?.split("T")[0] ?? "");
 		}
 	}, [open, mode, initialValues]);
 

@@ -1,4 +1,4 @@
-import api from "@/api/api";
+import { createProposal } from "@/features/proposals/services/proposal.service";
 import { PAGE_META, HEADINGS } from "@/constants/navigation";
 import ErrorMessage from "@/components/error-message";
 import Heading from "@/components/heading";
@@ -10,11 +10,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { useEventGuard } from "@/hooks/use-event-guard";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { useAuthStore } from "@/stores/use-auth-store";
+import { useEventStore } from "@/stores/use-event-store";
 import type { EventType } from "@/features/events";
 import { FileUpload, ProjectAreaSelection, ProjectTypeSelection } from "@/features/proposals";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader, IconSend } from "@tabler/icons-react";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import toast, { Toaster } from "react-hot-toast";
 import { useNavigate, useSearchParams } from "react-router";
@@ -89,7 +90,7 @@ export default function CreateStudentProposalPage() {
 		};
 
 		try {
-			const res = await api.post("/proposals", formattedData);
+			const res = await createProposal(formattedData);
 			if (res.status === 201) {
 				navigate("/proposals/me");
 			}
@@ -111,6 +112,13 @@ export default function CreateStudentProposalPage() {
 	const [searchParams] = useSearchParams();
 	const eventType = (searchParams.get("event") as EventType) || null;
 	const eventGuard = useEventGuard(eventType ?? "special");
+	const fetchEventStatuses = useEventStore((state) => state.fetchEventStatuses);
+	const isLoadingStatuses = useEventStore((state) => state.isLoadingStatuses);
+
+	useEffect(() => {
+		void fetchEventStatuses();
+	}, [fetchEventStatuses]);
+
 	const isEventBlocked = eventType ? !eventGuard.canSubmit : false;
 
 	return (
@@ -124,7 +132,7 @@ export default function CreateStudentProposalPage() {
 					/>
 				</div>
 
-				{isEventBlocked && (
+				{!isLoadingStatuses && isEventBlocked && (
 					<Card className="px-6 py-8 border-amber-200 bg-amber-50 shadow-sm mb-5">
 						<div className="text-center">
 							<h3 className="text-lg font-semibold text-amber-800 mb-2">

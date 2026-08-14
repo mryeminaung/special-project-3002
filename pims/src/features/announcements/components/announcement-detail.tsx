@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import type { AnnouncementItem } from "../announcement.types";
 import { deleteAnnouncement } from "../services/announcement.service";
 import EditAnnouncement from "./edit-announcement";
+import { formatFullDateTime } from "@/lib/date";
 import {
 	Dialog,
 	DialogContent,
@@ -28,18 +29,6 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-
-function formatFullDate(value: string) {
-	const parsed = new Date(value);
-	if (Number.isNaN(parsed.getTime())) return value;
-	return parsed.toLocaleDateString("en-US", {
-		year: "numeric",
-		month: "long",
-		day: "numeric",
-		hour: "numeric",
-		minute: "2-digit",
-	});
-}
 
 function getAudienceBadgeClasses(audience: string) {
 	switch (audience) {
@@ -121,7 +110,7 @@ export default function AnnouncementDetail({
 							<span className="font-medium text-foreground">
 								{announcement.announcer}
 							</span>
-							<span>{formatFullDate(announcement.createdAt)}</span>
+							<span>{formatFullDateTime(announcement.createdAt)}</span>
 						</div>
 						<div className="flex items-center gap-2 mt-1">
 							<span className="text-xs text-muted-foreground">Audience:</span>

@@ -1,4 +1,4 @@
-import api from "@/api/api";
+import { getSupervisorDetail, type SupervisorDetailResponse } from "../services/supervisor.service";
 import { PAGE_META } from "@/constants/navigation";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,38 +14,14 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowLeftIcon, User } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
 
-type SupervisorDetailResponse = {
-	id: number;
-	name: string;
-	email: string;
-	rank?: string | null;
-	faculty?: string | null;
-	phone?: string | null;
-	imageUrl?: string | null;
-	activeProjects: { id: number; title: string; students: string }[];
-	pastProjects: {
-		id: number;
-		title: string;
-		year?: string | null;
-		outcome: string;
-	}[];
-};
-
 export default function SupervisorDetail() {
 	useHeaderInitializer(PAGE_META.supervisorDetail.title, PAGE_META.supervisorDetail.subtitle);
 	const navigate = useNavigate();
 	const { id } = useParams();
 
-	const fetchSupervisorDetail = async () => {
-		const res = await api.get<SupervisorDetailResponse>(
-			`/supervisors/${id}/detail`,
-		);
-		return res.data;
-	};
-
-	const { data: supervisor, isLoading } = useQuery({
+	const { data: supervisor, isLoading } = useQuery<SupervisorDetailResponse>({
 		queryKey: ["supervisor-detail", id],
-		queryFn: fetchSupervisorDetail,
+		queryFn: () => getSupervisorDetail(id!),
 		enabled: Boolean(id),
 	});
 

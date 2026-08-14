@@ -43,6 +43,7 @@ class ProjectController extends Controller
     public function show(Project $project)
     {
         $project = $this->projectService->updateMilestoneStatus($project);
+        $project->load(['leader', 'supervisor', 'members', 'area']);
 
         if ($project->type === 'student') {
             return $this->successResponse("Success", new StudentProjectResource($project));

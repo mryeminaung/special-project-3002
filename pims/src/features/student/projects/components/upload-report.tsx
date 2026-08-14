@@ -1,4 +1,4 @@
-import api from "@/api/api";
+import { uploadReport, deleteReport } from "../services/student-project.service";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Field, FieldLabel } from "@/components/ui/field";
@@ -73,11 +73,10 @@ export function UploadReport({
 		if (fileInputRef.current) fileInputRef.current.value = "";
 	};
 
-	const deleteReport = async () => {
+	const handleDeleteReport = async () => {
 		try {
 			setIsDeleting(true);
-			const res = await api.post("/delete-report", { slug, type });
-			console.log(res.status);
+			const res = await deleteReport(slug, type);
 			if (res.status >= 200 && res.status < 300) {
 				await queryClient.invalidateQueries({
 					queryKey: ["projectDetail", slug],
@@ -102,7 +101,7 @@ export function UploadReport({
 		}
 	};
 
-	const uploadReport = async (selectedFile?: File) => {
+	const handleUploadReport = async (selectedFile?: File) => {
 		const fileToUpload = selectedFile ?? file;
 		if (!fileToUpload) return;
 		const formData = new FormData();
@@ -112,15 +111,9 @@ export function UploadReport({
 
 		try {
 			setIsSaving(true);
-			const res = await api.post("/upload-report", formData, {
-				headers: {
-					"Content-Type": "multipart/form-data",
-				},
-			});
-			console.log(res.status);
-
-			if (res.status >= 200 && res.status < 300) {
-				const uploadedUrl = res?.data?.data?.url as string | undefined;
+			const res = await uploadReport(formData);
+			if (res?.data?.url) {
+				const uploadedUrl = res.data.url as string | undefined;
 				if (uploadedUrl) {
 					setRecentUploadedReportUrl(uploadedUrl);
 				}
@@ -150,7 +143,7 @@ export function UploadReport({
 							<Button
 								type="button"
 								variant="outline"
-								onClick={() => void deleteReport()}
+								onClick={() => void handleDeleteReport()}
 								disabled={isDeleting}
 								className="gap-2">
 								{isDeleting ? (
@@ -167,8 +160,7 @@ export function UploadReport({
 								<a
 									href={effectiveExistingReportUrl ?? undefined}
 									target="_blank"
-									rel="noopener noreferrer"
-									download>
+									rel="noopener noreferrer">
 									<Download className="h-4 w-4" />
 									Download
 								</a>
@@ -176,7 +168,7 @@ export function UploadReport({
 						</div>
 					) : (
 						<Button
-							onClick={() => void uploadReport()}
+							onClick={() => void handleUploadReport()}
 							disabled={!fileUrl || isSaving}
 							className="w-full sm:w-fit gap-2 bg-primary-600 font-semibold text-white hover:bg-primary-500 hover:cursor-pointer">
 							{isSaving ? (

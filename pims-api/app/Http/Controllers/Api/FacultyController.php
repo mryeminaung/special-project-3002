@@ -8,6 +8,7 @@ use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\FacultyService;
 use App\Traits\ApiResponse;
+use Illuminate\Support\Facades\Storage;
 
 class FacultyController extends Controller
 {
@@ -38,7 +39,7 @@ class FacultyController extends Controller
                 'department'     => $data['user']->faculty?->department?->name,
                 'phone'          => $data['user']->faculty?->phone_number,
                 'address'        => $data['user']->faculty?->address,
-                'imageUrl'       => $data['user']->avatar_url,
+                'imageUrl'       => $data['user']->avatar_url ? Storage::disk('public')->url($data['user']->avatar_url) : null,
                 'activeProjects' => $data['activeProjects']->map(fn($p) => [
                     'id'       => $p->id,
                     'title'    => $p->name,
@@ -72,5 +73,44 @@ class FacultyController extends Controller
         ]);
 
         return $this->successResponse('Faculties retrieved successfully.', $data);
+    }
+
+    public function update(string $id)
+    {
+        $data = request()->validate([
+            'name'          => 'required|string|max:255',
+            'email'         => 'required|email|max:255|unique:users,email,' . $id . ',id',
+            'phone_number'  => 'nullable|string|max:20',
+            'address'       => 'nullable|string',
+            'department_id' => 'nullable|integer|exists:departments,id',
+            'rank_id'       => 'nullable|integer|exists:ranks,id',
+        ]);
+
+        $user = $this->facultyService->update((int) $id, $data);
+
+        return $this->successResponse(
+            'Faculty updated successfully.',
+            [
+                'id'            => $user->id,
+                'name'          => $user->name,
+                'email'         => $user->email,
+                'rank'          => $user->faculty?->rank?->name,
+                'rank_id'       => $user->faculty?->rank_id,
+                'department'    => $user->faculty?->department?->name,
+                'department_id' => $user->faculty?->department_id,
+                'phone'         => $user->faculty?->phone_number,
+                'address'       => $user->faculty?->address,
+            ]
+        );
+    }
+
+    public function resetPassword(string $id)
+    {
+        $tempPassword = $this->facultyService->resetPassword((int) $id);
+
+        return $this->successResponse(
+            'Password reset successfully. Temporary password: ' . $tempPassword,
+            ['temp_password' => $tempPassword]
+        );
     }
 }

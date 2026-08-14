@@ -76,10 +76,7 @@ function normalizeEventStatus(payload: BackendProjectEvent) {
 		return null;
 	}
 
-	const isActive =
-		typeof payload.is_active === "boolean"
-			? payload.is_active
-			: Boolean(payload.isActive);
+	const isActive = !!(payload.is_active ?? payload.isActive);
 
 	return {
 		id: payload.id,
@@ -179,6 +176,7 @@ export const useEventStore = create<EventStoreState>()(
 		},
 
 		createProjectEvent: async (eventType, configuration) => {
+			const existingId = get().eventIdByType[eventType];
 			const payload = {
 				title: configuration.title.trim(),
 				detail: configuration.description.trim(),
@@ -188,10 +186,17 @@ export const useEventStore = create<EventStoreState>()(
 				is_active: true,
 			};
 
-			await api.post<ApiSuccessResponse<BackendProjectEvent>>(
-				"/project-events",
-				payload,
-			);
+			if (existingId) {
+				await api.patch<ApiSuccessResponse<BackendProjectEvent>>(
+					`/project-events/${existingId}`,
+					payload,
+				);
+			} else {
+				await api.post<ApiSuccessResponse<BackendProjectEvent>>(
+					"/project-events",
+					payload,
+				);
+			}
 
 			await get().fetchEventStatuses();
 			return true;

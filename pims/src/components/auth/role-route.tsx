@@ -20,5 +20,5 @@ export const StudentRoute          = createRoleRoute("student");
 export const AdminOrICRoute        = createRoleRoute("admin", "ic");
 export const ICOrSARoute           = createRoleRoute("ic", "student-affairs");
 export const NonAdminRoute         = createRoleRoute("ic", "supervisor", "student", "student-affairs", "faculty");
-export const StudentOrICOrSARoute  = createRoleRoute("student", "ic", "student-affairs");
+export const StudentOrICOrSARoute  = createRoleRoute("student", "ic", "student-affairs", "faculty", "supervisor");
 export const FacultyOrSupOrICRoute = createRoleRoute("faculty", "supervisor", "ic");

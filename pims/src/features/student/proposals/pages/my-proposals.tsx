@@ -1,4 +1,4 @@
-import api from "@/api/api";
+import { getMyProposals } from "../services/student-proposal.service";
 import { PAGE_META, HEADINGS } from "@/constants/navigation";
 import Heading from "@/components/heading";
 import { Button } from "@/components/ui/button";
@@ -23,14 +23,9 @@ export default function MyProposasPage() {
 	const [statusFilter, setStatusFilter] = useState("all");
 	const [projectTypeFilter, setProjectTypeFilter] = useState("all");
 
-	const fetchProposals = async () => {
-		const res = await api.get("/proposals/me");
-		return res.data;
-	};
-
 	const { data: myProposals, isLoading } = useQuery({
 		queryKey: ["myProposals"],
-		queryFn: fetchProposals,
+		queryFn: getMyProposals,
 	});
 
 	const proposals = myProposals?.data || [];

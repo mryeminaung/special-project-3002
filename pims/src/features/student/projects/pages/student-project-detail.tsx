@@ -1,182 +1,260 @@
-import { useParams } from "react-router";
-
-import { Card, CardContent } from "@/components/ui/card";
-
-import { CalendarIcon } from "@heroicons/react/24/outline";
-
-
-import api from "@/api/api";
-
-import NavigateTo from "@/components/common/navigate-to";
-import DescriptionCard from "@/components/description-card";
-import ProposalDocument from "@/components/proposal-document";
-import StatusCard from "@/components/status-card";
-import SubmitterCard from "@/components/submitter-card";
-import SupervisorCard from "@/components/supervisor-card";
-import TeamMembers from "@/components/team-members";
+import { useParams, useNavigate } from "react-router";
+import { formatDate } from "@/lib/date";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
+import {
+	IconCalendar,
+	IconCalendarCheck,
+	IconChartBar,
+	IconUserCheck,
+	IconUsers,
+} from "@tabler/icons-react";
+import { getStudentProject } from "../services/student-project.service";
 import { useRoleChecker } from "@/hooks/use-role-checker";
 import { useQuery } from "@tanstack/react-query";
-import ReportStatus from "../components/report-status";
-import SeminarCard from "../components/seminar-card";
-import SeminarDeadline from "../components/seminar-deadline";
+import { cn, getInitials } from "@/lib/utils";
+import { projectStatusColor, projectTypeColor } from "@/constants/badge-colors";
 import { UploadReport } from "../components/upload-report";
+import SeminarCard from "../components/seminar-card";
+import ReportStatus from "../components/report-status";
+import SeminarDeadline from "../components/seminar-deadline";
+
+const PROJECT_TYPE_LABELS: Record<string, string> = {
+	special: "Special",
+	capstone: "Capstone",
+	"master/thesis": "Master / Thesis",
+	master: "Master / Thesis",
+};
 
 export default function StudentProjectDetailPage() {
 	const { slug } = useParams();
+	const navigate = useNavigate();
 	const { isStudent, isSupervisor } = useRoleChecker();
-
-	const fetchProjectDetail = async () => {
-		const res = await api.get(`/projects/${slug}`);
-		return res.data;
-	};
 
 	const { data: projectDetail, isLoading } = useQuery({
 		queryKey: ["projectDetail", slug],
-		queryFn: fetchProjectDetail,
+		queryFn: () => getStudentProject(slug!),
 	});
+
 	const project = projectDetail?.data;
+
+	const progressStatus = project?.progressStatus ?? {};
+	const completedCount = Object.values(progressStatus).filter(Boolean).length;
+	const progressPercent = Math.round((completedCount / 4) * 100);
 
 	if (isLoading) {
 		return (
-			<div className="space-y-4 animate-pulse">
-				<div className="h-5 w-36 rounded bg-muted" />
-				<div className="rounded-lg border bg-card p-5 space-y-3">
-					<div className="h-6 w-2/3 rounded bg-muted" />
-					<div className="h-4 w-40 rounded bg-muted" />
-					<div className="flex gap-4">
-						{[...Array(3)].map((_, i) => <div key={i} className="h-5 w-28 rounded bg-muted" />)}
-					</div>
+			<div className="space-y-4">
+				<div className="h-8 w-32 rounded-md bg-muted animate-pulse" />
+				<div className="h-48 rounded-xl bg-muted animate-pulse" />
+				<div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+					{Array.from({ length: 4 }).map((_, i) => (
+						<div key={i} className="h-20 rounded-xl bg-muted animate-pulse" />
+					))}
 				</div>
-				<div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-					<div className="lg:col-span-2 space-y-4">
-						{[...Array(3)].map((_, i) => <div key={i} className="h-32 rounded-lg bg-muted" />)}
-					</div>
-					<div className="space-y-4">
-						{[...Array(3)].map((_, i) => <div key={i} className="h-24 rounded-lg bg-muted" />)}
-					</div>
+				<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+					{Array.from({ length: 2 }).map((_, i) => (
+						<div key={i} className="h-40 rounded-xl bg-muted animate-pulse" />
+					))}
 				</div>
 			</div>
 		);
 	}
 
-	return (
-		<>
-			<NavigateTo
-				to={"/assigned-projects"}
-				label="Back to projects"
-			/>
+	if (!project) return null;
 
-			<Card className="mb-4 border-gray-200 shadow-sm">
-				<CardContent className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-					<div className="space-y-2">
-						<h1 className="text-2xl font-bold ">{project.title}</h1>
-						<span className="flex items-center gap-1.5 text-sm">
-							<CalendarIcon className="h-4 w-4" />
-							Started on {project.startedAt}
-						</span>
-						<div className="mt-2 flex flex-wrap items-center gap-5 text-sm">
-							<StatusCard
-								label="Proposal Status:"
-								status={project.status}
-							/>
-							<StatusCard
-								label="Applied Type:"
-								status={project.type}
-							/>
-							<StatusCard
-								label="Project Type:"
-								status={project.projectType}
+	const infoItems = [
+		{
+			label: "Supervisor",
+			value: project.supervisor?.name ?? "—",
+			sub: project.supervisor?.email ?? null,
+			icon: <IconUserCheck size={16} />,
+			iconCls: "text-primary-600 bg-primary-100 dark:bg-primary-900/40",
+		},
+		{
+			label: "Team Members",
+			value: `${project.members?.length ?? project.membersCount ?? 0} students`,
+			sub: null,
+			icon: <IconUsers size={16} />,
+			iconCls: "text-violet-600 bg-violet-100 dark:bg-violet-900/40",
+		},
+		{
+			label: "Approved On",
+			value: formatDate(project.approvedAt),
+			sub: null,
+			icon: <IconCalendarCheck size={16} />,
+			iconCls: "text-emerald-600 bg-emerald-100 dark:bg-emerald-900/40",
+		},
+		{
+			label: "Started On",
+			value: formatDate(project.startedAt),
+			sub: null,
+			icon: <IconCalendar size={16} />,
+			iconCls: "text-amber-600 bg-amber-100 dark:bg-amber-900/40",
+		},
+	];
+
+	return (
+		<div className="space-y-6">
+			{/* Back */}
+			<Button
+				onClick={() => navigate(-1)}
+				variant="ghost"
+				size="sm"
+				className="gap-1.5 text-muted-foreground hover:text-foreground -ml-1">
+				<ArrowLeftIcon className="h-4 w-4" />
+				Back
+			</Button>
+
+			{/* Header card */}
+			<div className="rounded-xl border bg-card p-6">
+				<div className="flex flex-col lg:flex-row lg:items-start gap-6">
+					{/* Left: badges + title + description */}
+					<div className="flex-1 min-w-0">
+						<div className="flex flex-wrap items-center gap-2 mb-3">
+							<Badge
+								variant="outline"
+								className={cn("capitalize font-medium", projectStatusColor(project.status))}>
+								{project.status}
+							</Badge>
+							{project.projectType && (
+								<Badge
+									variant="outline"
+									className={cn("font-medium capitalize", projectTypeColor(project.projectType))}>
+									{PROJECT_TYPE_LABELS[project.projectType] ?? project.projectType}
+								</Badge>
+							)}
+							<Badge variant="outline" className="capitalize font-medium">
+								{project.type}
+							</Badge>
+							{project.projectArea && (
+								<Badge variant="outline" className="font-medium">
+									{project.projectArea}
+								</Badge>
+							)}
+						</div>
+
+						<h1 className="text-2xl font-bold tracking-tight mb-3 leading-snug">
+							{project.title}
+						</h1>
+
+						<p className="text-sm text-muted-foreground leading-relaxed">
+							{project.description}
+						</p>
+					</div>
+
+					{/* Right: progress */}
+					<div className="shrink-0 w-full lg:w-48 lg:border-l lg:pl-6 flex flex-col justify-center">
+						<p className="text-xs text-muted-foreground uppercase tracking-widest font-semibold mb-1">Progress</p>
+						<p className="text-5xl font-black tabular-nums text-foreground leading-none mb-3">
+							{progressPercent}<span className="text-2xl font-bold text-muted-foreground">%</span>
+						</p>
+						<div className="h-1.5 w-full bg-muted rounded-full overflow-hidden mb-2">
+							<div
+								className="h-full bg-primary-600 rounded-full transition-all duration-500"
+								style={{ width: `${progressPercent}%` }}
 							/>
 						</div>
-					</div>
-				</CardContent>
-			</Card>
-
-			<div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
-				<div className="space-y-4 lg:col-span-2">
-					<DescriptionCard
-						label="Project"
-						description={project.description}
-					/>
-
-					<ProposalDocument
-						submittedAt={project.submittedAt}
-						file={project.file}
-					/>
-
-					{/* seminar deadline */}
-					{isSupervisor && (
-						<SeminarDeadline
-							slug={project.slug}
-							midSeminarDeadline={project.midSeminarDeadline}
-							finalSeminarDeadline={project.finalSeminarDeadline}
-							progressStatus={project.progressStatus}
-						/>
-					)}
-
-					{isStudent && (
-						<>
-							<UploadReport
-								progressStatus={project.progressStatus}
-								slug={project.slug}
-								midReportUrl={project.midReportUrl}
-								finalReportUrl={project.finalReportUrl}
-								label="Mid-term Report"
-								type="mid"
-							/>
-
-							<UploadReport
-								progressStatus={project.progressStatus}
-								slug={project.slug}
-								midReportUrl={project.midReportUrl}
-								finalReportUrl={project.finalReportUrl}
-								label="Final Report"
-								type="final"
-							/>
-						</>
-					)}
-
-					{isSupervisor && (
-						<ReportStatus
-							slug={project.slug}
-							progressStatus={project.progressStatus}
-							midReportUrl={project.midReportUrl}
-							finalReportUrl={project.finalReportUrl}
-						/>
-					)}
-				</div>
-
-				<div className="space-y-4">
-					<SupervisorCard
-						label="Supervisor"
-						name={project.supervisor.name}
-						email={project.supervisor.email}
-					/>
-
-					{/* submiiter */}
-					<div className="space-y-6">
-						<SubmitterCard
-							label="Submitted By"
-							name={project.submittedBy.name}
-							email={project.submittedBy.email}
-						/>
-
-						{/* members */}
-						<TeamMembers
-							label="Team Members"
-							members={project?.members}
-						/>
-
-						{/* seminar deadline */}
-						<SeminarCard
-							slug={project.slug}
-							midSeminarDeadline={project.midSeminarDeadline}
-							finalSeminarDeadline={project.finalSeminarDeadline}
-							progressStatus={project.progressStatus}
-						/>
+						<p className="text-xs text-muted-foreground">{completedCount} of 4 milestones done</p>
 					</div>
 				</div>
 			</div>
-		</>
+
+			{/* Info strip */}
+			<div className="rounded-xl bg-muted/40 px-5 py-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+				{infoItems.map((item) => (
+					<div key={item.label} className="flex items-start gap-3">
+						<div className={cn("mt-0.5 shrink-0 p-2 rounded-lg", item.iconCls)}>
+							{item.icon}
+						</div>
+						<div className="min-w-0">
+							<p className="text-xs text-muted-foreground mb-0.5">{item.label}</p>
+							<p className="text-sm font-semibold leading-snug truncate">{item.value}</p>
+							{item.sub && (
+								<p className="text-xs text-muted-foreground truncate mt-0.5">{item.sub}</p>
+							)}
+						</div>
+					</div>
+				))}
+			</div>
+
+			{/* Members */}
+			{(project.members?.length ?? 0) > 0 && (
+				<div className="rounded-xl bg-muted/40 px-5 py-4">
+					<p className="text-sm font-semibold mb-3">Team Members</p>
+					<div className="flex flex-wrap gap-3">
+						{project.members.map((member: { id: number; name: string; email: string }) => (
+							<div
+								key={member.id}
+								className="flex items-center gap-3 rounded-lg bg-background px-4 py-3">
+								<Avatar className="h-8 w-8 shrink-0">
+									<AvatarFallback className="bg-primary-100 text-primary-700 text-xs font-semibold">
+										{getInitials(member.name)}
+									</AvatarFallback>
+								</Avatar>
+								<div>
+									<p className="text-sm font-medium leading-none">{member.name}</p>
+									<p className="text-xs text-muted-foreground mt-0.5">{member.email}</p>
+								</div>
+							</div>
+						))}
+					</div>
+				</div>
+			)}
+
+			{/* Report uploads — student only */}
+			{isStudent && (
+				<div>
+					<p className="text-sm font-semibold mb-0.5">Reports</p>
+					<p className="text-xs text-muted-foreground mb-4">Upload your mid-term and final reports.</p>
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+						<UploadReport
+							progressStatus={project.progressStatus}
+							slug={project.slug}
+							midReportUrl={project.midReportUrl}
+							finalReportUrl={project.finalReportUrl}
+							label="Mid-term Report"
+							type="mid"
+						/>
+						<UploadReport
+							progressStatus={project.progressStatus}
+							slug={project.slug}
+							midReportUrl={project.midReportUrl}
+							finalReportUrl={project.finalReportUrl}
+							label="Final Report"
+							type="final"
+						/>
+					</div>
+				</div>
+			)}
+
+			{/* Supervisor controls */}
+			{isSupervisor && (
+				<>
+					<SeminarDeadline
+						slug={project.slug}
+						midSeminarDeadline={project.midSeminarDeadline}
+						finalSeminarDeadline={project.finalSeminarDeadline}
+						progressStatus={project.progressStatus}
+					/>
+					<ReportStatus
+						slug={project.slug}
+						progressStatus={project.progressStatus}
+						midReportUrl={project.midReportUrl}
+						finalReportUrl={project.finalReportUrl}
+					/>
+				</>
+			)}
+
+			{/* Seminar info */}
+			<SeminarCard
+				slug={project.slug}
+				midSeminarDeadline={project.midSeminarDeadline}
+				finalSeminarDeadline={project.finalSeminarDeadline}
+				progressStatus={project.progressStatus}
+			/>
+		</div>
 	);
 }

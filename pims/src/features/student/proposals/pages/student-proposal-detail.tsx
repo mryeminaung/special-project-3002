@@ -1,4 +1,5 @@
 ﻿import { useParams } from "react-router";
+import { formatDate } from "@/lib/date";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,13 +16,17 @@ import {
 
 import { CalendarIcon, ShieldCheck, TrashIcon, UserIcon } from "lucide-react";
 
-import api from "@/api/api";
 import {
-	cn,
-	PROPOSAL_APPLIED_TYPE_COLOR,
-	PROPOSAL_PROJECT_TYPE_COLOR,
-	PROPOSAL_STATUS_COLOR,
-} from "@/lib/utils";
+	getProposal,
+	approveProposal,
+	rejectProposal,
+} from "@/features/proposals/services/proposal.service";
+import { cn } from "@/lib/utils";
+import {
+	proposalStatusColor,
+	proposalAppliedTypeColor,
+	projectTypeColor,
+} from "@/constants/badge-colors";
 import { useCallback, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -42,10 +47,7 @@ export default function StudentProposalDetailPage() {
 
 	const { data: proposalDetail, isLoading } = useQuery({
 		queryKey: ["proposalDetail", slug],
-		queryFn: async () => {
-			const res = await api.get(`/proposals/${slug}`);
-			return res.data;
-		},
+		queryFn: () => getProposal(slug!),
 	});
 
 	const proposal: ProposalDetail = proposalDetail?.data;
@@ -56,7 +58,7 @@ export default function StudentProposalDetailPage() {
 		proposal?.status === "pending";
 
 	const approveMutation = useMutation({
-		mutationFn: () => api.post(`/proposals/${proposal?.slug}/approve`),
+		mutationFn: () => approveProposal(proposal?.slug),
 		onMutate: () => setShowApprovalModal(true),
 		onError: (error: any) => {
 			setShowApprovalModal(false);
@@ -65,7 +67,7 @@ export default function StudentProposalDetailPage() {
 	});
 
 	const rejectMutation = useMutation({
-		mutationFn: () => api.post(`/proposals/${proposal?.slug}/reject`),
+		mutationFn: () => rejectProposal(proposal?.slug),
 		onSuccess: () => {
 			toast.success("Proposal rejected.");
 			queryClient.invalidateQueries({ queryKey: ["proposalDetail", slug] });
@@ -158,7 +160,7 @@ export default function StudentProposalDetailPage() {
 
 					<div className="flex items-center gap-1.5 mt-2 text-sm text-muted-foreground">
 						<CalendarIcon className="h-3.5 w-3.5" />
-						Submitted on {proposal.submittedAt}
+						Submitted at {formatDate(proposal.submittedAt)}
 					</div>
 
 					<div className="flex flex-wrap gap-2 mt-4">
@@ -166,7 +168,7 @@ export default function StudentProposalDetailPage() {
 							variant="outline"
 							className={cn(
 								"capitalize font-medium",
-								PROPOSAL_STATUS_COLOR(proposal.status),
+								proposalStatusColor(proposal.status),
 							)}>
 							{proposal.status}
 						</Badge>
@@ -174,7 +176,7 @@ export default function StudentProposalDetailPage() {
 							variant="outline"
 							className={cn(
 								"capitalize font-medium",
-								PROPOSAL_APPLIED_TYPE_COLOR(proposal.type as any),
+								proposalAppliedTypeColor(proposal.type as string),
 							)}>
 							{proposal.type}
 						</Badge>
@@ -182,7 +184,7 @@ export default function StudentProposalDetailPage() {
 							variant="outline"
 							className={cn(
 								"capitalize font-medium",
-								PROPOSAL_PROJECT_TYPE_COLOR(proposal.projectType as any),
+								projectTypeColor(proposal.projectType as string),
 							)}>
 							{proposal.projectType}
 						</Badge>
@@ -222,7 +224,7 @@ export default function StudentProposalDetailPage() {
 								<div className="flex-1 min-w-0">
 									<p className="text-sm font-medium">proposal.pdf</p>
 									<p className="text-xs text-muted-foreground">
-										Submitted on {proposal.submittedAt}
+										Submitted at {formatDate(proposal.submittedAt)}
 									</p>
 								</div>
 								<DownloadFile fileUrl={proposal.file} />

@@ -1,27 +1,18 @@
-import api from "@/api/api";
+import { browseProposals as fetchBrowseProposals } from "@/features/proposals/services/proposal.service";
 import { PAGE_META, HEADINGS } from "@/constants/navigation";
 import Heading from "@/components/heading";
-import { useCurrentPage } from "@/hooks/use-current-page";
+import { usePagination } from "@/hooks/use-pagination";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { useQuery } from "@tanstack/react-query";
 import { Pagination, ProposalsTable } from "@/features/proposals";
 
 export default function BrowseProposalsPage() {
 	useHeaderInitializer(PAGE_META.browseProposals.title, PAGE_META.browseProposals.subtitle);
-	const currentPage = useCurrentPage();
-
-	const fetchBrowseProposals = async () => {
-		const endpoint =
-			currentPage > 1
-				? `/proposals/browse?page=${currentPage}`
-				: "/proposals/browse";
-		const res = await api.get(endpoint);
-		return res.data;
-	};
+	const { page } = usePagination();
 
 	const { data: browseProposals, isFetching } = useQuery({
-		queryKey: ["browseProposals"],
-		queryFn: fetchBrowseProposals,
+		queryKey: ["browseProposals", page],
+		queryFn: () => fetchBrowseProposals(page),
 	});
 
 	return (

@@ -72,7 +72,7 @@ export default function SettingsLayout({
 									to={tab.href}
 									className={`flex items-center px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 ${
 										isActive
-											? "bg-card font-semibold shadow-sm border-l-primary-500 border-l-4 text-primary-600"
+											? "bg-primary-100 dark:bg-primary-900/60 text-primary-800 dark:text-primary-300 font-semibold shadow-sm border-l-primary-700 dark:border-l-primary-400 border-l-4"
 											: "hover:bg-card text-muted-foreground"
 									}`}>
 									<tab.icon className="mr-2 h-4 w-4" />

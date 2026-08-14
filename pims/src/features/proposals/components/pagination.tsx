@@ -7,15 +7,11 @@ import {
 	PaginationPrevious,
 	Pagination as ShadcnPagination,
 } from "@/components/ui/pagination";
+import type { PaginationMeta } from "@/types/api";
 import { useSearchParams } from "react-router";
 
 interface PaginationProps {
-	meta: {
-		currentPage: number;
-		lastPage: number;
-		perPage: number;
-		total: number;
-	};
+	meta: PaginationMeta;
 	pageParamName?: string;
 }
 

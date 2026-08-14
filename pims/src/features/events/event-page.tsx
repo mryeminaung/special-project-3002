@@ -54,12 +54,7 @@ export default function EventsPage() {
 				description={HEADINGS.events.description}
 			/>
 
-			{/* Project Registration Section */}
 			<section className="mt-6">
-				<h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-					Project Registration
-				</h2>
-
 				<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 					{eventCards.map((card) => (
 						<EventCard

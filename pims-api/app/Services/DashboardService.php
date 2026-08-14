@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Enums\ProjectStatus;
 use App\Enums\ProposalStatus;
+use App\Models\Department;
 use App\Models\Project;
 use App\Models\ProjectArea;
 use App\Models\ProjectEvent;
@@ -168,10 +169,50 @@ class DashboardService
     public function getAdminDashboardData(): array
     {
         return [
-            'noOfStudents'     => User::role('student')->count(),
-            'noOfFaculties'    => User::role('faculty')->count(),
-            'noOfProjectAreas' => ProjectArea::count(),
-            'noOfEvents'       => ProjectEvent::count(),
+            'stats' => [
+                'totalStudents'  => User::role('student')->count(),
+                'totalFaculties' => User::role('faculty')->count(),
+                'totalDepartments' => Department::count(),
+                'totalProjectAreas' => ProjectArea::count(),
+                'totalEvents'    => ProjectEvent::count(),
+                'activeEvents'   => ProjectEvent::where('is_active', true)->count(),
+            ],
+            'studentsByMajor' => Student::join('majors', 'students.major_id', '=', 'majors.id')
+                ->select('majors.name as major', DB::raw('count(*) as total'))
+                ->groupBy('majors.name')
+                ->get()
+                ->toArray(),
+            'studentsByBatch' => Student::whereNotNull('batch')
+                ->select('batch', DB::raw('count(*) as total'))
+                ->groupBy('batch')
+                ->orderBy('batch')
+                ->get()
+                ->toArray(),
+            'recentStudents' => User::role('student')
+                ->with('student.major')
+                ->latest()
+                ->limit(5)
+                ->get()
+                ->map(fn($user) => [
+                    'id'        => $user->id,
+                    'name'      => $user->name,
+                    'email'     => $user->email,
+                    'major'     => $user->student?->major?->name,
+                    'joinedAt'  => $user->created_at?->diffForHumans(),
+                ])
+                ->toArray(),
+            'recentEvents' => ProjectEvent::latest()
+                ->limit(5)
+                ->get()
+                ->map(fn($event) => [
+                    'id'        => $event->id,
+                    'title'     => $event->title,
+                    'type'      => $event->type,
+                    'startDate' => $event->start_date,
+                    'endDate'   => $event->end_date,
+                    'isActive'  => $event->is_active,
+                ])
+                ->toArray(),
         ];
     }
 

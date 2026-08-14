@@ -26,6 +26,7 @@ No test runner is configured. No single-test command exists.
 ### Feature-Based Organization
 
 `src/features/` contains domain modules: `admin`, `announcements`, `auth`, `dashboard`, `events`, `faculties`, `projects`, `proposals`, `settings`, `supervisors`. Each feature typically has:
+
 - A route file (e.g. `projects.route.ts`) exporting a routes array
 - An `index.ts` barrel that re-exports routes (and optionally components)
 - `pages/` for page-level components, `components/` for feature-specific UI, `services/` for API logic
@@ -41,6 +42,7 @@ Five roles: `admin`, `ic`, `supervisor`, `faculty`, `student`, `student-affairs`
 ### State Management
 
 Zustand stores in `src/stores/`:
+
 - `use-auth-store` — persisted (`localStorage`, key `spms-auth`), holds `authUser` and `token`
 - `use-event-store` — event enrollment state, API calls for project events
 - `use-site-header-store` — current page title/subtitle for the site header
@@ -53,6 +55,7 @@ Zustand stores in `src/stores/`:
 ### Page Pattern
 
 Every page follows this structure:
+
 1. Call `useHeaderInitializer(PAGE_META.xxx.title, PAGE_META.xxx.subtitle)` to set the browser tab title and site header text.
 2. Render inside `<PageWrapper>` (a `max-w-7xl` container).
 3. Use `<Heading title={...} description={...} />` for the page title.
@@ -76,3 +79,4 @@ Every page follows this structure:
 - Notifications via `sonner` or `react-hot-toast`.
 - Dark mode support via `next-themes` / `use-theme` hook.
 - Event types: `special`, `capstone`, `master-thesis` — stored in `src/features/events/events.type.ts`.
+- Use `types`, `pages`, `components`, `services`, `hooks`, `types`, directories for feature modules. and `index.ts` to expose its sub components and services. Avoid deep nesting; keep files at the feature root level when possible.

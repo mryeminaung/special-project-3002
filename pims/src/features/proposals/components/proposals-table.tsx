@@ -1,4 +1,5 @@
 import TableRowSkeleton from "@/components/table-row-skeleton";
+import { formatDate } from "@/lib/date";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import {
@@ -44,7 +45,7 @@ export default function ProposalsTable({
 			const matchesSearch =
 				!q ||
 				p.title.toLowerCase().includes(q) ||
-				(p.supervisorName ?? "").toLowerCase().includes(q);
+				(p.supervisor ?? "").toLowerCase().includes(q);
 			const matchesType = typeFilter === "all" || p.type === typeFilter;
 			const matchesProjectType =
 				projectTypeFilter === "all" || p.projectType === projectTypeFilter;
@@ -126,7 +127,10 @@ export default function ProposalsTable({
 					</TableHeader>
 					<TableBody>
 						{isLoading ? (
-							<TableRowSkeleton rows={5} colSpan={8} />
+							<TableRowSkeleton
+								rows={8}
+								cells={["h-4 w-48", "h-5 w-24 rounded-full", "h-4 w-32", "h-4 w-16", "h-4 w-24", "h-5 w-20 rounded-full", "h-4 w-24", "mx-auto h-8 w-16 rounded-md"]}
+							/>
 						) : filtered.length === 0 ? (
 							<TableRow>
 								<TableCell
@@ -138,7 +142,7 @@ export default function ProposalsTable({
 						) : (
 							filtered.map((proposal) => (
 								<TableRow key={proposal.id}>
-									<TableCell className="font-medium">
+									<TableCell className="text-sm font-medium">
 										{proposal.title.length > 50
 											? proposal.title.slice(0, 50) + "…"
 											: proposal.title}
@@ -148,9 +152,9 @@ export default function ProposalsTable({
 											{proposal.projectArea}
 										</Badge>
 									</TableCell>
-									<TableCell>{proposal.supervisorName}</TableCell>
-									<TableCell className="capitalize">{proposal.type}</TableCell>
-									<TableCell className="capitalize">{proposal.projectType}</TableCell>
+									<TableCell className="text-sm">{proposal.supervisor}</TableCell>
+									<TableCell className="text-sm capitalize">{proposal.type}</TableCell>
+									<TableCell className="text-sm capitalize">{proposal.projectType}</TableCell>
 									<TableCell>
 										<Badge
 											className={`capitalize shadow-none border-none ${PROPOSAL_STATUS_COLORS[proposal.status] ?? ""}`}
@@ -158,8 +162,8 @@ export default function ProposalsTable({
 											{proposal.status}
 										</Badge>
 									</TableCell>
-									<TableCell className="text-slate-500 text-[13px]">
-										{proposal.submittedAt}
+									<TableCell className="text-sm text-muted-foreground">
+										{formatDate(proposal.submittedAt)}
 									</TableCell>
 									<TableCell className="text-center">
 										<Link

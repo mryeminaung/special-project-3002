@@ -1,4 +1,4 @@
-import api from "@/api/api";
+import { getProjects } from "./services/project.service";
 import { PAGE_META, HEADINGS } from "@/constants/navigation";
 import Heading from "@/components/heading";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
@@ -10,12 +10,7 @@ import ProjectsTable from "./components/projects-table";
 export default function ProjectsPage() {
 	useHeaderInitializer(PAGE_META.projects.title, PAGE_META.projects.subtitle);
 	const { isIC } = useRoleChecker();
-	const getProjects = async () => {
-		const res = await api.get("/projects");
-		return res.data.data;
-	};
-
-	const { data: projects } = useQuery({
+	const { data: projects, isFetching } = useQuery({
 		queryKey: ["projects"],
 		queryFn: getProjects,
 	});
@@ -28,7 +23,7 @@ export default function ProjectsPage() {
 					description="Browse and manage project proposals with team assignments and
 					supervisors."
 				/>
-				{projects && <ProjectsTable projects={projects} />}
+				<ProjectsTable projects={projects ?? []} isLoading={isFetching} />
 			</>
 		);
 	} else {

@@ -6,6 +6,7 @@ import {
 	IconClipboardCheck,
 	IconMicrophone,
 } from "@tabler/icons-react";
+import { formatShortDate } from "@/lib/date";
 import type { DeadlineItem } from "../../types";
 
 const defaultDeadlines: DeadlineItem[] = [
@@ -70,13 +71,6 @@ function getUrgency(dateStr: string): "urgent" | "moderate" | "safe" {
 	return "safe";
 }
 
-function formatDate(dateStr: string) {
-	return new Date(dateStr).toLocaleDateString("en-US", {
-		month: "short",
-		day: "numeric",
-	});
-}
-
 export default function UpcomingDeadlines({
 	deadlines,
 }: {
@@ -108,7 +102,7 @@ export default function UpcomingDeadlines({
 										{deadline.title}
 									</p>
 									<p className="text-xs text-muted-foreground">
-										{formatDate(deadline.date)}
+										{formatShortDate(deadline.date)}
 									</p>
 								</div>
 								<Badge

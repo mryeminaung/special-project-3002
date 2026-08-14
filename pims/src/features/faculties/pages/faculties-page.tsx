@@ -1,4 +1,4 @@
-import api from "@/api/api";
+import { getFaculties } from "../services/faculty.service";
 import Heading from "@/components/heading";
 import { HEADINGS, PAGE_META } from "@/constants/navigation";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
@@ -11,14 +11,9 @@ export default function FacultiesPage() {
 		PAGE_META.faculties.subtitle,
 	);
 
-	const getFacultyData = async () => {
-		const res = await api.get("/faculties");
-		return res.data;
-	};
-
 	const { data: facultyData, isFetching } = useQuery({
 		queryKey: ["faculties"],
-		queryFn: getFacultyData,
+		queryFn: getFaculties,
 	});
 
 	return (

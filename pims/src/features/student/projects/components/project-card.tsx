@@ -1,9 +1,23 @@
 import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardTitle } from "@/components/ui/card";
-import { cn, PROJECT_STATUS_COLOR } from "@/lib/utils";
-import { ShieldCheckIcon } from "@heroicons/react/24/solid";
-import { CalendarIcon, Users } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { projectStatusColor, projectTypeColor } from "@/constants/badge-colors";
+import { formatDate } from "@/lib/date";
+import { IconArrowRight, IconCalendar, IconShieldCheck, IconUsers } from "@tabler/icons-react";
 import { Link } from "react-router";
+
+const STATUS_DOT: Record<string, string> = {
+	active: "bg-emerald-500",
+	completed: "bg-sky-500",
+	"under review": "bg-violet-500",
+	pending: "bg-amber-500",
+};
+
+const PROJECT_TYPE_LABELS: Record<string, string> = {
+	special: "Special",
+	capstone: "Capstone",
+	"master/thesis": "Master / Thesis",
+	master: "Master / Thesis",
+};
 
 type ProjectCardProps = {
 	project?: {
@@ -11,7 +25,8 @@ type ProjectCardProps = {
 		title: string;
 		slug: string;
 		description: string;
-		status: "under_review" | "completed" | "active";
+		status: string;
+		projectType?: string | null;
 		supervisor: {
 			id: string;
 			name: string;
@@ -25,54 +40,67 @@ type ProjectCardProps = {
 export function ProjectCard({ project }: ProjectCardProps) {
 	if (!project) return null;
 
+	const dot = STATUS_DOT[project.status] ?? "bg-gray-400";
+
 	return (
-		<Link to={`/projects/student/${project.slug}/detail`}>
-			<Card className="border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-				{/* Project Title and Status */}
-				<CardContent>
-					<div className="flex items-start justify-between">
-						<CardTitle className="line-clamp-1 text-lg font-semibold  mr-2">
-							{project.title}
-						</CardTitle>
-						<Badge
-							className={cn(
-								PROJECT_STATUS_COLOR(project.status),
-								"font-mono capitalize px-3 rounded-md",
-							)}>
-							{project.status}
-						</Badge>
+		<Link to={`/projects/student/${project.slug}/detail`} className="block group">
+			<div className="flex flex-col gap-3.5 rounded-xl border bg-card p-5 transition-shadow duration-200 group-hover:shadow-sm">
+				{/* Top: status + type badges */}
+				<div className="flex items-center justify-between gap-2">
+					<div className="flex items-center gap-2 flex-wrap">
+						<div className="flex items-center gap-1.5">
+							<span className={cn("h-2 w-2 rounded-full shrink-0", dot)} />
+							<Badge
+								variant="outline"
+								className={cn("text-xs font-medium capitalize", projectStatusColor(project.status))}>
+								{project.status}
+							</Badge>
+						</div>
+						{project.projectType && (
+							<Badge
+								variant="outline"
+								className={cn("text-xs font-medium capitalize", projectTypeColor(project.projectType))}>
+								{PROJECT_TYPE_LABELS[project.projectType] ?? project.projectType}
+							</Badge>
+						)}
 					</div>
-					<span className="flex items-center text-sm gap-1.5">
-						<CalendarIcon className="h-4 w-4" />
-						Started at {project.startedAt}
-					</span>
-					<p className="line-clamp-2 mt-2 text-sm">{project.description}</p>
-				</CardContent>
+					<IconArrowRight
+						size={16}
+						className="text-muted-foreground shrink-0 transition-transform duration-200 group-hover:translate-x-0.5"
+					/>
+				</div>
 
-				<CardContent className="space-y-2">
-					{/* project Supervisor */}
-					<div className="flex text-sm gap-x-2 items-center">
-						<ShieldCheckIcon className="h-5 w-5 text-primary-600" />
-						<p className="flex flex-row gap-x-2">
-							<span>Supervisor . </span>
-							<span>{project.supervisor.name}</span>
-						</p>
+				{/* Title */}
+				<h3 className="font-semibold text-sm leading-snug line-clamp-2 text-foreground">
+					{project.title}
+				</h3>
+
+				{/* Description */}
+				<p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
+					{project.description}
+				</p>
+
+				{/* Divider */}
+				<div className="border-t border-border" />
+
+				{/* Meta row */}
+				<div className="flex flex-col gap-2">
+					<div className="flex items-center gap-2 text-xs text-muted-foreground">
+						<IconShieldCheck size={13} className="shrink-0 text-primary-500" />
+						<span className="truncate">{project.supervisor?.name ?? "—"}</span>
 					</div>
-
-					{/* project Members */}
-					<div className="space-y-2">
-						<div className="flex items-start gap-x-3 text-sm">
-							<Users className="w-4 h-4 text-primary-600" />
-
-							<div className="flex flex-col gap-1">
-								<p className="flex items-center gap-x-3">
-									<span>{project.membersCount} Members</span>
-								</p>
-							</div>
+					<div className="flex items-center justify-between gap-2">
+						<div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+							<IconUsers size={13} className="shrink-0" />
+							<span>{project.membersCount} member{project.membersCount !== 1 ? "s" : ""}</span>
+						</div>
+						<div className="flex items-center gap-1.5 text-xs text-muted-foreground shrink-0">
+							<IconCalendar size={12} />
+							<span>{formatDate(project.startedAt)}</span>
 						</div>
 					</div>
-				</CardContent>
-			</Card>
+				</div>
+			</div>
 		</Link>
 	);
 }

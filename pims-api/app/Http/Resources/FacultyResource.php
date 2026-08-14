@@ -10,10 +10,12 @@ class FacultyResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'phoneNumber' => $this->phone_number,
-            'address'     => $this->address,
-            'rank'        => $this->rank?->name,
-            'department'  => $this->department?->name,
+            'phoneNumber'  => $this->phone_number,
+            'address'      => $this->address,
+            'rank'         => $this->rank?->name,
+            'rankId'       => $this->rank_id,
+            'department'   => $this->department?->name,
+            'departmentId' => $this->department_id,
         ];
     }
 }

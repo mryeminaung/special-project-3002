@@ -1,162 +1,222 @@
-import api from "@/api/api";
+import { getProject } from "./services/project.service";
+import { formatDate } from "@/lib/date";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useRoleChecker } from "@/hooks/use-role-checker";
-import { cn, PROJECT_STATUS_COLOR } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
+import { projectStatusColor } from "@/constants/badge-colors";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
-import { CalendarIcon } from "@heroicons/react/24/solid";
 import {
-	IconArrowUpRight,
 	IconCalendar,
-	IconClock,
+	IconCalendarCheck,
 	IconUsers,
+	IconUserCheck,
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router";
 import ProjectActivity from "./components/project-activity";
-import ProjectMembers from "./components/project-members";
+import SeminarDeadline from "@/features/student/projects/components/seminar-deadline";
+
+const PROJECT_TYPE_LABELS: Record<string, string> = {
+	special: "Special",
+	capstone: "Capstone",
+	"master/thesis": "Master / Thesis",
+	master: "Master / Thesis",
+};
 
 export default function ProjectDetailPage() {
 	const navigate = useNavigate();
-	let { isIC } = useRoleChecker();
+	const { isIC } = useRoleChecker();
 	const { slug } = useParams();
 
-	const fetchProjectDetail = async () => {
-		const res = await api.get(`/projects/${slug}`);
-		return res.data;
-	};
-
-	const { data: projectDetail } = useQuery({
-		queryKey: ["project-detail"],
-		queryFn: fetchProjectDetail,
+	const { data: projectDetail, isLoading } = useQuery({
+		queryKey: ["projectDetail", slug],
+		queryFn: () => getProject(slug!),
 	});
 
-	const proposal = projectDetail?.data ?? [];
-	const midReportCompleted = proposal?.midReport === "submitted";
-	const finalReportCompleted = proposal?.finalReport === "submitted";
-	const midSeminarCompleted = proposal?.midSeminar === "completed";
-	const finalSeminarCompleted = proposal?.finalSeminar === "completed";
-	const completedMilestonesCount = [
-		midReportCompleted,
-		finalReportCompleted,
-		midSeminarCompleted,
-		finalSeminarCompleted,
-	].filter(Boolean).length;
-	const projectProgressPercent = Math.round(
-		(completedMilestonesCount / 4) * 100,
-	);
+	const project = projectDetail?.data ?? null;
 
-	console.log(proposal);
+	const progressStatus = project?.progressStatus ?? {
+		midReport: project?.midReport === "submitted",
+		finalReport: project?.finalReport === "submitted",
+		midSeminar: project?.midSeminar === "completed",
+		finalSeminar: project?.finalSeminar === "completed",
+	};
+
+	const completedCount = Object.values(progressStatus).filter(Boolean).length;
+	const progressPercent = Math.round((completedCount / 4) * 100);
+
+	if (isLoading) {
+		return (
+			<div className="space-y-4">
+				<div className="h-8 w-32 rounded-md bg-muted animate-pulse" />
+				<div className="h-48 rounded-xl bg-muted animate-pulse" />
+				<div className="grid grid-cols-4 gap-4">
+					{Array.from({ length: 4 }).map((_, i) => (
+						<div key={i} className="h-24 rounded-xl bg-muted animate-pulse" />
+					))}
+				</div>
+			</div>
+		);
+	}
+
+	if (!project) return null;
+
+	const infoCards = [
+		{
+			label: "Supervisor",
+			value: project.supervisor?.name ?? "—",
+			sub: project.supervisor?.email ?? null,
+			icon: <IconUserCheck size={16} />,
+			iconCls: "text-primary-600 bg-primary-100 dark:bg-primary-900/40",
+		},
+		{
+			label: "Team Members",
+			value: `${project.members?.length ?? project.membersCount ?? 0} students`,
+			sub: null,
+			icon: <IconUsers size={16} />,
+			iconCls: "text-violet-600 bg-violet-100 dark:bg-violet-900/40",
+		},
+		{
+			label: "Approved On",
+			value: formatDate(project.approvedAt),
+			sub: null,
+			icon: <IconCalendarCheck size={16} />,
+			iconCls: "text-emerald-600 bg-emerald-100 dark:bg-emerald-900/40",
+		},
+		{
+			label: "Started On",
+			value: formatDate(project.startedAt),
+			sub: null,
+			icon: <IconCalendar size={16} />,
+			iconCls: "text-amber-600 bg-amber-100 dark:bg-amber-900/40",
+		},
+	];
 
 	return (
-		<div className="dark:bg-neutral-950">
+		<div className="space-y-6">
+			{/* Back */}
 			<Button
 				onClick={() => navigate(-1)}
 				variant="ghost"
-				className="mb-4 flex bg-primary-600 hover:bg-primary-500 text-white hover:cursor-pointer hover:text-white items-center gap-2">
+				size="sm"
+				className="gap-1.5 text-muted-foreground hover:text-foreground -ml-1">
 				<ArrowLeftIcon className="h-4 w-4" />
-				Back to Projects
+				Back
 			</Button>
 
-			{/* project info */}
-			<Card className="mb-5 shadow-sm">
-				<CardContent className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-					<div className="">
-						<div className="mt-2 flex justify-between flex-wrap items-center gap-3 text-sm">
-							<h1 className="text-2xl font-bold ">Title: {proposal?.title}</h1>
-						</div>
-						<div className="flex items-center mt-1 gap-x-3">
+			{/* Header card */}
+			<div className="rounded-xl border bg-card p-6">
+				<div className="flex flex-col lg:flex-row lg:items-start gap-6">
+					{/* Left: badges + title + description */}
+					<div className="flex-1 min-w-0">
+						<div className="flex flex-wrap items-center gap-2 mb-3">
 							<Badge
-								className={cn(
-									PROJECT_STATUS_COLOR("active"),
-									"font-mono capitalize px-3 rounded-md",
-								)}>
-								{proposal?.status}
+								variant="outline"
+								className={cn("capitalize font-medium", projectStatusColor(project.status))}>
+								{project.status}
 							</Badge>
-							<span className="flex items-center gap-1.5">
-								<CalendarIcon className="h-4 w-4" />
-								Started on {proposal?.startedAt}
-							</span>
+							{project.projectType && (
+								<Badge variant="outline" className="font-medium">
+									{PROJECT_TYPE_LABELS[project.projectType] ?? project.projectType}
+								</Badge>
+							)}
+							<Badge variant="outline" className="capitalize font-medium">
+								{project.type}
+							</Badge>
+							{project.projectArea && (
+								<Badge variant="outline" className="font-medium">
+									{project.projectArea}
+								</Badge>
+							)}
 						</div>
-						<div className="mt-5 space-y-1">
-							<p className="text-lg font-semibold">Project Description</p>
-							<p className="text-muted-foreground">{proposal?.description}</p>
-						</div>
-					</div>
-					<div className="dark:bg-primary-700 min-w-62.5 bg-primary-100 rounded-lg p-8 relative overflow-hidden">
-						<div className="relative">
-							<div className="flex items-center gap-2 mb-6 opacity-80">
-								<IconClock size={20} />
-								<span className="text-sm font-bold tracking-widest uppercase">
-									Project Progress
-								</span>
-							</div>
-							<div className="text-5xl font-black mb-2 tabular-nums">
-								{projectProgressPercent}%
-							</div>
-							<div className="h-2 w-full bg-white/20 rounded-full overflow-hidden">
-								<div
-									className="h-full bg-primary-700 dark:bg-white"
-									style={{ width: `${projectProgressPercent}%` }}></div>
-							</div>
-						</div>
-					</div>
-				</CardContent>
-			</Card>
 
-			{/* project summary */}
+						<h1 className="text-2xl font-bold tracking-tight mb-3 leading-snug">
+							{project.title}
+						</h1>
+
+						<p className="text-sm text-muted-foreground leading-relaxed">
+							{project.description}
+						</p>
+					</div>
+
+					{/* Right: progress — clean, no colored bg */}
+					<div className="shrink-0 w-full lg:w-48 lg:border-l lg:pl-6 flex flex-col justify-center">
+						<p className="text-xs text-muted-foreground uppercase tracking-widest font-semibold mb-1">Progress</p>
+						<p className="text-5xl font-black tabular-nums text-foreground leading-none mb-3">
+							{progressPercent}<span className="text-2xl font-bold text-muted-foreground">%</span>
+						</p>
+						<div className="h-1.5 w-full bg-muted rounded-full overflow-hidden mb-2">
+							<div
+								className="h-full bg-primary-600 rounded-full transition-all duration-500"
+								style={{ width: `${progressPercent}%` }}
+							/>
+						</div>
+						<p className="text-xs text-muted-foreground">{completedCount} of 4 milestones done</p>
+					</div>
+				</div>
+			</div>
+
+			{/* IC info strip — muted bg, no heavy card borders */}
 			{isIC && (
-				<div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-5">
-					{[
-						{
-							label: "Supervisor",
-							value: proposal?.supervisor?.name ?? "N/A",
-							icon: <IconUsers className="text-primary-500" />,
-						},
-						{
-							label: "Project Members",
-							value: proposal?.members?.length ?? 0,
-							icon: <IconUsers className="text-purple-500" />,
-						},
-						{
-							label: "Start Date",
-							value: proposal?.startedAt,
-							icon: <IconCalendar className="text-orange-500" />,
-						},
-					].map((stat, i) => (
-						<div
-							key={i}
-							className="group bg-white dark:bg-neutral-900 rounded-lg p-6 border border-neutral-200/60 dark:border-neutral-800 shadow-sm hover:shadow-md transition-shadow">
-							<div className="flex items-start gap-x-3">
-								<div className="p-2 rounded-lg bg-neutral-50 dark:bg-neutral-800">
-									{stat.icon}
-								</div>
-								<div className="flex flex-col w-full gap-x-3">
-									<div className="flex items-center justify-between">
-										<div className="text-[14px] font-bold text-neutral-400 uppercase tracking-widest">
-											{stat.label}
-										</div>
-										<IconArrowUpRight
-											className="text-neutral-300 group-hover:text-primary-500 transition-colors"
-											size={20}
-										/>
-									</div>
-									<p className="text-xl font-semibold mt-1 text-neutral-900 dark:text-white">
-										{stat.value}
-									</p>
-								</div>
+				<div className="rounded-xl bg-muted/40 px-5 py-4 grid grid-cols-2 md:grid-cols-4 gap-4">
+					{infoCards.map((card) => (
+						<div key={card.label} className="flex items-start gap-3">
+							<div className={cn("mt-0.5 shrink-0 p-2 rounded-lg", card.iconCls)}>
+								{card.icon}
+							</div>
+							<div className="min-w-0">
+								<p className="text-xs text-muted-foreground mb-0.5">{card.label}</p>
+								<p className="text-sm font-semibold leading-snug truncate">{card.value}</p>
+								{card.sub && (
+									<p className="text-xs text-muted-foreground truncate mt-0.5">{card.sub}</p>
+								)}
 							</div>
 						</div>
 					))}
 				</div>
 			)}
 
-			{/* project members */}
-			<ProjectMembers members={proposal?.members} />
+			{/* Members — muted bg strip, no card */}
+			<div className="rounded-xl bg-muted/40 px-5 py-4">
+				<p className="text-sm font-semibold mb-0.5">Team Members</p>
+				<p className="text-xs text-muted-foreground mb-4">Students working on this project.</p>
+				<div className="flex flex-wrap gap-3">
+					{(project.members?.length ?? 0) > 0 ? (
+						project.members!.map((member: { id: number; name: string; email: string }) => (
+							<div
+								key={member.id}
+								className="flex items-center gap-3 rounded-lg bg-background px-4 py-3">
+								<Avatar className="h-8 w-8 shrink-0">
+									<AvatarFallback className="bg-primary-100 text-primary-700 text-xs font-semibold">
+										{getInitials(member.name)}
+									</AvatarFallback>
+								</Avatar>
+								<div>
+									<p className="text-sm font-medium leading-none">{member.name}</p>
+									<p className="text-xs text-muted-foreground mt-0.5">{member.email}</p>
+								</div>
+							</div>
+						))
+					) : (
+						<p className="text-sm text-muted-foreground">No members listed.</p>
+					)}
+				</div>
+			</div>
 
-			{/* project activities */}
-			<ProjectActivity project={proposal} />
+			{/* Seminar Deadlines — IC can set */}
+			{isIC && (
+				<SeminarDeadline
+					slug={project.slug}
+					midSeminarDeadline={project.midSeminarDeadline}
+					finalSeminarDeadline={project.finalSeminarDeadline}
+					progressStatus={progressStatus}
+				/>
+			)}
+
+			{/* Activity */}
+			<ProjectActivity project={project} isIC={isIC} projectSlug={slug} />
 		</div>
 	);
 }

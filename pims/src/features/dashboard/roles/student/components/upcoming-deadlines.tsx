@@ -6,6 +6,7 @@ import {
 	IconClipboardCheck,
 	IconMicrophone,
 } from "@tabler/icons-react";
+import { formatShortDate } from "@/lib/date";
 import type { StudentDashboardData } from "../services/student-dashboard.service";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string; size?: number }>> = {
@@ -35,13 +36,6 @@ function getUrgency(dateStr: string): "urgent" | "moderate" | "safe" {
 	if (days <= 7) return "urgent";
 	if (days <= 14) return "moderate";
 	return "safe";
-}
-
-function formatDate(dateStr: string) {
-	return new Date(dateStr).toLocaleDateString("en-US", {
-		month: "short",
-		day: "numeric",
-	});
 }
 
 export default function UpcomingDeadlines({
@@ -75,7 +69,7 @@ export default function UpcomingDeadlines({
 										{deadline.title}
 									</p>
 									<p className="text-xs text-muted-foreground">
-										{formatDate(deadline.date)}
+										{formatShortDate(deadline.date)}
 									</p>
 								</div>
 								<Badge

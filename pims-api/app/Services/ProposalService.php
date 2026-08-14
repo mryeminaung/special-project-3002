@@ -78,12 +78,6 @@ class ProposalService
             return ['success' => false, 'message' => 'This proposal is already a project.'];
         }
 
-        if ($proposal->type === ProposalType::Faculty) {
-            $proposal->update(['status' => ProposalStatus::Approved]);
-
-            return ['success' => true, 'message' => 'Proposal approved successfully!'];
-        }
-
         return DB::transaction(function () use ($proposal) {
             $proposal->update(['status' => ProposalStatus::Approved]);
 
@@ -103,6 +97,7 @@ class ProposalService
     public function browseBySupervisor(User $supervisor): LengthAwarePaginator
     {
         return Proposal::where('supervisor_id', $supervisor->id)
+            ->with('supervisor:id,name', 'area:id,name')
             ->orderBy('id')
             ->paginate(5);
     }
@@ -110,8 +105,7 @@ class ProposalService
     public function listFacultyProposals(): Collection
     {
         return Proposal::where('type', ProposalType::Faculty)
-            ->where('status', ProposalStatus::Approved)
-            ->with(['applications:id', 'supervisor:id,name'])
+            ->with(['applications' => fn($q) => $q->withPivot('status'), 'supervisor:id,name'])
             ->withCount('applications')
             ->orderBy('id')
             ->get();
@@ -150,8 +144,8 @@ class ProposalService
 
         $joinedProposalsCount = $this->getJoinedProposalsCount($user);
 
-        if ($joinedProposalsCount >= 3) {
-            return ['success' => false, 'message' => 'Students can join up to 3 proposals only.', 'status' => 422];
+        if ($joinedProposalsCount >= 2) {
+            return ['success' => false, 'message' => 'Students can join up to 2 proposals only.', 'status' => 422];
         }
 
         $currentMembersCount = $proposal->applications()->count();
@@ -221,20 +215,24 @@ class ProposalService
             ->where('status', 'accepted')
             ->count();
 
-        if ($maxStudents > 0 && $acceptedCount >= $maxStudents && ! $proposal->project()->exists()) {
+        // If the project already exists (created at IC approval), sync this student into it.
+        $project = $proposal->project()->first();
+        if ($project && ! $project->members()->where('users.id', $student->id)->exists()) {
+            $project->members()->attach($student->id);
+        }
+
+        // When team is full, promote the first accepted student to project leader
+        // (replaces the temporary supervisor placeholder set at IC approval time).
+        if ($maxStudents > 0 && $acceptedCount >= $maxStudents && $project) {
             $leaderId = DB::table('proposal_student')
                 ->where('proposal_id', $proposal->id)
                 ->where('status', 'accepted')
                 ->orderBy('id')
                 ->value('user_id');
 
-            if ($leaderId) {
-                $proposal->update([
-                    'student_id' => $leaderId,
-                    'status'     => ProposalStatus::Approved,
-                ]);
-
-                event(new ProposalApproved($proposal->fresh()));
+            if ($leaderId && $project->leader_id === $project->supervisor_id) {
+                $project->update(['leader_id' => $leaderId]);
+                $proposal->update(['student_id' => $leaderId]);
             }
         }
 

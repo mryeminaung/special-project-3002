@@ -1,4 +1,5 @@
 import { DocumentTextIcon } from "@heroicons/react/24/outline";
+import { formatDate } from "@/lib/date";
 import DownloadFile from "./download-file";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
@@ -25,7 +26,7 @@ export default function ProposalDocument({
 						</div>
 						<div>
 							<p className="font-medium ">proposal</p>
-							<p className="text-sm  ">Submitted on {submittedAt}</p>
+							<p className="text-sm  ">Submitted on {formatDate(submittedAt)}</p>
 						</div>
 					</div>
 

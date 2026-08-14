@@ -37,7 +37,9 @@ class StudentProjectResource extends JsonResource
             'supervisor'           => new MemberResource($this->supervisor),
             'membersCount'         => $this->members->count(),
             'members'              => MemberResource::collection($this->members),
-            'startedAt'            => $this->start_date?->format('d-m-Y'),
+            'projectArea'          => $this->area?->name,
+            'startedAt'            => $this->start_date?->format('Y-m-d'),
+            'approvedAt'           => $this->created_at?->format('Y-m-d'),
         ];
     }
 }

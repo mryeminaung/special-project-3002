@@ -1,7 +1,13 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { TableCell, TableRow } from "@/components/ui/table";
 
-const DEFAULT_CELL_SKELETON_CLASSES = [
+interface TableRowSkeletonProps {
+	rows?: number;
+	colSpan?: number;
+	cells?: string[];
+}
+
+const DEFAULT_CELLS = [
 	"h-4 w-48",
 	"h-4 w-28",
 	"h-4 w-32",
@@ -12,14 +18,16 @@ const DEFAULT_CELL_SKELETON_CLASSES = [
 	"mx-auto h-8 w-16 rounded-md",
 ];
 
-interface TableRowSkeletonProps {
-	rows?: number;
-}
+export default function TableRowSkeleton({
+	rows = 5,
+	colSpan,
+	cells,
+}: TableRowSkeletonProps) {
+	const cellClasses = cells ?? DEFAULT_CELLS.slice(0, colSpan ?? DEFAULT_CELLS.length);
 
-export default function TableRowSkeleton({ rows = 5 }: TableRowSkeletonProps) {
 	return Array.from({ length: rows }).map((_, rowIndex) => (
 		<TableRow key={`table-row-skeleton-${rowIndex}`}>
-			{DEFAULT_CELL_SKELETON_CLASSES.map((className, cellIndex) => (
+			{cellClasses.map((className, cellIndex) => (
 				<TableCell key={`table-row-skeleton-cell-${rowIndex}-${cellIndex}`}>
 					<Skeleton className={className} />
 				</TableCell>

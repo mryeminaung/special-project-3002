@@ -1,3 +1,13 @@
+export type {
+	ApiResponse,
+	PaginationMeta,
+	PaginatedApiResponse,
+	ProposalStatus,
+	ProposalAppliedType,
+	ProposalProjectType,
+	ProjectStatus,
+} from "./api";
+
 export type UserRole =
 	| "IC"
 	| "Student Affairs"
@@ -62,15 +72,18 @@ export interface SupervisorData {
 
 export interface ProjectData {
 	id: number;
-	name: string;
+	title: string;
 	slug: string;
 	description: string;
 	type: string;
-	supervisor: User;
-	leader: User;
-	members: User[];
+	projectType?: string | null;
+	projectArea?: string | null;
+	supervisor: User | null;
+	leader: User | null;
+	members: User[] | null;
 	status: "active" | "completed" | "under review";
-	startedAt: string;
+	startedAt: string | null;
+	approvedAt: string | null;
 }
 
 type ProjectStatus = "active" | "competed" | "under review";
