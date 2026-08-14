@@ -31,7 +31,8 @@ class FacultyProposalResource extends JsonResource
                 : [],
             'canViewApplicants'   => (bool) $canViewApplicants,
             'canManageApplicants' => (bool) $canManageApplicants,
-            'submittedAt'         => $this->submitted_at->format('d-m-Y'),
+            'projectArea'         => $this->area?->name,
+            'submittedAt'         => $this->submitted_at->format('Y-m-d'),
         ];
     }
 }

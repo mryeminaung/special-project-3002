@@ -1,4 +1,4 @@
-import type { ProposalStatus } from "@/lib/utils";
+import type { ProposalStatus } from "@/types/api";
 
 export type ProposalDetail = {
 	id: number;

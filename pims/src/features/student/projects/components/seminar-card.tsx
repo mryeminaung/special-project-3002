@@ -1,4 +1,5 @@
-import api from "@/api/api";
+import { updateSeminarStatus } from "../services/student-project.service";
+import { formatDateTime } from "@/lib/date";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,22 +28,6 @@ type SeminarCardProps = {
 
 type SeminarStatusValue = "not completed" | "completed";
 
-function formatDisplayDateTime(value?: string | null): string {
-	if (!value) return "Not scheduled";
-	const date = new Date(value);
-
-	if (Number.isNaN(date.getTime())) return "Not scheduled";
-
-	return date.toLocaleString(undefined, {
-		month: "short",
-		day: "numeric",
-		year: "numeric",
-		hour: "numeric",
-		minute: "2-digit",
-		hour12: true,
-	});
-}
-
 export default function SeminarCard({
 	slug,
 	midSeminarDeadline,
@@ -53,11 +38,10 @@ export default function SeminarCard({
 	const queryClient = useQueryClient();
 	const [savingType, setSavingType] = useState<"mid" | "final" | null>(null);
 
-	const getInitialStatus = (isNotCompleted?: boolean): SeminarStatusValue => {
-		if (typeof isNotCompleted === "boolean") {
-			return isNotCompleted ? "not completed" : "completed";
+	const getInitialStatus = (isCompleted?: boolean): SeminarStatusValue => {
+		if (typeof isCompleted === "boolean") {
+			return isCompleted ? "completed" : "not completed";
 		}
-
 		return "not completed";
 	};
 
@@ -74,7 +58,7 @@ export default function SeminarCard({
 		setFinalSeminarStatus(getInitialStatus(progressStatus?.finalSeminar));
 	}, [progressStatus?.finalSeminar, progressStatus?.midSeminar]);
 
-	const isMidSeminarCompleted = progressStatus?.midSeminar === false;
+	const isMidSeminarCompleted = progressStatus?.midSeminar === true;
 
 	const saveSeminarStatus = async (
 		type: "mid" | "final",
@@ -89,10 +73,7 @@ export default function SeminarCard({
 
 		try {
 			setSavingType(type);
-			await api.patch(`/projects/${slug}/seminar-status`, {
-				type,
-				status,
-			});
+			await updateSeminarStatus(slug, type, status);
 
 			await queryClient.invalidateQueries({
 				queryKey: ["projectDetail", slug],
@@ -127,7 +108,7 @@ export default function SeminarCard({
 					<div className="mt-1 flex items-center gap-x-2">
 						<Calendar className="size-3 stroke-2 text-primary-600" />
 						<p className="flex items-center gap-1.5 text-sm">
-							{formatDisplayDateTime(midSeminarDeadline)}
+							{formatDateTime(midSeminarDeadline)}
 						</p>
 					</div>
 
@@ -169,7 +150,7 @@ export default function SeminarCard({
 					<div className="mt-1 flex items-center gap-x-2">
 						<Calendar className="size-3 stroke-2 text-primary-600" />
 						<p className="flex items-center gap-1.5 text-sm">
-							{formatDisplayDateTime(finalSeminarDeadline)}
+							{formatDateTime(finalSeminarDeadline)}
 						</p>
 					</div>
 

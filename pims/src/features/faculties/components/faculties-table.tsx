@@ -1,5 +1,7 @@
+import TablePagination from "@/components/table-pagination";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { getInitials } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
 	Select,
@@ -18,7 +20,7 @@ import {
 } from "@/components/ui/table";
 import TableRowSkeleton from "@/components/table-row-skeleton";
 import { ROLE_COLORS, ROLE_LABELS } from "@/constants/badge-colors";
-import { Eye, Search } from "lucide-react";
+import { Eye, Pencil, Search, KeyRound } from "lucide-react";
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
 
@@ -41,9 +43,13 @@ type Faculty = {
 export default function FacultiesTable({
 	facultyData,
 	isLoading = false,
+	onEdit,
+	onResetPassword,
 }: {
 	facultyData: Faculty[];
 	isLoading?: boolean;
+	onEdit?: (faculty: Faculty) => void;
+	onResetPassword?: (faculty: Faculty) => void;
 }) {
 	const [search, setSearch] = useState("");
 	const [rankFilter, setRankFilter] = useState("all");
@@ -141,12 +147,15 @@ export default function FacultiesTable({
 							<TableHead>Rank</TableHead>
 							<TableHead>Department</TableHead>
 							<TableHead>Role</TableHead>
-							<TableHead className="w-16 text-center">Action</TableHead>
+							<TableHead className="w-28 text-center">Action</TableHead>
 						</TableRow>
 					</TableHeader>
 					<TableBody>
 						{isLoading ? (
-							<TableRowSkeleton rows={5} colSpan={5} />
+							<TableRowSkeleton
+								rows={5}
+								cells={["h-4 w-52", "h-4 w-28", "h-4 w-32", "h-5 w-20 rounded-full", "mx-auto h-8 w-16 rounded-md"]}
+							/>
 						) : paginated.length === 0 ? (
 							<TableRow>
 								<TableCell colSpan={5} className="py-10 text-center text-muted-foreground">
@@ -157,8 +166,18 @@ export default function FacultiesTable({
 							paginated.map((faculty, idx) => (
 								<TableRow key={faculty.id}>
 									<TableCell>
-										<p className="font-medium leading-tight">{faculty.name}</p>
-										<p className="text-xs text-muted-foreground mt-0.5">{faculty.email}</p>
+										<div className="flex items-center gap-3">
+											<Avatar className="h-8 w-8 shrink-0">
+												<AvatarImage src={faculty.avatar_url ?? undefined} />
+												<AvatarFallback className="bg-primary-50 text-primary-700 text-xs font-semibold">
+													{getInitials(faculty.name)}
+												</AvatarFallback>
+											</Avatar>
+											<div>
+												<p className="font-medium leading-tight">{faculty.name}</p>
+												<p className="text-xs text-muted-foreground mt-0.5">{faculty.email}</p>
+											</div>
+										</div>
 									</TableCell>
 									<TableCell className="text-sm">{faculty.profile?.rank ?? "—"}</TableCell>
 									<TableCell className="text-sm">{faculty.profile?.department ?? "—"}</TableCell>
@@ -175,12 +194,29 @@ export default function FacultiesTable({
 										</div>
 									</TableCell>
 									<TableCell className="text-center">
-										<Link
-											to={`/faculties/${faculty.id}/detail`}
-											className="inline-flex items-center gap-1 bg-primary-600 hover:bg-primary-700 transition-colors text-white px-2 py-1.5 rounded-md">
-											<Eye className="size-3.5" />
-											<span className="text-[11px]">View</span>
-										</Link>
+										<div className="flex items-center justify-center gap-1">
+											<Link
+												to={`/faculties/${faculty.id}/detail`}
+												className="inline-flex items-center gap-1 bg-primary-600 hover:bg-primary-700 transition-colors text-white px-2 py-1.5 rounded-md">
+												<Eye className="size-3.5" />
+												<span className="text-[11px]">View</span>
+											</Link>
+											{onEdit && (
+												<button
+													onClick={() => onEdit(faculty)}
+													className="inline-flex items-center gap-1 bg-amber-500 hover:bg-amber-600 transition-colors text-white px-2 py-1.5 rounded-md">
+													<Pencil className="size-3.5" />
+													<span className="text-[11px]">Edit</span>
+												</button>
+											)}
+											{onResetPassword && (
+												<button
+													onClick={() => onResetPassword(faculty)}
+													className="inline-flex items-center gap-1 bg-rose-500 hover:bg-rose-600 transition-colors text-white px-2 py-1.5 rounded-md">
+													<KeyRound className="size-3.5" />
+												</button>
+											)}
+										</div>
 									</TableCell>
 								</TableRow>
 							))
@@ -190,29 +226,13 @@ export default function FacultiesTable({
 			</div>
 
 			{/* Pagination */}
-			{totalPages > 1 && (
-				<div className="flex items-center justify-between">
-					<p className="text-sm text-muted-foreground">
-						Page {currentPage} of {totalPages}
-					</p>
-					<div className="flex gap-2">
-						<Button
-							variant="outline"
-							size="sm"
-							disabled={currentPage === 1}
-							onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}>
-							Previous
-						</Button>
-						<Button
-							variant="outline"
-							size="sm"
-							disabled={currentPage === totalPages}
-							onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}>
-							Next
-						</Button>
-					</div>
-				</div>
-			)}
+			<TablePagination
+				currentPage={currentPage}
+				lastPage={totalPages}
+				total={filtered.length}
+				perPage={itemsPerPage}
+				onPageChange={setCurrentPage}
+			/>
 		</div>
 	);
 }

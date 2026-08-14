@@ -1,4 +1,5 @@
 export { proposalRoutes } from "./proposals.route";
+export * from "./services/proposal.service";
 export { default as ApprovalModal } from "./components/approval-modal";
 export { default as CommentBox } from "./components/comment-box";
 export { default as FileUpload } from "./components/file-upload";

@@ -26,6 +26,10 @@ class CreateProjectFromProposal
             return;
         }
 
+        // For faculty proposals, student_id may be null at approval time;
+        // fall back to supervisor as the project lead until a student leader is assigned.
+        $leaderId = $proposal->student_id ?? $proposal->supervisor_id;
+
         // Transform Proposal to Project
         $project = Project::create([
             'name'          => $proposal->title,
@@ -34,7 +38,7 @@ class CreateProjectFromProposal
             'area_id'       => $proposal->area_id,
             'project_type'  => $proposal->project_type,
             'type'          => $proposal->type,
-            'leader_id'     => $proposal->student_id,
+            'leader_id'     => $leaderId,
             'supervisor_id' => $proposal->supervisor_id,
             'proposal_id'   => $proposal->id,
             'file'          => $proposal->fileUrl,

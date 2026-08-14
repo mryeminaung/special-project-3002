@@ -3,13 +3,14 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
+import { cn } from "@/lib/utils";
+import { formatDate } from "@/lib/date";
+import type { ProposalStatus } from "@/types/api";
 import {
-	type ProposalStatus,
-	PROPOSAL_APPLIED_TYPE_COLOR,
-	PROPOSAL_PROJECT_TYPE_COLOR,
-	PROPOSAL_STATUS_COLOR,
-	cn,
-} from "@/lib/utils";
+	proposalStatusColor,
+	proposalAppliedTypeColor,
+	projectTypeColor,
+} from "@/constants/badge-colors";
 
 import {
 	CheckBadgeIcon,
@@ -21,7 +22,13 @@ import { DocumentTextIcon } from "@heroicons/react/24/solid";
 import { CalendarIcon, ShieldCheck, UserIcon } from "lucide-react";
 import { IconUsersGroup } from "@tabler/icons-react";
 
-import api from "@/api/api";
+import {
+	getProposal,
+	approveProposal,
+	rejectProposal,
+	acceptApplicant,
+	rejectApplicant,
+} from "@/features/proposals/services/proposal.service";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -70,22 +77,14 @@ export default function FacultyProposalDetailPage() {
 
 	const { data: proposalDetail, isLoading } = useQuery({
 		queryKey: ["proposalDetail", slug],
-		queryFn: async () => {
-			const res = await api.get(`/proposals/${slug}`);
-			return res.data;
-		},
+		queryFn: () => getProposal(slug!),
 	});
 
 	const proposal: ProposalDetail = proposalDetail?.data;
 	const canApproveOrRejectProposal = isIC && proposal?.status === "pending";
 
 	const acceptApplicantMutation = useMutation({
-		mutationFn: async (studentId: number) => {
-			const res = await api.post(
-				`/proposals/${proposal?.slug}/applications/${studentId}/accept`,
-			);
-			return res.data;
-		},
+		mutationFn: (studentId: number) => acceptApplicant(proposal?.slug, studentId),
 		onSuccess: async () => {
 			toast.success("Student accepted.");
 			await Promise.all([
@@ -99,12 +98,7 @@ export default function FacultyProposalDetailPage() {
 	});
 
 	const rejectApplicantMutation = useMutation({
-		mutationFn: async (studentId: number) => {
-			const res = await api.post(
-				`/proposals/${proposal?.slug}/applications/${studentId}/reject`,
-			);
-			return res.data;
-		},
+		mutationFn: (studentId: number) => rejectApplicant(proposal?.slug, studentId),
 		onSuccess: async () => {
 			toast.success("Student rejected.");
 			await Promise.all([
@@ -118,7 +112,7 @@ export default function FacultyProposalDetailPage() {
 	});
 
 	const approveMutation = useMutation({
-		mutationFn: () => api.post(`/proposals/${proposal?.slug}/approve`),
+		mutationFn: () => approveProposal(proposal?.slug),
 		onMutate: () => setShowApprovalModal(true),
 		onError: (error: any) => {
 			setShowApprovalModal(false);
@@ -127,7 +121,7 @@ export default function FacultyProposalDetailPage() {
 	});
 
 	const rejectMutation = useMutation({
-		mutationFn: () => api.post(`/proposals/${proposal?.slug}/reject`),
+		mutationFn: () => rejectProposal(proposal?.slug),
 		onSuccess: () => {
 			toast.success("Proposal rejected.");
 			queryClient.invalidateQueries({ queryKey: ["proposalDetail", slug] });
@@ -201,23 +195,23 @@ export default function FacultyProposalDetailPage() {
 
 					<div className="flex items-center gap-1.5 mt-2 text-sm text-muted-foreground">
 						<CalendarIcon className="h-3.5 w-3.5" />
-						Submitted on {proposal.submittedAt}
+						Submitted at {formatDate(proposal.submittedAt)}
 					</div>
 
 					<div className="flex flex-wrap gap-2 mt-4">
 						<Badge
 							variant="outline"
-							className={cn("capitalize font-medium", PROPOSAL_STATUS_COLOR(proposal.status))}>
+							className={cn("capitalize font-medium", proposalStatusColor(proposal.status))}>
 							{proposal.status}
 						</Badge>
 						<Badge
 							variant="outline"
-							className={cn("capitalize font-medium", PROPOSAL_APPLIED_TYPE_COLOR(proposal.type as any))}>
+							className={cn("capitalize font-medium", proposalAppliedTypeColor(proposal.type as string))}>
 							{proposal.type}
 						</Badge>
 						<Badge
 							variant="outline"
-							className={cn("capitalize font-medium", PROPOSAL_PROJECT_TYPE_COLOR(proposal.projectType as any))}>
+							className={cn("capitalize font-medium", projectTypeColor(proposal.projectType as string))}>
 							{proposal.projectType}
 						</Badge>
 						{proposal.projectArea && (
@@ -254,7 +248,7 @@ export default function FacultyProposalDetailPage() {
 								<div className="flex-1 min-w-0">
 									<p className="text-sm font-medium">proposal.pdf</p>
 									<p className="text-xs text-muted-foreground">
-										Submitted on {proposal.submittedAt}
+										Submitted at {formatDate(proposal.submittedAt)}
 									</p>
 								</div>
 								<DownloadFile fileUrl={proposal.file} />

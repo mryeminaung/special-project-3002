@@ -9,8 +9,7 @@ export default function DownloadFile({ fileUrl }: { fileUrl: string }) {
 			<a
 				href={fileUrl}
 				target="_blank"
-				rel="noopener noreferrer"
-				download>
+				rel="noopener noreferrer">
 				<Download className="h-4 w-4" />
 				Download
 			</a>

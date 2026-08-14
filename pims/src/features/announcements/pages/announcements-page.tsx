@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import type { AnnouncementItem } from "../announcement.types";
 import AnnouncementRow from "../components/announcement-row";
 import AnnouncementToolbar from "../components/announcement-toolbar";
-import AnnouncementPagination from "../components/announcement-pagination";
+import TablePagination from "@/components/table-pagination";
 import AnnouncementDetail from "../components/announcement-detail";
 import { NewAnnouncement } from "../components/new-announcement";
 import { getAnnouncements } from "../services/announcement.service";
@@ -264,12 +264,12 @@ export default function AnnouncementsPage() {
 			)}
 
 			{/* Pagination */}
-			{!isLoading && filteredAnnouncements.length > 0 && (
-				<AnnouncementPagination
+			{!isLoading && (
+				<TablePagination
 					currentPage={currentPage}
-					totalPages={totalPages}
-					totalItems={filteredAnnouncements.length}
-					itemsPerPage={ITEMS_PER_PAGE}
+					lastPage={totalPages}
+					total={filteredAnnouncements.length}
+					perPage={ITEMS_PER_PAGE}
 					onPageChange={setCurrentPage}
 				/>
 			)}

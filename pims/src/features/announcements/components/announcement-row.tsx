@@ -1,19 +1,11 @@
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
+import { formatShortDate } from "@/lib/date";
 import type {
 	AnnouncementAudience,
 	AnnouncementItem,
 } from "../announcement.types";
-
-function formatShortDate(value: string) {
-	const parsed = new Date(value);
-	if (Number.isNaN(parsed.getTime())) return value;
-	return parsed.toLocaleDateString("en-US", {
-		month: "short",
-		day: "numeric",
-	});
-}
 
 function getAudienceBadgeClasses(audience: AnnouncementAudience) {
 	switch (audience) {

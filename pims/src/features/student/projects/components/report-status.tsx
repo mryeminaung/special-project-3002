@@ -1,4 +1,4 @@
-import api from "@/api/api";
+import { updateReportStatus } from "../services/student-project.service";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
@@ -133,8 +133,7 @@ function ReportSection({
 						<a
 							href={documentUrl ?? undefined}
 							target="_blank"
-							rel="noopener noreferrer"
-							download>
+							rel="noopener noreferrer">
 							<Download className="h-4 w-4" />
 							Download
 						</a>
@@ -160,11 +159,11 @@ export default function ReportStatus({
 }: ReportStatusProps) {
 	const queryClient = useQueryClient();
 	const getInitialStatus = (
-		isNotSubmitted?: boolean,
+		isSubmitted?: boolean,
 		hasDocument?: boolean,
 	): ReportStatusValue => {
-		if (typeof isNotSubmitted === "boolean") {
-			return isNotSubmitted ? "not submitted" : "submitted";
+		if (typeof isSubmitted === "boolean") {
+			return isSubmitted ? "submitted" : "not submitted";
 		}
 
 		return hasDocument ? "submitted" : "not submitted";
@@ -184,10 +183,7 @@ export default function ReportStatus({
 	) => {
 		try {
 			setSavingType(type);
-			await api.patch(`/projects/${slug}/report-status`, {
-				type,
-				status,
-			});
+			await updateReportStatus(slug, type, status);
 
 			await queryClient.invalidateQueries({
 				queryKey: ["projectDetail", slug],

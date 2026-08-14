@@ -1,4 +1,4 @@
-import api from "@/api/api";
+import { uploadProposalDocument } from "../services/proposal.service";
 import ErrorMessage from "@/components/error-message";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
@@ -63,14 +63,9 @@ const FileUpload = forwardRef<FileUploadHandle, Props>(
 			try {
 				setIsUploading(true);
 				setFileUrlError(null);
-				// Updated to generic upload endpoint for Local Storage
-				const res = await api.post("/upload-to-s3", formData, {
-					headers: {
-						"Content-Type": "multipart/form-data",
-					},
-				});
-				if (res.data.status === 200) {
-					setFileUrl(res.data.data.url);
+				const res = await uploadProposalDocument(formData);
+				if (res.status === 200) {
+					setFileUrl(res.data.url);
 					setFileUrlError(null);
 				} else {
 					throw new Error("Invalid response from server");

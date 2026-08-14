@@ -77,7 +77,7 @@ class ProposalController extends Controller
             if ($proposal->student_id !== null) {
                 return $this->successResponse(
                     'Student proposal detail view',
-                    new StudentProposalResource($proposal->load('members')),
+                    new StudentProposalResource($proposal->load(['supervisor', 'members', 'area'])),
                     200
                 );
             } else {
@@ -88,7 +88,7 @@ class ProposalController extends Controller
         if ($proposal->type === ProposalType::Faculty) {
             return $this->successResponse(
                 'Faculty proposal detail view',
-                new FacultyProposalResource($proposal->load(['supervisor', 'members', 'applicants'])),
+                new FacultyProposalResource($proposal->load(['supervisor', 'members', 'applicants', 'area'])),
                 200
             );
         }
@@ -99,10 +99,6 @@ class ProposalController extends Controller
     public function browseProposals()
     {
         $proposals = $this->proposalService->browseBySupervisor(Auth::user());
-
-        if ($proposals->isEmpty()) {
-            return $this->errorResponse('No proposals found for the supervisor', 404);
-        }
 
         $data = $this->paginatedResponse(ProposalTableResource::class, $proposals);
 

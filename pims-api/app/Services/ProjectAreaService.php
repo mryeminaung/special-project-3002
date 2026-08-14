@@ -9,7 +9,7 @@ class ProjectAreaService
 {
     public function list(): Collection
     {
-        return ProjectArea::orderBy('name')->get();
+        return ProjectArea::withCount('projects')->orderBy('name')->get();
     }
 
     public function create(array $data): ProjectArea
@@ -21,7 +21,7 @@ class ProjectAreaService
     {
         $projectArea->update($data);
 
-        return $projectArea->fresh();
+        return $projectArea->fresh()->loadCount('projects');
     }
 
     public function delete(ProjectArea $projectArea): bool

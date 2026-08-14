@@ -1,42 +1,52 @@
-import api from "@/api/api";
+import { getFacultyProposals, joinProposal } from "@/features/proposals/services/proposal.service";
 import Heading from "@/components/heading";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-	AppWindowIcon,
-	CheckCircle2,
-	Clock3,
-	Loader2,
-	Search,
-	UserRound,
-	Users,
-} from "lucide-react";
+	IconCheck,
+	IconClock,
+	IconLoader2,
+	IconSearch,
+} from "@tabler/icons-react";
 import { useMemo, useState } from "react";
+import { Link } from "react-router";
 import { toast } from "sonner";
+import { useHeaderInitializer } from "@/hooks/use-header-initializer";
+import { PAGE_META } from "@/constants/navigation";
+import { cn } from "@/lib/utils";
+
+const JOIN_LIMIT = 2;
 
 type ProjectTypeFilter = "all" | "special" | "capstone" | "master-thesis";
+type MajorFilter = "all" | "CSE" | "ECE";
 
 type FacultyProposal = {
 	id: number;
 	title: string;
 	description: string;
 	slug: string;
-	supervisor_name: string;
+	supervisorName: string;
 	fileUrl: string;
 	status: "pending" | "approved" | "rejected";
-	project_type: "special" | "capstone" | "master/thesis";
+	projectType: "special" | "capstone" | "master/thesis";
 	type: "faculty";
-	eligible_majors: "CSE" | "ECE" | "both";
-	max_students: number;
-	members_count: number;
-	available_slots: number;
-	is_joined: boolean;
-	application_status: "pending" | "accepted" | null;
+	eligibleMajors: "CSE" | "ECE" | "both";
+	maxStudents: number;
+	membersCount: number;
+	availableSlots: number;
+	isJoined: boolean;
+	applicationStatus: "pending" | "accepted" | null;
 };
 
 type FacultyProposalsResponse = {
@@ -48,20 +58,90 @@ type FacultyProposalsResponse = {
 	};
 };
 
-type MajorFilter = "all" | "CSE" | "ECE";
+// ── Constants ──────────────────────────────────────────────────────────────
+
+const TYPE_CONFIG = {
+	special: {
+		label: "Special",
+		badge: "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950 dark:text-violet-300",
+		topBar: "bg-violet-500",
+		avatar: "bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300",
+	},
+	capstone: {
+		label: "Capstone",
+		badge: "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950 dark:text-blue-300",
+		topBar: "bg-blue-500",
+		avatar: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
+	},
+	"master/thesis": {
+		label: "Master / Thesis",
+		badge: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950 dark:text-emerald-300",
+		topBar: "bg-emerald-500",
+		avatar: "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300",
+	},
+} as const;
+
+const STATUS_CONFIG = {
+	approved: "bg-emerald-50 text-emerald-700 border-emerald-200",
+	pending: "bg-amber-50 text-amber-700 border-amber-200",
+	rejected: "bg-rose-50 text-rose-700 border-rose-200",
+} as const;
+
+// ── Skeleton ───────────────────────────────────────────────────────────────
+
+function ProposalCardSkeleton() {
+	return (
+		<div className="rounded-xl border bg-card overflow-hidden animate-pulse">
+			<div className="h-1 w-full bg-muted" />
+			<div className="p-5 space-y-4">
+				<div className="flex items-center justify-between">
+					<Skeleton className="h-5 w-20 rounded-full" />
+					<Skeleton className="h-5 w-16 rounded-full" />
+				</div>
+				<Skeleton className="h-4 w-full" />
+				<div className="flex items-center gap-2.5">
+					<Skeleton className="h-8 w-8 rounded-full shrink-0" />
+					<div className="space-y-1.5">
+						<Skeleton className="h-3.5 w-28" />
+						<Skeleton className="h-3 w-16" />
+					</div>
+				</div>
+				<div className="space-y-1.5">
+					<Skeleton className="h-3 w-full" />
+					<Skeleton className="h-3 w-5/6" />
+					<Skeleton className="h-3 w-4/5" />
+				</div>
+				<div className="rounded-lg bg-muted/50 p-3 space-y-2">
+					<div className="flex justify-between">
+						<Skeleton className="h-3 w-24" />
+						<Skeleton className="h-3 w-10" />
+					</div>
+					<Skeleton className="h-1 w-full rounded-full" />
+					<div className="flex justify-between">
+						<Skeleton className="h-4 w-16 rounded-full" />
+						<Skeleton className="h-3 w-14" />
+					</div>
+				</div>
+				<Skeleton className="h-9 w-full rounded-lg" />
+			</div>
+		</div>
+	);
+}
+
+// ── Main Page ──────────────────────────────────────────────────────────────
 
 export default function FacultiesProposalsPage() {
+	useHeaderInitializer(PAGE_META.facultyProposals.title, PAGE_META.facultyProposals.subtitle);
+
 	const [activeTab, setActiveTab] = useState<ProjectTypeFilter>("all");
 	const [search, setSearch] = useState("");
 	const [majorFilter, setMajorFilter] = useState<MajorFilter>("all");
 	const queryClient = useQueryClient();
 	const authUser = useAuthStore((state) => state.authUser);
 
-	const userMajorNormalized = (authUser?.major ?? "").toLowerCase();
-
+	const userMajorNormalized = (authUser?.profile?.major ?? authUser?.major ?? "").toLowerCase();
 	const userMajorCategory: "CSE" | "ECE" | null =
-		userMajorNormalized.includes("cse") ||
-		userMajorNormalized.includes("computer science")
+		userMajorNormalized.includes("cse") || userMajorNormalized.includes("computer science")
 			? "CSE"
 			: userMajorNormalized.includes("ece") ||
 				  userMajorNormalized.includes("electronic") ||
@@ -69,322 +149,268 @@ export default function FacultiesProposalsPage() {
 				? "ECE"
 				: null;
 
-	const fetchFacultyProposals = async () => {
-		const res = await api.get<FacultyProposalsResponse>(
-			"/proposals/faculties",
-		);
-		return res.data;
-	};
-
-	const { data: facultyProposalsResponse, isLoading } = useQuery({
+	const { data: facultyProposalsResponse, isLoading } = useQuery<FacultyProposalsResponse>({
 		queryKey: ["facultyProposals"],
-		queryFn: fetchFacultyProposals,
+		queryFn: getFacultyProposals,
 		refetchOnWindowFocus: false,
 		staleTime: 30_000,
 	});
 
-	const joinProposalMutation = useMutation({
-		mutationFn: async (proposalSlug: string) => {
-			const res = await api.post(`/proposals/${proposalSlug}/join`);
-			return res.data;
-		},
+	const joinMutation = useMutation({
+		mutationFn: (slug: string) => joinProposal(slug),
 		onSuccess: async (response) => {
 			toast.success(response?.message ?? "Joined proposal successfully.");
 			await Promise.all([
-				queryClient.invalidateQueries({
-					queryKey: ["facultyProposals"],
-				}),
+				queryClient.invalidateQueries({ queryKey: ["facultyProposals"] }),
 				queryClient.invalidateQueries({ queryKey: ["myProposals"] }),
 			]);
 		},
 		onError: (error: any) => {
-			const message =
-				error?.response?.data?.message ?? "Failed to join proposal.";
-			toast.error(message);
+			toast.error(error?.response?.data?.message ?? "Failed to join proposal.");
 		},
 	});
 
 	const facultyProposals = facultyProposalsResponse?.data?.proposals ?? [];
-	const joinedProposalCount =
-		facultyProposalsResponse?.data?.joined_proposals_count ?? 0;
+	const joinedCount = facultyProposalsResponse?.data?.joined_proposals_count ?? 0;
 
-	const filteredProposals = useMemo(() => {
+	const filtered = useMemo(() => {
 		const q = search.toLowerCase();
-		return facultyProposals.filter((proposal) => {
+		return facultyProposals.filter((p) => {
 			const matchesType =
 				activeTab === "all"
-					? proposal.type === "faculty"
+					? true
 					: activeTab === "master-thesis"
-						? proposal.project_type === "master/thesis"
-						: proposal.project_type === activeTab;
-
+						? p.projectType === "master/thesis"
+						: p.projectType === activeTab;
 			const matchesSearch =
-				!q ||
-				proposal.title.toLowerCase().includes(q) ||
-				proposal.supervisor_name.toLowerCase().includes(q);
-
+				!q || p.title.toLowerCase().includes(q) || p.supervisorName.toLowerCase().includes(q);
 			const matchesMajor =
-				majorFilter === "all" ||
-				proposal.eligible_majors === "both" ||
-				proposal.eligible_majors === majorFilter;
-
+				majorFilter === "all" || p.eligibleMajors === "both" || p.eligibleMajors === majorFilter;
 			return matchesType && matchesSearch && matchesMajor;
 		});
 	}, [facultyProposals, activeTab, search, majorFilter]);
 
-	const getButtonState = (proposal: FacultyProposal) => {
-		const isMajorEligible =
-			proposal.eligible_majors === "both" ||
-			userMajorCategory === proposal.eligible_majors;
-		const hasReachedLimit = joinedProposalCount >= 3 && !proposal.is_joined;
-		const isTeamFull = proposal.available_slots === 0;
-		const isJoining =
-			joinProposalMutation.isPending &&
-			joinProposalMutation.variables === proposal.slug;
-		const isDisabled =
-			isJoining ||
-			proposal.is_joined ||
-			hasReachedLimit ||
-			isTeamFull ||
-			!isMajorEligible;
+	const getButtonState = (p: FacultyProposal) => {
+		const isMajorEligible = p.eligibleMajors === "both" || userMajorCategory === p.eligibleMajors;
+		const hasReachedLimit = joinedCount >= JOIN_LIMIT && !p.isJoined;
+		const isTeamFull = p.availableSlots === 0;
+		const isJoining = joinMutation.isPending && joinMutation.variables === p.slug;
+		const isDisabled = isJoining || p.isJoined || hasReachedLimit || isTeamFull || !isMajorEligible || p.status !== "approved";
 
-		let label = "Request to Join";
-		let icon: typeof CheckCircle2 | typeof Clock3 | typeof Loader2 | null =
-			null;
+		if (p.applicationStatus === "accepted")
+			return { isDisabled, label: "Joined", Icon: IconCheck, variant: "joined" as const };
+		if (p.applicationStatus === "pending")
+			return { isDisabled, label: "Request Pending", Icon: IconClock, variant: "pending" as const };
+		if (p.status !== "approved")
+			return { isDisabled: true, label: "Awaiting IC Approval", Icon: null, variant: "muted" as const };
+		if (hasReachedLimit)
+			return { isDisabled, label: `Limit Reached (${JOIN_LIMIT}/${JOIN_LIMIT})`, Icon: null, variant: "muted" as const };
+		if (isTeamFull)
+			return { isDisabled, label: "Team Full", Icon: null, variant: "muted" as const };
+		if (!isMajorEligible)
+			return { isDisabled, label: "Not Eligible For Your Major", Icon: null, variant: "muted" as const };
+		if (isJoining)
+			return { isDisabled, label: "Joining...", Icon: IconLoader2, variant: "loading" as const };
+		return { isDisabled: false, label: "Request to Join", Icon: null, variant: "default" as const };
+	};
 
-		if (proposal.application_status === "accepted") {
-			label = "Joined";
-			icon = CheckCircle2;
-		} else if (proposal.application_status === "pending") {
-			label = "Request Pending";
-			icon = Clock3;
-		} else if (hasReachedLimit) {
-			label = "Join Limit Reached";
-			icon = Clock3;
-		} else if (isTeamFull) {
-			label = "Team Full";
-			icon = CheckCircle2;
-		} else if (!isMajorEligible) {
-			label = "Not Eligible For Your Major";
-		} else if (isJoining) {
-			label = "Joining...";
-			icon = Loader2;
+	const buttonClass = (variant: string) => {
+		switch (variant) {
+			case "joined": return "bg-emerald-600 hover:bg-emerald-600 text-white";
+			case "pending": return "bg-amber-500 hover:bg-amber-500 text-white";
+			case "loading": return "bg-primary-600 text-white opacity-80";
+			case "muted": return "";
+			default: return "bg-primary-600 hover:bg-primary-700 text-white";
 		}
-
-		return {
-			isDisabled,
-			label,
-			icon,
-			isMajorEligible,
-			isTeamFull,
-			hasReachedLimit,
-		};
 	};
 
 	return (
 		<>
-			<div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-				<div>
-					<Heading title="Browse Faculty Proposals" />
-					<p className="mt-2 text-sm text-muted-foreground">
-						Join approved faculty proposals if your major matches
-						and you still have slots available.
-					</p>
+			{/* ── Header ── */}
+			<div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between mb-6">
+				<Heading
+					title="Faculty Proposals"
+					description="Browse and apply to approved proposals from faculty supervisors."
+				/>
+				<div className="flex items-center gap-2 shrink-0 self-start sm:mt-1">
+					<div className="rounded-full border bg-card px-4 py-1.5 text-sm">
+						Applied{" "}
+						<span className={`font-bold ${joinedCount >= JOIN_LIMIT ? "text-rose-600" : "text-foreground"}`}>
+							{joinedCount}/{JOIN_LIMIT}
+						</span>
+					</div>
+					<div className="rounded-full border bg-card px-4 py-1.5 text-sm text-muted-foreground">
+						{filtered.length} {filtered.length === 1 ? "result" : "results"}
+					</div>
 				</div>
-
-				<Tabs
-					value={activeTab}
-					onValueChange={(value) =>
-						setActiveTab(value as ProjectTypeFilter)
-					}
-				>
-					<TabsList className="space-x-3 py-5">
-						<TabsTrigger className="px-5 py-4" value="all">
-							<AppWindowIcon />
-							All
-						</TabsTrigger>
-						<TabsTrigger className="px-5 py-4" value="special">
-							<AppWindowIcon />
-							Special
-						</TabsTrigger>
-						<TabsTrigger className="px-5 py-4" value="capstone">
-							<AppWindowIcon />
-							Capstone
-						</TabsTrigger>
-						<TabsTrigger
-							className="px-5 py-4"
-							value="master-thesis"
-						>
-							<AppWindowIcon />
-							Master/Thesis
-						</TabsTrigger>
-					</TabsList>
-				</Tabs>
 			</div>
 
-			{/* Search + major filter */}
-			<div className="mt-4 flex flex-wrap items-center gap-3">
-				<div className="relative flex-1 min-w-56">
-					<Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+			{/* ── Filters ── */}
+			<div className="mb-6 flex flex-wrap items-center gap-3">
+				<div className="relative flex-1 min-w-56 max-w-sm">
+					<IconSearch
+						size={15}
+						className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+					/>
 					<Input
 						value={search}
 						onChange={(e) => setSearch(e.target.value)}
 						placeholder="Search by title or supervisor…"
-						className="pl-9 h-9 text-sm"
+						className="pl-9"
 					/>
 				</div>
 
-				<div className="flex items-center gap-1 rounded-lg border bg-muted/40 p-1">
-					{(["all", "CSE", "ECE"] as MajorFilter[]).map((m) => (
-						<button
-							key={m}
-							type="button"
-							onClick={() => setMajorFilter(m)}
-							className={`rounded-md px-3 py-1 text-sm font-medium transition-colors ${
-								majorFilter === m
-									? "bg-background shadow-sm text-foreground"
-									: "text-muted-foreground hover:text-foreground"
-							}`}
-						>
-							{m === "all" ? "All Majors" : m}
-						</button>
-					))}
-				</div>
+				<Select value={activeTab} onValueChange={(v) => setActiveTab(v as ProjectTypeFilter)}>
+					<SelectTrigger className="w-44">
+						<SelectValue placeholder="Project type" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="all">All Types</SelectItem>
+						<SelectItem value="special">Special</SelectItem>
+						<SelectItem value="capstone">Capstone</SelectItem>
+						<SelectItem value="master-thesis">Master / Thesis</SelectItem>
+					</SelectContent>
+				</Select>
+
+				<Select value={majorFilter} onValueChange={(v) => setMajorFilter(v as MajorFilter)}>
+					<SelectTrigger className="w-36">
+						<SelectValue placeholder="Major" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="all">All Majors</SelectItem>
+						<SelectItem value="CSE">CSE</SelectItem>
+						<SelectItem value="ECE">ECE</SelectItem>
+					</SelectContent>
+				</Select>
 			</div>
 
-			<div className="mt-3 flex flex-wrap gap-3 text-sm text-muted-foreground">
-				<div className="rounded-full border bg-muted/40 px-3 py-1.5">
-					Joined proposals:{" "}
-					<span className="font-semibold text-foreground">
-						{joinedProposalCount}/3
-					</span>
-				</div>
-				<div className="rounded-full border bg-muted/40 px-3 py-1.5">
-					Loaded proposals:{" "}
-					<span className="font-semibold text-foreground">
-						{facultyProposals.length}
-					</span>
-				</div>
-			</div>
-
+			{/* ── Grid ── */}
 			{isLoading ? (
-				<div className="mt-8 flex items-center justify-center rounded-2xl border border-dashed py-16 text-sm text-muted-foreground">
-					<Loader2 className="mr-2 size-4 animate-spin" />
-					Loading faculty proposals...
+				<div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+					{[...Array(6)].map((_, i) => <ProposalCardSkeleton key={i} />)}
 				</div>
-			) : filteredProposals.length === 0 ? (
-				<div className="mt-8 rounded-2xl border border-dashed p-8 text-center text-muted-foreground">
-					No faculty proposals found for the selected filters.
+			) : filtered.length === 0 ? (
+				<div className="flex flex-col items-center justify-center rounded-2xl border border-dashed py-20 text-center">
+					<p className="text-sm text-muted-foreground">
+						No proposals found for the selected filters.
+					</p>
 				</div>
 			) : (
-				<div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 md:grid-cols-3">
-					{filteredProposals.map((proposal) => {
-						const {
-							isDisabled,
-							label,
-							icon: ButtonIcon,
-						} = getButtonState(proposal);
+				<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+					{filtered.map((proposal) => {
+						const { isDisabled, label, Icon: BtnIcon, variant } = getButtonState(proposal);
+						const typeConfig = TYPE_CONFIG[proposal.projectType] ?? TYPE_CONFIG["special"];
+						const capacityPct = Math.round((proposal.membersCount / proposal.maxStudents) * 100);
+						const supervisorInitials = proposal.supervisorName
+							.split(" ")
+							.map((n: string) => n[0])
+							.join("")
+							.slice(0, 2)
+							.toUpperCase();
 
 						return (
-							<Card
+							<div
 								key={proposal.slug}
-								className="rounded-2xl border border-slate-200 bg-slate-50/70 shadow-none"
+								className="flex flex-col rounded-xl border bg-card overflow-hidden hover:shadow-sm transition-shadow duration-200"
 							>
-								<CardContent className="space-y-4 p-4">
-									<div className="flex items-start justify-between gap-3">
-										<div className="flex min-w-0 items-center gap-3">
-											<div className="rounded-full bg-slate-200 p-2.5 text-blue-600">
-												<UserRound className="size-5" />
-											</div>
-											<div className="min-w-0">
-												<p className="truncate text-sm font-semibold leading-none">
-													{proposal.supervisor_name}
-												</p>
-												<p className="text-sm text-muted-foreground">
-													Supervisor
-												</p>
-											</div>
-										</div>
-										<Badge
-											variant="secondary"
-											className="border-0 bg-slate-200 px-2.5 py-0.5 text-[11px] capitalize text-slate-700"
-										>
+								{/* Colored top accent bar */}
+								<div className={cn("h-1 w-full shrink-0", typeConfig.topBar)} />
+
+								<div className="flex flex-col gap-4 p-5 flex-1">
+									{/* Badges */}
+									<div className="flex items-center justify-between gap-2">
+										<Badge variant="outline" className={cn("text-xs font-medium", typeConfig.badge)}>
+											{typeConfig.label}
+										</Badge>
+										<Badge variant="outline" className={cn("text-xs capitalize", STATUS_CONFIG[proposal.status])}>
 											{proposal.status}
 										</Badge>
 									</div>
 
-									<div>
-										<h3 className="text-lg font-semibold leading-tight line-clamp-2">
-											{proposal.title}
-										</h3>
-										<p className="mt-2 line-clamp-3 text-sm leading-relaxed text-slate-600">
-											{proposal.description}
-										</p>
+									{/* Title */}
+									<Link
+										to={`/proposals/faculty/${proposal.slug}/detail`}
+										className="font-semibold text-sm leading-snug line-clamp-2 -mt-1 hover:text-primary-600 transition-colors">
+										{proposal.title}
+									</Link>
+
+									{/* Supervisor */}
+									<div className="flex items-center gap-2.5">
+										<div className={cn(
+											"flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[11px] font-bold",
+											typeConfig.avatar,
+										)}>
+											{supervisorInitials}
+										</div>
+										<div>
+											<p className="text-sm font-medium leading-none">{proposal.supervisorName}</p>
+											<p className="text-xs text-muted-foreground mt-0.5">Supervisor</p>
+										</div>
 									</div>
 
-									<div className="rounded-xl bg-slate-200 px-4 py-3">
-										<div className="flex items-center justify-between gap-3">
-											<div className="flex items-center gap-2 text-slate-700">
-												<Users className="size-5" />
-												<span className="text-sm">
-													Team capacity
-												</span>
-											</div>
-											<div className="text-base font-semibold">
-												{proposal.members_count}/
-												{proposal.max_students}
-												{proposal.available_slots ===
-													0 && (
-													<span className="ml-2 text-sm font-medium text-red-500">
-														Full
-													</span>
+									{/* Description */}
+									<p className="text-xs text-muted-foreground leading-relaxed line-clamp-3 flex-1">
+										{proposal.description}
+									</p>
+
+									{/* Capacity block */}
+									<div className="rounded-lg bg-muted/50 px-3 py-2.5 space-y-2">
+										<div className="flex items-center justify-between text-xs">
+											<span className="text-muted-foreground">Team capacity</span>
+											<span className="font-semibold tabular-nums">
+												{proposal.membersCount}/{proposal.maxStudents}
+											</span>
+										</div>
+										<div className="h-1 w-full rounded-full bg-muted overflow-hidden">
+											<div
+												className={cn(
+													"h-full rounded-full transition-all",
+													capacityPct >= 100 ? "bg-rose-500" : capacityPct >= 70 ? "bg-amber-500" : "bg-emerald-500",
 												)}
-											</div>
+												style={{ width: `${Math.min(capacityPct, 100)}%` }}
+											/>
 										</div>
-										<div className="mt-2 flex flex-wrap gap-2 text-[11px] text-slate-600">
-											<span className="rounded-full bg-white/70 px-2.5 py-1">
-												Eligible majors:{" "}
-												{proposal.eligible_majors}
+										<div className="flex items-center justify-between text-xs text-muted-foreground">
+											<span className="rounded-full bg-background border px-2 py-0.5">
+												{proposal.eligibleMajors === "both" ? "CSE & ECE" : proposal.eligibleMajors}
 											</span>
-											<span className="rounded-full bg-white/70 px-2.5 py-1">
-												Slots left:{" "}
-												{proposal.available_slots}
-											</span>
-											{proposal.application_status ===
-												"accepted" && (
-												<span className="rounded-full bg-emerald-100 px-2.5 py-1 text-emerald-700">
-													Already joined
-												</span>
-											)}
-											{proposal.application_status ===
-												"pending" && (
-												<span className="rounded-full bg-amber-100 px-2.5 py-1 text-amber-700">
-													Pending approval
-												</span>
+											{proposal.availableSlots === 0 ? (
+												<span className="text-rose-500 font-medium">Team full</span>
+											) : (
+												<span>{proposal.availableSlots} slot{proposal.availableSlots !== 1 ? "s" : ""} left</span>
 											)}
 										</div>
 									</div>
 
+									{/* Application status banner */}
+									{proposal.applicationStatus === "accepted" && (
+										<div className="rounded-lg bg-emerald-50 dark:bg-emerald-950/30 px-3 py-2 text-xs font-medium text-emerald-700 dark:text-emerald-400 text-center">
+											You joined this proposal
+										</div>
+									)}
+									{proposal.applicationStatus === "pending" && (
+										<div className="rounded-lg bg-amber-50 dark:bg-amber-950/30 px-3 py-2 text-xs font-medium text-amber-700 dark:text-amber-400 text-center">
+											Application pending approval
+										</div>
+									)}
+
+									{/* Action button */}
 									<Button
-										className="h-10 w-full rounded-xl bg-primary-600 text-sm hover:bg-primary-700"
+										className={cn("h-9 w-full rounded-lg text-sm font-medium", buttonClass(variant))}
 										disabled={isDisabled}
-										onClick={() =>
-											joinProposalMutation.mutate(
-												proposal.slug,
-											)
-										}
-										type="button"
-										variant={
-											isDisabled ? "outline" : "default"
-										}
+										onClick={() => joinMutation.mutate(proposal.slug)}
+										variant={variant === "muted" ? "outline" : "default"}
 									>
-										{ButtonIcon ? (
-											<ButtonIcon className="size-4" />
-										) : null}
+										{BtnIcon && (
+											<BtnIcon
+												size={14}
+												className={cn("mr-1.5", variant === "loading" && "animate-spin")}
+											/>
+										)}
 										{label}
 									</Button>
-								</CardContent>
-							</Card>
+								</div>
+							</div>
 						);
 					})}
 				</div>

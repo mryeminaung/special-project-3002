@@ -1,4 +1,5 @@
-import { cn, PROPOSAL_STATUS_COLOR } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { proposalStatusColor } from "@/constants/badge-colors";
 import { Badge } from "./ui/badge";
 
 export default function StatusCard({
@@ -15,7 +16,7 @@ export default function StatusCard({
 			<p className="font-semibold">{label}</p>
 			<Badge
 				className={cn(
-					(colorFn || PROPOSAL_STATUS_COLOR)(status),
+					(colorFn || proposalStatusColor)(status),
 					"font-mono capitalize px-3 rounded-md",
 				)}>
 				{status}

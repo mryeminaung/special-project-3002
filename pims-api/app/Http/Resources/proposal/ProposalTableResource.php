@@ -17,7 +17,7 @@ class ProposalTableResource extends JsonResource
             'type'        => $this->type->value,
             'projectType' => $this->project_type->value,
             'status'      => $this->status->value,
-            'submittedAt' => $this->submitted_at->format('d-m-Y'),
+            'submittedAt' => $this->submitted_at->format('Y-m-d'),
         ];
     }
 }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\Admin\DepartmentController;
+use App\Http\Controllers\Api\Admin\RankController;
 use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\Auth\AuthController;
 use App\Http\Controllers\Api\CommentController;
@@ -108,6 +109,8 @@ Route::prefix('v1')->group(function () {
 
         // Users
         Route::get('/students-for-proposal', [UserController::class, 'getStudentsForProposal']);
+        Route::get('/students', [UserController::class, 'getStudents']);
+        Route::get('/students/filters', [UserController::class, 'getStudentFilters']);
 
         // Files
         Route::controller(FileController::class)->group(function () {
@@ -121,6 +124,10 @@ Route::prefix('v1')->group(function () {
         // Admin
         Route::prefix('admin')->middleware('role:admin')->group(function () {
             Route::apiResource('departments', DepartmentController::class);
+            Route::get('/departments/{id}/detail', [DepartmentController::class, 'detail']);
+            Route::get('/ranks', [RankController::class, 'index']);
+            Route::put('/faculties/{id}', [FacultyController::class, 'update']);
+            Route::post('/faculties/{id}/reset-password', [FacultyController::class, 'resetPassword']);
         });
     });
 });

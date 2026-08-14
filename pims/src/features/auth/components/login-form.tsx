@@ -1,3 +1,4 @@
+import GradientWrapper from "@/components/gradient-wrapper";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -87,10 +88,10 @@ export function LoginForm() {
 	};
 
 	return (
-		<div className="max-w-145 drop-shadow-2xl drop-shadow-primary-50/20 w-full">
-			{/* <GradientWrapper> */}
-			<Card className="overflow-hidden p-3 rounded-3xl px-1 sm:px-3 md:px-8 py-8">
-				<CardHeader className="flex justify-center items-center">
+		<div className="max-w-lg w-full">
+			<GradientWrapper>
+				<Card className="overflow-hidden rounded-[22px] bg-white dark:bg-gray-900 border-0 shadow-2xl px-6 sm:px-8 md:px-10 pt-4 pb-8">
+				<CardHeader className="flex justify-center items-center pt-0 pb-0 px-0 mb-2">
 					<img
 						key={theme}
 						src={
@@ -98,11 +99,11 @@ export function LoginForm() {
 							// theme === "dark" ? "/wordmark_light_text.png" : "/wordmark.png"
 						}
 						alt="MIIT SPMS Logo"
-						className="max-h-36 w-full md:max-w-3xl object-contain"
+						className="w-3/4 object-contain"
 					/>
 				</CardHeader>
-				<Separator />
-				<CardContent className="">
+				<Separator className="mb-4 bg-primary-600 h-[3px]" />
+				<CardContent className="p-0">
 					<form
 						autoComplete="off"
 						onSubmit={handleSubmit(onSubmit)}>
@@ -114,7 +115,7 @@ export function LoginForm() {
 										{...register("email")}
 										id="email"
 										type="email"
-										className="py-5.5 focus:ring-primary-900 border[1.5px] rounded-xl"
+										className="py-5 border-2 border-gray-300 rounded-xl"
 										placeholder="example@miit.edu.mm"
 									/>
 									<Tooltip>
@@ -141,7 +142,7 @@ export function LoginForm() {
 										{...register("password")}
 										placeholder="********"
 										id="password"
-										className="py-5.5 focus:ring-primary-900 pr-12 border[1.5px] rounded-xl"
+										className="py-5 border-2 border-gray-300 pr-12 rounded-xl"
 										type={showPwd ? "text" : "password"}
 									/>
 									{showPwd ? (
@@ -202,7 +203,7 @@ export function LoginForm() {
 								</Link>
 							</div>
 							<Button
-								className="bg-primary-900 hover:cursor-pointer rounded-xl py-5.5 hover:bg-primary-800 mt-3 text-[15px] text-white dark:text-neutral-100"
+								className="bg-primary-900 hover:cursor-pointer rounded-xl py-5 hover:bg-primary-800 mt-2 text-[15px] text-white dark:text-neutral-100"
 								type="submit"
 								disabled={isSubmitting}>
 								<IconLogin2 />
@@ -216,7 +217,7 @@ export function LoginForm() {
 					</form>
 				</CardContent>
 			</Card>
-			{/* </GradientWrapper> */}
+			</GradientWrapper>
 		</div>
 	);
 }

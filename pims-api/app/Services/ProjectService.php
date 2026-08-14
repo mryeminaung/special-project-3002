@@ -12,12 +12,12 @@ class ProjectService
 {
     public function list(): Collection
     {
-        return Project::with(['leader', 'supervisor', 'members'])->get();
+        return Project::with(['leader', 'supervisor', 'members', 'area'])->get();
     }
 
     public function studentProjects(User $user): Collection
     {
-        return Project::with(['leader', 'supervisor', 'members'])
+        return Project::with(['leader', 'supervisor', 'members', 'area'])
             ->where('leader_id', $user->id)
             ->orWhereHas('members', function ($query) use ($user) {
                 $query->where('users.id', $user->id);
@@ -27,7 +27,7 @@ class ProjectService
 
     public function assignedProjects(User $supervisor): Collection
     {
-        return Project::with(['leader', 'supervisor', 'members'])
+        return Project::with(['leader', 'supervisor', 'members', 'area'])
             ->where('supervisor_id', $supervisor->id)
             ->get();
     }

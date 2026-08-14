@@ -1,4 +1,9 @@
-﻿import api from "@/api/api";
+﻿import {
+	getComments,
+	createComment,
+	editComment,
+	deleteComment,
+} from "../services/proposal.service";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -58,25 +63,19 @@ export default function CommentBox({
 
 	const { data: comments = [] } = useQuery({
 		queryKey,
-		queryFn: async () => {
-			const res = await api.get(`/comments/${proposalId}`);
-			return res.data.data as Comment[];
-		},
+		queryFn: () => getComments(proposalId),
 	});
 
 	const invalidate = () => queryClient.invalidateQueries({ queryKey });
 
 	const deleteMutation = useMutation({
-		mutationFn: (commentId: number) => api.delete(`/comments/${commentId}`),
+		mutationFn: (commentId: number) => deleteComment(commentId),
 		onSuccess: invalidate,
 	});
 
 	const editMutation = useMutation({
 		mutationFn: ({ commentId, description }: { commentId: number; description: string }) =>
-			api.patch(`/comments/${proposalId}/${commentId}`, {
-				description,
-				proposal_id: proposalId,
-			}),
+			editComment(proposalId, commentId, description),
 		onSuccess: () => {
 			setEditingComment(null);
 			setEditText("");
@@ -85,7 +84,7 @@ export default function CommentBox({
 	});
 
 	const addMutation = useMutation({
-		mutationFn: (data: z.infer<typeof CommentSchema>) => api.post("/comments", data),
+		mutationFn: (data: z.infer<typeof CommentSchema>) => createComment(data),
 		onSuccess: () => { reset(); invalidate(); },
 	});
 

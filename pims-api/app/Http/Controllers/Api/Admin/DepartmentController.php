@@ -35,6 +35,13 @@ class DepartmentController extends Controller
         return $this->successResponse('Department retrieved successfully', $department);
     }
 
+    public function detail(int $id)
+    {
+        $department = $this->departmentService->detail($id);
+
+        return $this->successResponse('Department detail retrieved successfully', $department);
+    }
+
     public function update(DepartmentRequest $request, Department $department)
     {
         $department = $this->departmentService->update($department, $request->validated());

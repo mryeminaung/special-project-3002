@@ -1,4 +1,4 @@
-import api from "@/api/api";
+import { getDashboardData } from "../../services/dashboard.service";
 import { PAGE_META, HEADINGS } from "@/constants/navigation";
 import Heading from "@/components/heading";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
@@ -7,14 +7,9 @@ import { FacultyCards } from "./components/faculty-card";
 
 export default function FacultyDashboard() {
 	useHeaderInitializer(PAGE_META.facultyDashboard.title, PAGE_META.facultyDashboard.subtitle);
-	const fetchFacultyDashboardData = async () => {
-		const res = await api.get("/dashboard");
-		return res.data;
-	};
-
 	const { data: facultyDashboardData } = useQuery({
 		queryKey: ["FacultyDashboardData"],
-		queryFn: fetchFacultyDashboardData,
+		queryFn: getDashboardData,
 	});
 
 	return (

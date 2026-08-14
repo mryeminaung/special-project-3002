@@ -1,36 +1,13 @@
-import api from "@/api/api";
+import { getAssignedProjects } from "@/features/projects/services/project.service";
 import { HEADINGS } from "@/constants/navigation";
 import Heading from "@/components/heading";
 import { useQuery } from "@tanstack/react-query";
 import AssignedProjectsTable from "../components/assigned-projects-table";
 
-type User = {
-	id: number;
-	name: string;
-	email: string;
-};
-
-type ProjectData = {
-	id: number;
-	name: string;
-	slug: string;
-	description: string;
-	supervisor: User;
-	leader: User;
-	members: User[];
-	status: "active" | "completed" | "under review";
-	startedAt: string;
-};
-
 export default function AssignedProjects() {
-	const fetchAssignedProjects = async () => {
-		const res = await api.get("/projects/assigned");
-		return res.data.data;
-	};
-
-	const { data: assignedProjects } = useQuery({
+	const { data: assignedProjects, isFetching } = useQuery({
 		queryKey: ["assignedProjects"],
-		queryFn: fetchAssignedProjects,
+		queryFn: getAssignedProjects,
 	});
 
 	return (
@@ -40,9 +17,7 @@ export default function AssignedProjects() {
 				description={HEADINGS.assignedProjects.description}
 			/>
 
-			{assignedProjects && (
-				<AssignedProjectsTable projects={assignedProjects} />
-			)}
+			<AssignedProjectsTable projects={assignedProjects ?? []} isLoading={isFetching} />
 		</div>
 	);
 }

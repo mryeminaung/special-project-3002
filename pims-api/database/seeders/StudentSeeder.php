@@ -27,6 +27,7 @@ class StudentSeeder extends Seeder
                 'major_id'          => $majorId,
                 'phone_number'      => $this->generateMyanmarPhoneNumber(),
                 'graduation_status' => 'Active',
+                'batch'             => $parts[0],
             ];
         }
 

@@ -1,4 +1,5 @@
-import api from "@/api/api";
+import { updateSeminarDeadlines } from "../services/student-project.service";
+import { toInputDateTime } from "@/lib/date";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQueryClient } from "@tanstack/react-query";
 import { Loader2, Save } from "lucide-react";
@@ -13,38 +14,6 @@ type SeminarCardProps = {
 		midSeminar?: boolean;
 	};
 };
-
-function toInputDateTime(value?: string | null): string {
-	if (!value) return "";
-	const parsedDate = new Date(value);
-
-	if (!Number.isNaN(parsedDate.getTime())) {
-		const year = parsedDate.getFullYear();
-		const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
-		const day = String(parsedDate.getDate()).padStart(2, "0");
-		const hours = String(parsedDate.getHours()).padStart(2, "0");
-		const minutes = String(parsedDate.getMinutes()).padStart(2, "0");
-		return `${year}-${month}-${day}T${hours}:${minutes}`;
-	}
-
-	return value.replace(" ", "T").slice(0, 16);
-}
-
-function formatDisplayDateTime(value?: string | null): string {
-	if (!value) return "Not scheduled";
-	const date = new Date(value);
-
-	if (Number.isNaN(date.getTime())) return "Not scheduled";
-
-	return date.toLocaleString(undefined, {
-		month: "short",
-		day: "numeric",
-		year: "numeric",
-		hour: "numeric",
-		minute: "2-digit",
-		hour12: true,
-	});
-}
 
 export default function SeminarDeadline({
 	slug,
@@ -66,7 +35,7 @@ export default function SeminarDeadline({
 		setFinalDeadline(toInputDateTime(finalSeminarDeadline));
 	}, [finalSeminarDeadline, midSeminarDeadline]);
 
-	const isMidSeminarCompleted = progressStatus?.midSeminar === false;
+	const isMidSeminarCompleted = !!progressStatus?.midSeminar;
 	const canEditMidDeadline = !isMidSeminarCompleted;
 	const canEditFinalDeadline = isMidSeminarCompleted;
 
@@ -108,7 +77,7 @@ export default function SeminarDeadline({
 
 		try {
 			setIsSaving(true);
-			await api.patch(`/projects/${slug}/seminar-deadlines`, payload);
+			await updateSeminarDeadlines(slug, payload);
 
 			await queryClient.invalidateQueries({
 				queryKey: ["projectDetail", slug],

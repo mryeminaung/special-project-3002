@@ -22,7 +22,8 @@ class StudentProposalResource extends JsonResource
             'supervisor'     => $this->supervisor ? new MemberResource($this->supervisor) : null,
             'status'         => $this->status->value,
             'members'        => MemberResource::collection($this->whenLoaded('members', fn() => $this->members, collect())),
-            'submittedAt'    => $this->submitted_at->format('d-m-Y'),
+            'projectArea'    => $this->area?->name,
+            'submittedAt'    => $this->submitted_at->format('Y-m-d'),
         ];
     }
 }

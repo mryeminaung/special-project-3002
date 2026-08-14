@@ -1,4 +1,4 @@
-import api from "@/api/api";
+import { getMyProjects } from "../services/student-project.service";
 import { PAGE_META, HEADINGS } from "@/constants/navigation";
 import Heading from "@/components/heading";
 import { Button } from "@/components/ui/button";
@@ -24,10 +24,7 @@ export default function MyProjects() {
 
 	const { data: projects, isLoading } = useQuery({
 		queryKey: ["my-projects"],
-		queryFn: async () => {
-			const res = await api.get("/projects/me");
-			return res.data;
-		},
+		queryFn: getMyProjects,
 	});
 
 	const projectList = projects?.data || [];
@@ -77,7 +74,7 @@ export default function MyProjects() {
 					<SelectContent>
 						<SelectItem value="all">All Status</SelectItem>
 						<SelectItem value="active">Active</SelectItem>
-						<SelectItem value="under_review">Under Review</SelectItem>
+						<SelectItem value="under review">Under Review</SelectItem>
 						<SelectItem value="completed">Completed</SelectItem>
 					</SelectContent>
 				</Select>

@@ -13,6 +13,7 @@ import {
 import { useState } from "react";
 import { Link } from "react-router";
 import { toast } from "sonner";
+import { formatDate } from "@/lib/date";
 import type { EventType } from "../events.type";
 import EventSelectionModal from "./event-selection-modal";
 
@@ -21,16 +22,6 @@ type EventCardProps = {
 	title: string;
 	icon?: React.ReactNode;
 };
-
-function formatDate(dateStr: string) {
-	if (!dateStr) return "";
-	const d = dateStr.includes("T")
-		? new Date(dateStr)
-		: new Date(`${dateStr}T00:00:00`);
-	return isNaN(d.getTime())
-		? dateStr
-		: d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
-}
 
 export default function EventCard({ eventType, title, icon }: EventCardProps) {
 	const isEnrollmentOpen = useEventStore(
