@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\ProjectStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
-use App\Models\Project;
 use App\Models\User;
 use App\Services\FacultyService;
 use App\Traits\ApiResponse;
+use Illuminate\Support\Facades\Storage;
 
 class FacultyController extends Controller
 {
@@ -19,7 +20,7 @@ class FacultyController extends Controller
 
     public function index()
     {
-        return UserResource::collection($this->facultyService->list());
+        return $this->successResponse('Faculties retrieved successfully.', UserResource::collection($this->facultyService->list()));
     }
 
     public function show(string $id) {}
@@ -38,7 +39,7 @@ class FacultyController extends Controller
                 'department'     => $data['user']->faculty?->department?->name,
                 'phone'          => $data['user']->faculty?->phone_number,
                 'address'        => $data['user']->faculty?->address,
-                'imageUrl'       => $data['user']->avatar_url,
+                'imageUrl'       => $data['user']->avatar_url ? Storage::disk('public')->url($data['user']->avatar_url) : null,
                 'activeProjects' => $data['activeProjects']->map(fn($p) => [
                     'id'       => $p->id,
                     'title'    => $p->name,
@@ -56,30 +57,60 @@ class FacultyController extends Controller
 
     public function getFacultiesForProposal()
     {
-        $faculties = User::where('is_student', false,)
-            ->whereNotIn('id', function ($query) {
-                $query->select('model_id')->from('model_has_roles')
-                    ->where('model_type', User::class)
-                    ->whereIn('role_id', function ($q) {
-                        $q->select('id')->from('roles')
-                            ->whereIn('name', ['admin', 'student-affairs']);
-                    });
-            })
-            ->with('faculty')
+        $faculties = User::role('faculty')
+            ->with('faculty.rank', 'faculty.department')
+            ->withCount(['projects as workload_count' => fn($q) => $q->where('status', ProjectStatus::Active)])
             ->get();
 
         $data = $faculties->map(fn($user) => [
-            'id'             => $user->id,
-            'name'           => $user->name,
-            'role'           => $user->roles->pluck('name'),
-            'email'          => $user->email,
-            'department'     => $user->faculty?->department?->name,
-            'workload_count' => Project::where('supervisor_id', $user->id)
-                ->where('status', 'active')
-                ->count(),
-            'max_capacity'   => 5,
+            'id'           => $user->id,
+            'name'         => $user->name,
+            'email'        => $user->email,
+            'rank'         => $user->faculty?->rank?->name,
+            'department'   => $user->faculty?->department?->name,
+            'workloadCount' => $user->workload_count,
+            'maxCapacity'  => 5,
         ]);
 
         return $this->successResponse('Faculties retrieved successfully.', $data);
+    }
+
+    public function update(string $id)
+    {
+        $data = request()->validate([
+            'name'          => 'required|string|max:255',
+            'email'         => 'required|email|max:255|unique:users,email,' . $id . ',id',
+            'phone_number'  => 'nullable|string|max:20',
+            'address'       => 'nullable|string',
+            'department_id' => 'nullable|integer|exists:departments,id',
+            'rank_id'       => 'nullable|integer|exists:ranks,id',
+        ]);
+
+        $user = $this->facultyService->update((int) $id, $data);
+
+        return $this->successResponse(
+            'Faculty updated successfully.',
+            [
+                'id'            => $user->id,
+                'name'          => $user->name,
+                'email'         => $user->email,
+                'rank'          => $user->faculty?->rank?->name,
+                'rank_id'       => $user->faculty?->rank_id,
+                'department'    => $user->faculty?->department?->name,
+                'department_id' => $user->faculty?->department_id,
+                'phone'         => $user->faculty?->phone_number,
+                'address'       => $user->faculty?->address,
+            ]
+        );
+    }
+
+    public function resetPassword(string $id)
+    {
+        $tempPassword = $this->facultyService->resetPassword((int) $id);
+
+        return $this->successResponse(
+            'Password reset successfully. Temporary password: ' . $tempPassword,
+            ['temp_password' => $tempPassword]
+        );
     }
 }

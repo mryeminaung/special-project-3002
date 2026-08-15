@@ -6,8 +6,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Faculty extends Model
 {
-    public $timestamps = false;
-
     protected $fillable = ['phone_number', 'address', 'user_id', 'rank_id', 'department_id'];
 
     public function user()
@@ -25,8 +23,4 @@ class Faculty extends Model
         return $this->belongsTo(Rank::class);
     }
 
-    public function projects()
-    {
-        return $this->hasMany(Project::class, "supervisor_id");
-    }
 }

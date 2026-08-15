@@ -1,6 +1,5 @@
-import api from "@/api/api";
+import { getSupervisorDetail, type SupervisorDetailResponse } from "../services/supervisor.service";
 import { PAGE_META } from "@/constants/navigation";
-import PageWrapper from "@/components/common/page-wrapper";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -15,53 +14,49 @@ import { useQuery } from "@tanstack/react-query";
 import { ArrowLeftIcon, User } from "lucide-react";
 import { useNavigate, useParams } from "react-router";
 
-type SupervisorDetailResponse = {
-	id: number;
-	name: string;
-	email: string;
-	rank?: string | null;
-	faculty?: string | null;
-	phone?: string | null;
-	imageUrl?: string | null;
-	activeProjects: { id: number; title: string; students: string }[];
-	pastProjects: {
-		id: number;
-		title: string;
-		year?: string | null;
-		outcome: string;
-	}[];
-};
-
 export default function SupervisorDetail() {
 	useHeaderInitializer(PAGE_META.supervisorDetail.title, PAGE_META.supervisorDetail.subtitle);
 	const navigate = useNavigate();
 	const { id } = useParams();
 
-	const fetchSupervisorDetail = async () => {
-		const res = await api.get<SupervisorDetailResponse>(
-			`/supervisors/${id}/detail`,
-		);
-		return res.data;
-	};
-
-	const { data: supervisor, isLoading } = useQuery({
+	const { data: supervisor, isLoading } = useQuery<SupervisorDetailResponse>({
 		queryKey: ["supervisor-detail", id],
-		queryFn: fetchSupervisorDetail,
+		queryFn: () => getSupervisorDetail(id!),
 		enabled: Boolean(id),
 	});
 
-	if (isLoading || !supervisor) {
+	if (isLoading) {
 		return (
-			<PageWrapper>
-				<div className="text-sm text-muted-foreground">
-					Loading supervisor detail...
+			<div className="space-y-6 animate-pulse">
+				<div className="h-5 w-36 rounded bg-muted" />
+				<div className="rounded-lg bg-card border p-6">
+					<div className="flex gap-5 items-center">
+						<div className="h-28 w-28 rounded-2xl bg-muted shrink-0" />
+						<div className="space-y-2 flex-1">
+							<div className="h-6 w-52 rounded bg-muted" />
+							<div className="h-4 w-40 rounded bg-muted" />
+							<div className="h-4 w-32 rounded bg-muted" />
+						</div>
+						<div className="h-9 w-28 rounded-md bg-muted ml-auto" />
+					</div>
 				</div>
-			</PageWrapper>
+				<div className="grid grid-cols-3 gap-4">
+					{[...Array(3)].map((_, i) => <div key={i} className="h-20 rounded-lg bg-muted" />)}
+				</div>
+				<div className="grid grid-cols-3 gap-8">
+					<div className="space-y-3">
+						{[...Array(3)].map((_, i) => <div key={i} className="h-16 rounded-lg bg-muted" />)}
+					</div>
+					<div className="col-span-2 h-56 rounded-lg bg-muted" />
+				</div>
+			</div>
 		);
 	}
 
+	if (!supervisor) return null;
+
 	return (
-		<PageWrapper>
+		<>
 			<Button
 				onClick={() => navigate("/supervisors")}
 				variant="ghost"
@@ -207,6 +202,6 @@ export default function SupervisorDetail() {
 					</Card>
 				</div>
 			</div>
-		</PageWrapper>
+		</>
 	);
 }

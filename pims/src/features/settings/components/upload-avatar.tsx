@@ -1,20 +1,17 @@
-import api from "@/api/api";
+import { uploadProfilePicture, deleteProfilePicture } from "../services/settings.service";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useAuthStore } from "@/stores/use-auth-store";
+import { getInitials } from "@/lib/utils";
 import { IconCamera, IconLoader2 } from "@tabler/icons-react";
 import { useRef, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
 
 export default function ChangeAvatar() {
 	const authUser = useAuthStore((state) => state.authUser);
-	const setAuth = useAuthStore((state) => state.setAuth);
+	const updateAuthUser = useAuthStore((state) => state.updateAuthUser);
 
-	const avatarFallbackName = authUser?.name
-		?.split(" ")
-		.slice(1, 3)
-		.map((name: string) => name[0])
-		.join("");
+	const avatarFallbackName = authUser?.name ? getInitials(authUser.name) : "";
 
 	const fileInputRef = useRef<HTMLInputElement>(null);
 	const [uploadStatus, setUploadStatus] = useState<
@@ -39,10 +36,8 @@ export default function ChangeAvatar() {
 		formData.append("avatar_url", file);
 
 		try {
-			const res = await api.post("/upload-profile-picture", formData, {
-				headers: { "Content-Type": "multipart/form-data" },
-			});
-			setAuth(res.data);
+			const resData = await uploadProfilePicture(formData);
+			updateAuthUser(resData?.data);
 			setUploadStatus("saved");
 			toast.success("Profile picture uploaded!");
 			setTimeout(() => setUploadStatus("idle"), 2000);
@@ -57,8 +52,8 @@ export default function ChangeAvatar() {
 
 		setIsRemoving(true);
 		try {
-			const res = await api.delete("/delete-profile-picture");
-			setAuth(res.data);
+			const resData = await deleteProfilePicture();
+			updateAuthUser(resData?.data);
 			setIsPreviewing(null);
 			toast.success("Profile picture removed!");
 		} catch (error) {
@@ -73,8 +68,8 @@ export default function ChangeAvatar() {
 			<Toaster />
 			<div className="flex items-center gap-4">
 				<Avatar className="size-20 border-2 border-primary-100">
-					{authUser?.avatar_url !== null ? (
-						<AvatarImage src={authUser?.avatar_url} />
+					{(isPreviewing ?? authUser?.avatar_url) ? (
+						<AvatarImage src={isPreviewing ?? authUser?.avatar_url} />
 					) : (
 						<AvatarFallback className="bg-primary-50 text-primary-700">
 							{avatarFallbackName}

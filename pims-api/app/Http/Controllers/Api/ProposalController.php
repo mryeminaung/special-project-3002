@@ -9,6 +9,7 @@ use App\Http\Resources\proposal\BrowseFacultyResource;
 use App\Http\Resources\proposal\FacultyProposalResource;
 use App\Http\Resources\proposal\ProposalTableResource;
 use App\Http\Resources\proposal\StudentProposalResource;
+use App\Enums\ProposalType;
 use App\Models\Proposal;
 use App\Models\User;
 use App\Services\ProposalService;
@@ -41,7 +42,7 @@ class ProposalController extends Controller
             return $this->errorResponse($result['message'], 422);
         }
 
-        if ($request->type === 'student' && $request->has('members')) {
+        if ($request->type === ProposalType::Student->value && $request->has('members')) {
             $this->proposalService->syncMembers($result['proposal'], $request->members);
         }
 
@@ -72,11 +73,11 @@ class ProposalController extends Controller
 
     public function show(Proposal $proposal)
     {
-        if ($proposal->type === 'student') {
+        if ($proposal->type === ProposalType::Student) {
             if ($proposal->student_id !== null) {
                 return $this->successResponse(
                     'Student proposal detail view',
-                    new StudentProposalResource($proposal->load('members')),
+                    new StudentProposalResource($proposal->load(['supervisor', 'members', 'area'])),
                     200
                 );
             } else {
@@ -84,10 +85,10 @@ class ProposalController extends Controller
             }
         }
 
-        if ($proposal->type === 'faculty') {
+        if ($proposal->type === ProposalType::Faculty) {
             return $this->successResponse(
                 'Faculty proposal detail view',
-                new FacultyProposalResource($proposal->load(['supervisor', 'members', 'applicants'])),
+                new FacultyProposalResource($proposal->load(['supervisor', 'members', 'applicants', 'area'])),
                 200
             );
         }
@@ -98,10 +99,6 @@ class ProposalController extends Controller
     public function browseProposals()
     {
         $proposals = $this->proposalService->browseBySupervisor(Auth::user());
-
-        if ($proposals->isEmpty()) {
-            return $this->errorResponse('No proposals found for the supervisor', 404);
-        }
 
         $data = $this->paginatedResponse(ProposalTableResource::class, $proposals);
 

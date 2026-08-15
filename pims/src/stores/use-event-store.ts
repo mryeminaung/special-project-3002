@@ -22,6 +22,10 @@ type EventStoreState = {
 		eventType: EventType,
 		configuration: EventConfiguration,
 	) => Promise<boolean>;
+	updateProjectEvent: (
+		eventType: EventType,
+		configuration: EventConfiguration,
+	) => Promise<boolean>;
 	deleteEventConfiguration: (eventType: EventType) => Promise<void>;
 };
 
@@ -72,10 +76,7 @@ function normalizeEventStatus(payload: BackendProjectEvent) {
 		return null;
 	}
 
-	const isActive =
-		typeof payload.is_active === "boolean"
-			? payload.is_active
-			: Boolean(payload.isActive);
+	const isActive = !!(payload.is_active ?? payload.isActive);
 
 	return {
 		id: payload.id,
@@ -175,6 +176,7 @@ export const useEventStore = create<EventStoreState>()(
 		},
 
 		createProjectEvent: async (eventType, configuration) => {
+			const existingId = get().eventIdByType[eventType];
 			const payload = {
 				title: configuration.title.trim(),
 				detail: configuration.description.trim(),
@@ -184,8 +186,37 @@ export const useEventStore = create<EventStoreState>()(
 				is_active: true,
 			};
 
-			await api.post<ApiSuccessResponse<BackendProjectEvent>>(
-				"/project-events",
+			if (existingId) {
+				await api.patch<ApiSuccessResponse<BackendProjectEvent>>(
+					`/project-events/${existingId}`,
+					payload,
+				);
+			} else {
+				await api.post<ApiSuccessResponse<BackendProjectEvent>>(
+					"/project-events",
+					payload,
+				);
+			}
+
+			await get().fetchEventStatuses();
+			return true;
+		},
+
+		updateProjectEvent: async (eventType, configuration) => {
+			const eventId = get().eventIdByType[eventType];
+			if (!eventId) throw new Error("No event found to update");
+
+			const payload = {
+				title: configuration.title.trim(),
+				detail: configuration.description.trim(),
+				type: eventTypeToBackend[eventType],
+				start_date: configuration.startDate,
+				end_date: configuration.endDate,
+				is_active: get().enrollmentByEvent[eventType],
+			};
+
+			await api.patch<ApiSuccessResponse<BackendProjectEvent>>(
+				`/project-events/${eventId}`,
 				payload,
 			);
 

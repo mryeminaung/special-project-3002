@@ -21,10 +21,13 @@ type EventGuardResult = {
 	blockReason: string | null;
 };
 
-function parseDate(dateStr: string): Date | null {
+function parseDate(dateStr: string, endOfDay = false): Date | null {
 	if (!dateStr) return null;
-	// Handle both "YYYY-MM-DD" and full datetime strings
-	const d = dateStr.includes("T") ? new Date(dateStr) : new Date(`${dateStr}T00:00:00`);
+	// Strip any time/timezone component so we always work in local time,
+	// avoiding UTC-midnight vs local-time mismatches from the backend.
+	const datePart = dateStr.split("T")[0].split(" ")[0];
+	if (!/^\d{4}-\d{2}-\d{2}$/.test(datePart)) return null;
+	const d = new Date(`${datePart}T${endOfDay ? "23:59:59" : "00:00:00"}`);
 	return isNaN(d.getTime()) ? null : d;
 }
 
@@ -50,7 +53,7 @@ export function useEventGuard(eventType: EventType): EventGuardResult {
 
 	if (hasConfig && configuration) {
 		const startDate = parseDate(configuration.startDate);
-		const endDate = parseDate(configuration.endDate);
+		const endDate = parseDate(configuration.endDate, true);
 
 		if (startDate && endDate) {
 			isWithinDateRange = now >= startDate && now <= endDate;
@@ -74,7 +77,7 @@ export function useEventGuard(eventType: EventType): EventGuardResult {
 	} else if (!isWithinDateRange) {
 		if (configuration) {
 			const startDate = parseDate(configuration.startDate);
-			const endDate = parseDate(configuration.endDate);
+			const endDate = parseDate(configuration.endDate, true);
 			const todayStr = toDateString(now);
 
 			if (startDate && todayStr < toDateString(startDate)) {

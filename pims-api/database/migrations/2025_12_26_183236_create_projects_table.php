@@ -33,6 +33,7 @@ return new class extends Migration
             $table->foreignId('leader_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('proposal_id')->constrained('proposals')->cascadeOnDelete();
             $table->foreignId('supervisor_id')->constrained('users')->cascadeOnDelete();
+            $table->timestamps();
         });
     }
 

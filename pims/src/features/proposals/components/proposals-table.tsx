@@ -1,5 +1,14 @@
 import TableRowSkeleton from "@/components/table-row-skeleton";
+import { formatDate } from "@/lib/date";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import {
 	Table,
 	TableBody,
@@ -8,15 +17,10 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { Eye, Filter } from "lucide-react"; // Added Filter icon
-import { useMemo, useState } from "react"; // Added hooks
+import { PROPOSAL_STATUS_COLORS } from "@/constants/badge-colors";
+import { Eye, Search } from "lucide-react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router";
-
-const STATUS_COLOR: Record<string, string> = {
-	pending: "bg-yellow-100 text-yellow-800",
-	approved: "bg-green-100 text-green-800",
-	rejected: "bg-red-100 text-red-800",
-};
 
 export default function ProposalsTable({
 	proposals,
@@ -25,43 +29,86 @@ export default function ProposalsTable({
 	proposals: any[];
 	isLoading?: boolean;
 }) {
-	const [selectedArea, setSelectedArea] = useState<string>("all");
+	const [search, setSearch] = useState("");
+	const [typeFilter, setTypeFilter] = useState("all");
+	const [projectTypeFilter, setProjectTypeFilter] = useState("all");
+	const [areaFilter, setAreaFilter] = useState("all");
 
-	// 1. Extract unique project areas from the proposals list
 	const projectAreas = useMemo(() => {
-		const areas = proposals.map((p) => p.projectArea);
-		return ["all", ...new Set(areas)];
+		const areas = proposals.map((p) => p.projectArea).filter(Boolean);
+		return Array.from(new Set(areas)) as string[];
 	}, [proposals]);
 
-	// 2. Filter proposals based on selection
-	const filteredProposals = useMemo(() => {
-		if (selectedArea === "all") return proposals;
-		return proposals.filter((p) => p.projectArea === selectedArea);
-	}, [proposals, selectedArea]);
+	const filtered = useMemo(() => {
+		const q = search.toLowerCase();
+		return proposals.filter((p) => {
+			const matchesSearch =
+				!q ||
+				p.title.toLowerCase().includes(q) ||
+				(p.supervisor ?? "").toLowerCase().includes(q);
+			const matchesType = typeFilter === "all" || p.type === typeFilter;
+			const matchesProjectType =
+				projectTypeFilter === "all" || p.projectType === projectTypeFilter;
+			const matchesArea = areaFilter === "all" || p.projectArea === areaFilter;
+			return matchesSearch && matchesType && matchesProjectType && matchesArea;
+		});
+	}, [proposals, search, typeFilter, projectTypeFilter, areaFilter]);
 
 	return (
 		<div className="space-y-4">
-			{/* Filter UI */}
-			<div className="flex items-center gap-2">
-				<Filter className="size-4 text-slate-500" />
-				<span className="text-sm font-medium text-slate-700">
-					Filter by Area:
-				</span>
-				<select
-					value={selectedArea}
-					onChange={(e) => setSelectedArea(e.target.value)}
-					className="text-sm border rounded-md px-2 py-1 bg-white outline-none focus:ring-2 focus:ring-primary-800/20">
-					{projectAreas.map((area) => (
-						<option
-							key={area}
-							value={area}>
-							{area === "all" ? "All Areas" : area}
-						</option>
-					))}
-				</select>
-				<span className="text-xs text-slate-400 ml-auto">
-					Showing {filteredProposals.length} items
-				</span>
+			{/* Filter bar */}
+			<div className="flex flex-wrap items-center gap-3">
+				{/* Search */}
+				<div className="relative flex-1 min-w-48">
+					<Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+					<Input
+						value={search}
+						onChange={(e) => setSearch(e.target.value)}
+						placeholder="Search by title or supervisor…"
+						className="pl-9 h-9 text-sm"
+					/>
+				</div>
+
+				{/* Type */}
+				<Select value={typeFilter} onValueChange={setTypeFilter}>
+					<SelectTrigger className="w-36">
+						<SelectValue placeholder="Type" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="all">All Types</SelectItem>
+						<SelectItem value="student">Student</SelectItem>
+						<SelectItem value="faculty">Faculty</SelectItem>
+					</SelectContent>
+				</Select>
+
+				{/* Project type */}
+				<Select value={projectTypeFilter} onValueChange={setProjectTypeFilter}>
+					<SelectTrigger className="w-44">
+						<SelectValue placeholder="Project Type" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="all">All Project Types</SelectItem>
+						<SelectItem value="special">Special</SelectItem>
+						<SelectItem value="capstone">Capstone</SelectItem>
+						<SelectItem value="master-thesis">Master / Thesis</SelectItem>
+					</SelectContent>
+				</Select>
+
+				{/* Area */}
+				<Select value={areaFilter} onValueChange={setAreaFilter}>
+					<SelectTrigger className="w-44">
+						<SelectValue placeholder="Project Area" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="all">All Areas</SelectItem>
+						{projectAreas.map((area) => (
+							<SelectItem key={area} value={area}>
+								{area}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
+
 			</div>
 
 			<div className="rounded-md border overflow-hidden">
@@ -81,47 +128,42 @@ export default function ProposalsTable({
 					<TableBody>
 						{isLoading ? (
 							<TableRowSkeleton
-								rows={5}
-								colSpan={8}
-							/> // Added colSpan fix
-						) : filteredProposals.length === 0 ? (
+								rows={8}
+								cells={["h-4 w-48", "h-5 w-24 rounded-full", "h-4 w-32", "h-4 w-16", "h-4 w-24", "h-5 w-20 rounded-full", "h-4 w-24", "mx-auto h-8 w-16 rounded-md"]}
+							/>
+						) : filtered.length === 0 ? (
 							<TableRow>
 								<TableCell
 									colSpan={8}
 									className="text-center text-lg py-10 font-semibold">
-									No proposals found
-									{selectedArea !== "all" ? ` for ${selectedArea}` : ""}.
+									No proposals match your filters.
 								</TableCell>
 							</TableRow>
 						) : (
-							filteredProposals.map((proposal) => (
+							filtered.map((proposal) => (
 								<TableRow key={proposal.id}>
-									<TableCell className="font-medium">
+									<TableCell className="text-sm font-medium">
 										{proposal.title.length > 50
-											? proposal.title.slice(0, 50) + "..."
+											? proposal.title.slice(0, 50) + "…"
 											: proposal.title}
 									</TableCell>
 									<TableCell>
-										<Badge
-											variant="outline"
-											className="bg-slate-50 font-normal">
+										<Badge variant="outline" className="bg-slate-50 font-normal">
 											{proposal.projectArea}
 										</Badge>
 									</TableCell>
-									<TableCell>{proposal.supervisorName}</TableCell>
-									<TableCell className="capitalize">{proposal.type}</TableCell>
-									<TableCell className="capitalize">
-										{proposal.projectType}
-									</TableCell>
+									<TableCell className="text-sm">{proposal.supervisor}</TableCell>
+									<TableCell className="text-sm capitalize">{proposal.type}</TableCell>
+									<TableCell className="text-sm capitalize">{proposal.projectType}</TableCell>
 									<TableCell>
 										<Badge
-											className={`capitalize shadow-none border-none ${STATUS_COLOR[proposal.status] ?? ""}`}
+											className={`capitalize shadow-none border-none ${PROPOSAL_STATUS_COLORS[proposal.status] ?? ""}`}
 											variant="outline">
 											{proposal.status}
 										</Badge>
 									</TableCell>
-									<TableCell className="text-slate-500 text-[13px]">
-										{proposal.submittedAt}
+									<TableCell className="text-sm text-muted-foreground">
+										{formatDate(proposal.submittedAt)}
 									</TableCell>
 									<TableCell className="text-center">
 										<Link

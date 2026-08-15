@@ -8,8 +8,6 @@ use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
-    protected static ?string $password;
-
     public function run(): void
     {
         $this->seedAdminData();
@@ -25,34 +23,29 @@ class UserSeeder extends Seeder
 
         $admin_data = [
             [
-                'name'       => 'Dr. Win Aye',
-                'email'      => 'win_aye@miit.edu.mm',
-                'is_student' => false,
-                'password'   => $icPassword,
+                'name'     => 'Dr. Win Aye',
+                'email'    => 'win_aye@miit.edu.mm',
+                'password' => $icPassword,
             ],
             [
-                'name'       => 'Dr. Myat Thuzar Tun',
-                'email'      => 'myat_thuzar_tun@miit.edu.mm',
-                'is_student' => false,
-                'password'   => $icPassword,
+                'name'     => 'Dr. Myat Thuzar Tun',
+                'email'    => 'myat_thuzar_tun@miit.edu.mm',
+                'password' => $icPassword,
             ],
             [
-                'name'       => 'Daw Khaing Nyunt Myaing',
-                'email'      => 'khaing_nyunt_myaing@miit.edu.mm',
-                'is_student' => false,
-                'password'   => $icPassword,
+                'name'     => 'Daw Khaing Nyunt Myaing',
+                'email'    => 'khaing_nyunt_myaing@miit.edu.mm',
+                'password' => $icPassword,
             ],
             [
-                'name'       => 'Admin',
-                'email'      => 'admin@miit.edu.mm',
-                'is_student' => false,
-                'password'   => $adminPassword,
+                'name'     => 'Admin',
+                'email'    => 'admin@miit.edu.mm',
+                'password' => $adminPassword,
             ],
             [
-                'name'       => 'Student Affairs',
-                'email'      => 'student_affairs@miit.edu.mm',
-                'is_student' => false,
-                'password'   => $studentAffairPassword,
+                'name'     => 'Student Affairs',
+                'email'    => 'student_affairs@miit.edu.mm',
+                'password' => $studentAffairPassword,
             ],
         ];
         User::insert($admin_data);
@@ -64,10 +57,9 @@ class UserSeeder extends Seeder
         $faculty_data    = [];
 
         $faculty_data[] = [
-            'name'       => 'Daw Khaine Aye San',
-            'email'      => "khaine_aye_san@miit.edu.mm",
-            'is_student' => false,
-            'password'   => $facultyPassword,
+            'name'     => 'Daw Khaine Aye San',
+            'email'    => 'khaine_aye_san@miit.edu.mm',
+            'password' => $facultyPassword,
         ];
 
         $maleNames   = ['Aung', 'Kyaw', 'Min', 'Tun', 'Soe', 'Naing'];
@@ -87,10 +79,9 @@ class UserSeeder extends Seeder
             );
 
             $faculty_data[] = [
-                'name'  => $name,
-                'email' => "{$emailPrefix}@miit.edu.mm",
-                'is_student' => false,
-                'password'   => $facultyPassword,
+                'name'     => $name,
+                'email'    => "{$emailPrefix}@miit.edu.mm",
+                'password' => $facultyPassword,
             ];
         }
         DB::table('users')->insert($faculty_data);
@@ -104,7 +95,6 @@ class UserSeeder extends Seeder
         $maleNames   = ['Aung', 'Kyaw', 'Min', 'Tun', 'Soe', 'Naing'];
         $femaleNames = ['Moe', 'May', 'Hnin', 'Yin', 'Nwe', 'Thiri'];
 
-        // $year_sems = ['2019' => 1, '2021' => 2, '2022' => 3, '2023' => 4, '2024' => 5];
         $year_sems   = ['2019' => 1];
         $majors      = ['cse', 'ece'];
         $rollNumbers = range(1, 60);
@@ -121,10 +111,9 @@ class UserSeeder extends Seeder
                         : $this->generateName($femaleNames, 'Ma');
 
                     $student_data[] = [
-                        'name'       => $name,
-                        'email'      => $email,
-                        'is_student' => true,
-                        'password'   => $studentPassword,
+                        'name'     => $name,
+                        'email'    => $email,
+                        'password' => $studentPassword,
                     ];
                 }
             }

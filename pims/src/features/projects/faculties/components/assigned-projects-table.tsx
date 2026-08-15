@@ -1,15 +1,15 @@
-import Loading from "@/components/loading";
+import TableRowSkeleton from "@/components/table-row-skeleton";
+import TablePagination from "@/components/table-pagination";
+import { formatDate } from "@/lib/date";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-	DropdownMenu,
-	DropdownMenuCheckboxItem,
-	DropdownMenuContent,
-	DropdownMenuLabel,
-	DropdownMenuSeparator,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
 import {
 	Table,
 	TableBody,
@@ -19,41 +19,38 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import ViewDetail from "@/components/view-detail";
-import { cn, PROJECT_STATUS_COLOR } from "@/lib/utils";
+import { cn } from "@/lib/utils";
+import { projectStatusColor } from "@/constants/badge-colors";
 import type { ProjectData } from "@/types";
-import { IconDownload, IconRefresh } from "@tabler/icons-react";
-import { Search, Settings2, ShieldCheckIcon } from "lucide-react";
+import { Search, ShieldCheckIcon } from "lucide-react";
 import { useMemo, useState } from "react";
 
 export default function AssignedProjectsTable({
 	projects,
+	isLoading = false,
 }: {
 	projects: ProjectData[];
+	isLoading?: boolean;
 }) {
 	const [searchTerm, setSearchTerm] = useState("");
+	const [statusFilter, setStatusFilter] = useState("all");
+	const [typeFilter, setTypeFilter] = useState("all");
 	const [currentPage, setCurrentPage] = useState(1);
-	const [visibleColumns, setVisibleColumns] = useState<Set<string>>(
-		new Set([
-			"name",
-			"teamLeader",
-			"supervisor",
-			"members",
-			"status",
-			"approved_on",
-		]),
-	);
 	const itemsPerPage = 8;
 
 	const filteredProjects = useMemo(() => {
-		const filtered = projects.filter((project) => {
-			const matchesSearch = project.name
-				?.toLowerCase()
-				.includes(searchTerm.toLowerCase());
-			return matchesSearch;
+		const q = searchTerm.toLowerCase();
+		return projects.filter((project) => {
+			const matchesSearch =
+				!q ||
+				project.title?.toLowerCase().includes(q) ||
+				project.supervisor?.name?.toLowerCase().includes(q) ||
+				project.leader?.name?.toLowerCase().includes(q);
+			const matchesStatus = statusFilter === "all" || project.status === statusFilter;
+			const matchesType = typeFilter === "all" || project.type === typeFilter;
+			return matchesSearch && matchesStatus && matchesType;
 		});
-
-		return filtered;
-	}, [projects, searchTerm]);
+	}, [projects, searchTerm, statusFilter, typeFilter]);
 
 	const paginatedProjects = useMemo(() => {
 		const start = (currentPage - 1) * itemsPerPage;
@@ -62,208 +59,123 @@ export default function AssignedProjectsTable({
 
 	const totalPages = Math.ceil(filteredProjects.length / itemsPerPage);
 
-	const handleColumnToggle = (column: string) => {
-		const newColumns = new Set(visibleColumns);
-		if (newColumns.has(column)) {
-			newColumns.delete(column);
-		} else {
-			newColumns.add(column);
-		}
-		setVisibleColumns(newColumns);
-	};
-
 	return (
-		<>
-			{projects && projects.length === 0 ? (
-				<Loading message="projects" />
-			) : (
-				<div className="space-y-4 mt-5">
-					{/* Search and Filters */}
-					<div className="flex flex-col md:flex-row  gap-4">
-						<div className="flex gap-3">
-							<div className="relative flex-1 max-w-sm">
-								<Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-								<Input
-									placeholder="Filter users..."
-									className="pl-10"
-									value={searchTerm}
-									onChange={(e) => {
-										setSearchTerm(e.target.value);
-										setCurrentPage(1);
-									}}
-								/>
-							</div>
-							{/* View Toggle Button */}
-							<DropdownMenu>
-								<DropdownMenuTrigger asChild>
-									<Button
-										variant="outline"
-										className="gap-2 bg-transparent">
-										<Settings2 className="h-4 w-4" />
-										View
-									</Button>
-								</DropdownMenuTrigger>
-								<DropdownMenuContent
-									align="end"
-									className="w-48">
-									<DropdownMenuLabel>Toggle Columns</DropdownMenuLabel>
-									<DropdownMenuSeparator />
-									<DropdownMenuCheckboxItem
-										checked={visibleColumns.has("name")}
-										onCheckedChange={() => handleColumnToggle("name")}>
-										Name
-									</DropdownMenuCheckboxItem>
-									<DropdownMenuCheckboxItem
-										checked={visibleColumns.has("supervisor")}
-										onCheckedChange={() => handleColumnToggle("supervisor")}>
-										Supervisor
-									</DropdownMenuCheckboxItem>
-									<DropdownMenuCheckboxItem
-										checked={visibleColumns.has("teamLeader")}
-										onCheckedChange={() => handleColumnToggle("teamLeader")}>
-										Project Leader
-									</DropdownMenuCheckboxItem>
-									<DropdownMenuCheckboxItem
-										checked={visibleColumns.has("members")}
-										onCheckedChange={() => handleColumnToggle("members")}>
-										Project Members
-									</DropdownMenuCheckboxItem>
-									<DropdownMenuCheckboxItem
-										checked={visibleColumns.has("status")}
-										onCheckedChange={() => handleColumnToggle("status")}>
-										Status
-									</DropdownMenuCheckboxItem>
-									<DropdownMenuCheckboxItem
-										checked={visibleColumns.has("approved_on")}
-										onCheckedChange={() => handleColumnToggle("approved_on")}>
-										Approved On
-									</DropdownMenuCheckboxItem>
-								</DropdownMenuContent>
-							</DropdownMenu>
-						</div>
-						<div className="flex items-center ml-auto gap-x-3">
-							<Button
-								className="hover:cursor-pointer bg-primary-800 hover:bg-primary-800/80 ml-auto hover:text-white text-white"
-								onClick={() => alert("Refreshing...")}
-								variant={"outline"}>
-								<IconRefresh />
-								<span>Refresh</span>
-							</Button>
-							<Button
-								className="hover:cursor-pointer bg-primary-800 hover:bg-primary-800/80 ml-auto hover:text-white text-white"
-								onClick={() => alert("Downloading...")}
-								variant={"outline"}>
-								<IconDownload />
-								<span>Export</span>
-							</Button>
-						</div>
-					</div>
+		<div className="space-y-4 mt-5">
+			{/* Search and Filters */}
+			<div className="flex flex-wrap items-center gap-3">
+				{/* Search */}
+				<div className="relative flex-1 min-w-48">
+					<Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground pointer-events-none" />
+					<Input
+						value={searchTerm}
+						onChange={(e) => {
+							setSearchTerm(e.target.value);
+							setCurrentPage(1);
+						}}
+						placeholder="Search by name, supervisor, or leader…"
+						className="pl-9 h-9 text-sm"
+					/>
+				</div>
 
-					<div className="pt-2 border-t border-border"></div>
+				{/* Status */}
+				<Select value={statusFilter} onValueChange={setStatusFilter}>
+					<SelectTrigger className="w-36">
+						<SelectValue placeholder="Status" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="all">All Status</SelectItem>
+						<SelectItem value="active">Active</SelectItem>
+						<SelectItem value="completed">Completed</SelectItem>
+						<SelectItem value="pending">Pending</SelectItem>
+					</SelectContent>
+				</Select>
 
-					{/* Table */}
-					<div className="rounded-lg border border-border">
-						<Table>
-							<TableHeader className="bg-muted">
-								<TableRow>
-									{visibleColumns.has("name") && (
-										<TableHead>Project Name</TableHead>
-									)}
-									{visibleColumns.has("supervisor") && (
-										<TableHead>Supervisor </TableHead>
-									)}
-									{visibleColumns.has("teamLeader") && (
-										<TableHead>Project Leader</TableHead>
-									)}
-									{visibleColumns.has("members") && (
-										<TableHead>Project Members</TableHead>
-									)}
-									{visibleColumns.has("status") && (
-										<TableHead>Status</TableHead>
-									)}
-									{visibleColumns.has("approved_on") && (
-										<TableHead>Approved On</TableHead>
-									)}
-									<TableHead className="w-24">Action</TableHead>
-								</TableRow>
-							</TableHeader>
-							<TableBody>
-								{paginatedProjects.length === 0 ? (
-									<TableRow className="">
-										<TableCell
-											colSpan={visibleColumns.size + 1}
-											className="text-center py-8">
-											<div className="flex flex-col items-center gap-3">
-												<Search className="h-12 w-12 text-muted-foreground opacity-50" />
-												<div>
-													<h3 className="font-semibold text-foreground">
-														No Projects found
-													</h3>
-													<p className="text-sm text-muted-foreground">
-														Try adjusting your search or filters
-													</p>
-												</div>
-											</div>
-										</TableCell>
-									</TableRow>
-								) : (
-									paginatedProjects.map((project) => (
+				{/* Type */}
+				<Select value={typeFilter} onValueChange={setTypeFilter}>
+					<SelectTrigger className="w-36">
+						<SelectValue placeholder="Type" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="all">All Types</SelectItem>
+						<SelectItem value="student">Student</SelectItem>
+						<SelectItem value="faculty">Faculty</SelectItem>
+					</SelectContent>
+				</Select>
+			</div>
+
+			{/* Table */}
+			<div className="rounded-lg border border-border">
+				<Table>
+					<TableHeader className="bg-muted">
+						<TableRow>
+							<TableHead>Project Name</TableHead>
+							<TableHead>Supervisor</TableHead>
+							<TableHead>Project Leader</TableHead>
+							<TableHead>Project Members</TableHead>
+							<TableHead>Status</TableHead>
+							<TableHead>Approved On</TableHead>
+							<TableHead className="w-24">Action</TableHead>
+						</TableRow>
+					</TableHeader>
+					<TableBody>
+						{isLoading ? (
+							<TableRowSkeleton
+								rows={8}
+								cells={["h-4 w-48", "h-4 w-32", "h-4 w-28", "h-5 w-36", "h-5 w-16 rounded-full", "h-4 w-24", "mx-auto h-8 w-16 rounded-md"]}
+							/>
+						) : paginatedProjects.length === 0 ? (
+							<TableRow>
+								<TableCell
+									colSpan={7}
+									className="text-center py-10">
+									No projects match your filters.
+								</TableCell>
+							</TableRow>
+						) : (
+							paginatedProjects.map((project) => (
 										<TableRow
 											key={project.id}
 											className="px-3">
-											{visibleColumns.has("name") && (
-												<TableCell className="font-semibold">
-													{project.name.length > 50
-														? project.name.substring(0, 50) + "..."
-														: project.name}
-												</TableCell>
-											)}
-
-											{visibleColumns.has("supervisor") && (
-												<TableCell>
-													<div className="flex items-center gap-2">
-														<ShieldCheckIcon className="h-5 w-5 text-primary-700" />
-														<span className="text-sm">
-															{project.supervisor.name}
-														</span>
-													</div>
-												</TableCell>
-											)}
-											{visibleColumns.has("teamLeader") && (
-												<TableCell>{project.leader.name}</TableCell>
-											)}
-											{visibleColumns.has("members") && (
-												<TableCell>
-													<div className="flex flex-wrap gap-1 text-muted-foreground">
-														{project.members.slice(0, 2).map((member) => (
-															<Badge
-																key={member.id}
-																variant="secondary">
-																{member.name}
-															</Badge>
-														))}
-														{project.members.length > 2 && (
-															<Badge variant="secondary">
-																+{project.members.length - 2}
-															</Badge>
-														)}
-													</div>
-												</TableCell>
-											)}
-											{visibleColumns.has("status") && (
-												<TableCell>
-													<Badge
-														className={cn(
-															PROJECT_STATUS_COLOR("active"),
-															"px-3 font-mono rounded-md capitalize",
-														)}>
-														{project.status}
-													</Badge>
-												</TableCell>
-											)}
-											{visibleColumns.has("approved_on") && (
-												<TableCell>{project.startedAt}</TableCell>
-											)}
+											<TableCell className="font-semibold">
+												{project.title.length > 50
+													? project.title.substring(0, 50) + "..."
+													: project.title}
+											</TableCell>
+											<TableCell>
+												<div className="flex items-center gap-2">
+													<ShieldCheckIcon className="h-5 w-5 text-primary-700" />
+													<span className="text-sm">
+														{project.supervisor.name}
+													</span>
+												</div>
+											</TableCell>
+											<TableCell>{project.leader.name}</TableCell>
+											<TableCell>
+												<div className="flex flex-wrap gap-1 text-muted-foreground">
+													{project.members.slice(0, 2).map((member) => (
+														<Badge
+															key={member.id}
+															variant="secondary">
+															{member.name}
+														</Badge>
+													))}
+													{project.members.length > 2 && (
+														<Badge variant="secondary">
+															+{project.members.length - 2}
+														</Badge>
+													)}
+												</div>
+											</TableCell>
+											<TableCell>
+												<Badge
+													className={cn(
+														projectStatusColor("active"),
+														"px-3 font-mono rounded-md capitalize",
+													)}>
+													{project.status}
+												</Badge>
+											</TableCell>
+											<TableCell>{formatDate(project.startedAt)}</TableCell>
 											<TableCell className="border">
 												{project.type === "student" ? (
 													<ViewDetail
@@ -276,60 +188,20 @@ export default function AssignedProjectsTable({
 												)}
 											</TableCell>
 										</TableRow>
-									))
-								)}
-							</TableBody>
-						</Table>
-					</div>
+							))
+						)}
+					</TableBody>
+				</Table>
+			</div>
 
-					{/* Pagination */}
-					{totalPages > 1 && (
-						<div className="flex items-center justify-between">
-							<div className="text-sm text-muted-foreground">
-								Page {currentPage} of {totalPages}
-							</div>
-							<div className="flex gap-2">
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-									disabled={currentPage === 1}>
-									Previous
-								</Button>
-								<div className="flex gap-1">
-									{Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-										const pageNum = i + 1;
-										return (
-											<Button
-												key={pageNum}
-												variant={
-													currentPage === pageNum ? "default" : "outline"
-												}
-												size="sm"
-												className={cn(
-													currentPage === pageNum &&
-														"bg-primary-800 hover:cursor-pointer hover:bg-primary-800/80",
-												)}
-												onClick={() => setCurrentPage(pageNum)}>
-												{pageNum}
-											</Button>
-										);
-									})}
-								</div>
-								<Button
-									variant="outline"
-									size="sm"
-									onClick={() =>
-										setCurrentPage(Math.min(totalPages, currentPage + 1))
-									}
-									disabled={currentPage === totalPages}>
-									Next
-								</Button>
-							</div>
-						</div>
-					)}
-				</div>
-			)}
-		</>
+			{/* Pagination */}
+			<TablePagination
+				currentPage={currentPage}
+				lastPage={totalPages}
+				total={filteredProjects.length}
+				perPage={itemsPerPage}
+				onPageChange={setCurrentPage}
+			/>
+		</div>
 	);
 }

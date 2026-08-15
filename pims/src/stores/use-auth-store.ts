@@ -27,6 +27,7 @@ type AuthStoreProps = {
 	authUser: any | null;
 	token: string | null;
 	setAuth: (data: any) => void;
+	updateAuthUser: (user: Partial<AuthUser>) => void;
 	logout: () => void;
 };
 
@@ -43,6 +44,12 @@ export const useAuthStore = create<AuthStoreProps>()(
 					authUser: user,
 					token: token,
 				});
+			},
+
+			updateAuthUser: (user) => {
+				set((state) => ({
+					authUser: { ...state.authUser, ...user },
+				}));
 			},
 
 			logout: () => {

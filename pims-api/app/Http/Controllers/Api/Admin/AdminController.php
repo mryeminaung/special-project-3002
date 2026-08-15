@@ -31,14 +31,8 @@ class AdminController extends Controller
 
     public function getStudents()
     {
-        $students = User::where('is_student', true)
-            ->leftJoin('majors', 'users.major_id', '=', 'majors.id')
-            ->select([
-                'users.name',
-                'users.email',
-                'majors.name as major_name',
-            ])
-            ->orderBy('users.name')
+        $students = User::role('student')
+            ->orderBy('name')
             ->get();
 
         return $this->successResponse('Students retrieved successfully.', $students);
@@ -46,9 +40,7 @@ class AdminController extends Controller
 
     public function getFaculties()
     {
-        $faculties = User::whereHas('roles', function ($q) {
-            $q->whereIn('name', ['Faculty', 'Supervisor']);
-        })->latest()->get();
+        $faculties = User::role(['faculty', 'supervisor'])->latest()->get();
 
         return $this->successResponse('Faculties retrieved successfully.', $faculties);
     }

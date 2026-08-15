@@ -1,4 +1,4 @@
-import { useHeader } from "@/lib/utils";
+import { useHeader } from "@/hooks/use-header";
 import { useEffect } from "react";
 
 export const useHeaderInitializer = (

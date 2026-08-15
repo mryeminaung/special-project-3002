@@ -6,9 +6,10 @@ import {
 	IconListDetails,
 	IconSend,
 	IconSettings,
+	IconSchool,
 	IconUsersGroup,
+	IconUserStar,
 } from "@tabler/icons-react";
-import { ShieldCheckIcon } from "lucide-react";
 
 // ─── Page Meta (useHeaderInitializer) ────────────────────────────────────────
 export const PAGE_META = {
@@ -62,6 +63,10 @@ export const PAGE_META = {
 		title: "MIIT | Supervisor Detail",
 		subtitle: "Supervisor Detail",
 	},
+	facultyProposals: {
+		title: "MIIT | Faculty Proposals",
+		subtitle: "Faculty Proposals",
+	},
 	settings: { title: "MIIT | Settings", subtitle: "Settings" },
 } as const;
 
@@ -70,7 +75,7 @@ export const HEADINGS = {
 	// Dashboards
 	adminDashboard: {
 		title: "Admin Dashboard",
-		description: "Overview of project management activities and statistics",
+		description: "System overview — users, departments, and recent activity",
 	},
 	icDashboard: {
 		title: "IC Dashboard",
@@ -103,8 +108,8 @@ export const HEADINGS = {
 
 	// Events
 	events: {
-		title: "Choose Event Type",
-		description: "Select an event type to manage project events and deadlines.",
+		title: "Events",
+		description: "Choose a project type to view registration details and submit your proposal.",
 	},
 
 	// Proposals
@@ -169,14 +174,13 @@ export const HEADINGS = {
 export const NAV_ITEMS = {
 	admin: [
 		{ title: "Dashboard", url: "/dashboard", icon: IconLayoutDashboard },
-		{ title: "Events", url: "/admin/events", icon: IconCalendarEvent },
 		{
 			title: "Project Areas",
 			url: "/admin/project-areas",
 			icon: IconFileDescription,
 		},
-		{ title: "Students", url: "/students", icon: ShieldCheckIcon },
-		{ title: "Faculties", url: "/admin/faculties", icon: ShieldCheckIcon },
+		{ title: "Students", url: "/admin/students", icon: IconSchool },
+		{ title: "Faculties", url: "/admin/faculties", icon: IconUsersGroup },
 		{
 			title: "Departments",
 			url: "/admin/departments",
@@ -194,10 +198,10 @@ export const NAV_ITEMS = {
 			url: "/proposals",
 			icon: IconFileDescription,
 		},
-		{ title: "Supervisors", url: "/supervisors", icon: ShieldCheckIcon },
+		{ title: "Supervisors", url: "/supervisors", icon: IconUserStar },
 		{ title: "Projects", url: "/projects", icon: IconListDetails },
 		{ title: "Faculties", url: "/faculties", icon: IconUsersGroup },
-		{ title: "Students", url: "/students", icon: ShieldCheckIcon },
+		{ title: "Students", url: "/students", icon: IconSchool },
 		{ title: "Settings", url: "/settings", icon: IconSettings },
 	],
 
@@ -223,6 +227,11 @@ export const NAV_ITEMS = {
 		{ title: "Events", url: "/events", icon: IconCalendarEvent },
 		{ title: "Announcements", url: "/announcements", icon: IconSend },
 		{
+			title: "Faculty Proposals",
+			url: "/proposals/faculties",
+			icon: IconDeviceTabletSearch,
+		},
+		{
 			title: "My Proposals",
 			url: "/proposals/me",
 			icon: IconFileDescription,
@@ -238,7 +247,7 @@ export const NAV_ITEMS = {
 			url: "/proposals",
 			icon: IconFileDescription,
 		},
-		{ title: "Supervisors", url: "/supervisors", icon: ShieldCheckIcon },
+		{ title: "Supervisors", url: "/supervisors", icon: IconUserStar },
 		{ title: "Projects", url: "/projects", icon: IconListDetails },
 		{ title: "Settings", url: "/settings", icon: IconSettings },
 	],

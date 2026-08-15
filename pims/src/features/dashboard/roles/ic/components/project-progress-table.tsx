@@ -16,10 +16,10 @@ interface ProjectProgress {
 	name: string;
 	slug: string;
 	supervisorName: string;
-	midReport: "completed" | "not completed" | "not submitted";
-	midSeminar: "completed" | "not completed" | "not submitted";
-	finalReport: "completed" | "not completed" | "not submitted";
-	finalSeminar: "completed" | "not completed" | "not submitted";
+	midReport: string;
+	midSeminar: string;
+	finalReport: string;
+	finalSeminar: string;
 }
 
 const defaultProjects: ProjectProgress[] = [
@@ -86,26 +86,26 @@ const defaultProjects: ProjectProgress[] = [
 ];
 
 function StatusIndicator({ status }: { status: string }) {
-	switch (status) {
-		case "completed":
-			return (
-				<span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400">
-					<IconCheck size={14} strokeWidth={3} />
-				</span>
-			);
-		case "not completed":
-			return (
-				<span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-950 dark:text-red-400">
-					<IconX size={14} strokeWidth={3} />
-				</span>
-			);
-		default:
-			return (
-				<span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500">
-					<IconMinus size={14} strokeWidth={3} />
-				</span>
-			);
-	}
+	const done = status === "completed" || status === "submitted";
+	const notDone = status === "not completed" || status === "not submitted";
+
+	if (done)
+		return (
+			<span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400">
+				<IconCheck size={14} strokeWidth={3} />
+			</span>
+		);
+	if (notDone)
+		return (
+			<span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-red-100 text-red-600 dark:bg-red-950 dark:text-red-400">
+				<IconX size={14} strokeWidth={3} />
+			</span>
+		);
+	return (
+		<span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-gray-400 dark:bg-gray-800 dark:text-gray-500">
+			<IconMinus size={14} strokeWidth={3} />
+		</span>
+	);
 }
 
 export default function ProjectProgressTable({

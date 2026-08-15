@@ -1,11 +1,14 @@
 import ProtectedRoute from "@/components/auth/protected-route";
+import { AdminRoute, ICRoute, StudentOrICOrSARoute, StudentRoute } from "@/components/auth/role-route";
 import NotFoundPage from "@/components/common/not-found";
 
 import { adminRoutes } from "@/features/admin";
+import StuListPage from "@/features/admin/pages/stu-list-page";
 import { facultiesRoutes } from "@/features/faculties";
 import { projectsRoutes } from "@/features/projects";
 import { proposalRoutes } from "@/features/proposals";
 import { settingsRoutes } from "@/features/settings";
+import { studentRoutes, studentDetailRoutes } from "@/features/student";
 
 import { AnnouncementsPage } from "@/features/announcements";
 import { LoginPage } from "@/features/auth";
@@ -40,8 +43,29 @@ export const routes = [
 				path: "/supervisors",
 				Component: SupervisorsPage,
 			},
+			// Student-only routes
+			{
+				Component: StudentRoute,
+				children: studentRoutes,
+			},
+			// Student + IC + Student Affairs (detail pages)
+			{
+				Component: StudentOrICOrSARoute,
+				children: studentDetailRoutes,
+			},
 			...facultiesRoutes,
-			...adminRoutes,
+			// Admin-only routes
+			{
+				Component: AdminRoute,
+				children: adminRoutes,
+			},
+			// IC-only routes
+			{
+				Component: ICRoute,
+				children: [
+					{ path: "/students", Component: StuListPage },
+				],
+			},
 			...projectsRoutes,
 			...proposalRoutes,
 			...settingsRoutes,

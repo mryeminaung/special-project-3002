@@ -7,15 +7,10 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class FacultyProposalResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
         $user                = $request->user();
-        $canViewApplicants   = $user && ($user->hasRole('IC') || $user->id === $this->supervisor_id);
+        $canViewApplicants   = $user && ($user->hasRole('ic') || $user->id === $this->supervisor_id);
         $canManageApplicants = $user && $user->id === $this->supervisor_id;
 
         return [
@@ -24,18 +19,20 @@ class FacultyProposalResource extends JsonResource
             'slug'                => $this->slug,
             'description'         => $this->description,
             'file'                => $this->fileUrl,
-            'type'                => ucfirst($this->type),
-            'projectType'         => ucfirst($this->project_type),
+            'type'                => $this->type->value,
+            'projectType'         => $this->project_type->value,
+            'eligibleMajors'      => $this->eligible_majors->value,
             'maxStudents'         => $this->max_students,
-            'supervisor'          => new MemberResource($this->supervisor),
-            'status'              => $this->status,
-            'members'             => MemberResource::collection($this->members),
+            'supervisor'          => $this->supervisor ? new MemberResource($this->supervisor) : null,
+            'status'              => $this->status->value,
+            'members'             => MemberResource::collection($this->whenLoaded('members', fn() => $this->members, collect())),
             'appliedStudents'     => $canViewApplicants
-                ? MemberResource::collection($this->applicants)
+                ? MemberResource::collection($this->whenLoaded('applicants', fn() => $this->applicants, collect()))
                 : [],
             'canViewApplicants'   => (bool) $canViewApplicants,
             'canManageApplicants' => (bool) $canManageApplicants,
-            'submittedAt'         => $this->submitted_at->format('d-m-Y'),
+            'projectArea'         => $this->area?->name,
+            'submittedAt'         => $this->submitted_at->format('Y-m-d'),
         ];
     }
 }

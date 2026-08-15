@@ -1,16 +1,12 @@
-import DepartmentsListPage from "./departments-list-page";
-import EventsListPage from "./events-list-page";
-import FacultiesListPage from "./faculties-list-page";
-import ProjectAreasPage from "./project-areas-page";
-import StuListPage from "./stu-list-page";
+import DepartmentDetailPage from "./pages/department-detail-page";
+import DepartmentsListPage from "./pages/departments-list-page";
+import FacultiesListPage from "./pages/faculties-list-page";
+import ProjectAreasPage from "./pages/project-areas-page";
+import StuListPage from "./pages/stu-list-page";
 
 export const adminRoutes = [
 	{
-		path: "/admin/events",
-		Component: EventsListPage,
-	},
-	{
-		path: "/students",
+		path: "/admin/students",
 		Component: StuListPage,
 	},
 	{
@@ -26,7 +22,7 @@ export const adminRoutes = [
 		Component: DepartmentsListPage,
 	},
 	{
-		path: "/students",
-		Component: StuListPage,
+		path: "/admin/departments/:id",
+		Component: DepartmentDetailPage,
 	},
 ];

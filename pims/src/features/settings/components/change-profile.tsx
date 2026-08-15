@@ -1,4 +1,4 @@
-import api from "@/api/api";
+import { updateProfile } from "../services/settings.service";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -48,11 +48,9 @@ export default function ChangeProfile() {
 	// update phone number and
 	const onSubmit = async (data: z.infer<typeof ProfileSchema>) => {
 		try {
-			const res = await api.patch("/update-profile", data);
-			if (res.status === 200) {
-				setAuth(res.data);
-				toast.success("Profile updated successfully!");
-			}
+			const resData = await updateProfile(data);
+			setAuth(resData);
+			toast.success("Profile updated successfully!");
 		} catch (error) {
 			toast.error("Failed to update profile.");
 		}

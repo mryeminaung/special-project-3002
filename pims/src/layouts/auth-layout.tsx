@@ -7,7 +7,8 @@ import { useState } from "react";
 
 export default function AuthLayout({ children }: any) {
 	const [open, setOpen] = useState(
-		Cookies.get("sidebar_state") === "true" || !Cookies.get("sidebar_state"),
+		Cookies.get("sidebar_state") === "true" ||
+			!Cookies.get("sidebar_state"),
 	);
 
 	const handleOpenChange = (isOpen: boolean) => {
@@ -24,7 +25,8 @@ export default function AuthLayout({ children }: any) {
 					"--sidebar-width": "calc(var(--spacing) * 60)",
 					"--header-height": "calc(var(--spacing) * 12)",
 				} as React.CSSProperties
-			}>
+			}
+		>
 			<ProgressIndicator />
 			<AppSidebar variant="sidebar" />
 			<SidebarInset>
@@ -32,7 +34,9 @@ export default function AuthLayout({ children }: any) {
 				<div className="flex flex-1 flex-col">
 					<div className="@container/main flex flex-1 flex-col gap-2">
 						<div className="flex flex-col gap-4 md:gap-6 p-4 md:p-8">
-							<div>{children}</div>
+							<div className="mx-auto max-w-7xl w-full">
+								{children}
+							</div>
 						</div>
 					</div>
 				</div>

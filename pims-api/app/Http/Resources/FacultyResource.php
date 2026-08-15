@@ -7,18 +7,15 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class FacultyResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @return array<string, mixed>
-     */
     public function toArray(Request $request): array
     {
         return [
-            "phoneNumber" => $this->phone_number,
-            'rank' => $this->rank->name,
-            'departmentName' => $this->department->name,
-            'address' => $this->address,
+            'phoneNumber'  => $this->phone_number,
+            'address'      => $this->address,
+            'rank'         => $this->rank?->name,
+            'rankId'       => $this->rank_id,
+            'department'   => $this->department?->name,
+            'departmentId' => $this->department_id,
         ];
     }
 }

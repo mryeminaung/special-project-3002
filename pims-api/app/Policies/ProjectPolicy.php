@@ -20,7 +20,7 @@ class ProjectPolicy
 
     public function updateSeminarDeadlines(User $user, Project $project)
     {
-        if ($user->hasRole('Student')) {
+        if ($user->hasRole('student')) {
             return Response::deny('Students are not allowed to update seminar deadlines.');
         }
 
@@ -29,7 +29,7 @@ class ProjectPolicy
 
     public function updateReportStatus(User $user, Project $project)
     {
-        if ($user->hasRole('Student')) {
+        if ($user->hasRole('student')) {
             return Response::deny('Students are not allowed to update report status.');
         }
 
@@ -38,7 +38,7 @@ class ProjectPolicy
 
     public function updateSeminarStatus(User $user, Project $project)
     {
-        if ($user->hasRole('Student')) {
+        if ($user->hasRole('student')) {
             return Response::deny('Students are not allowed to update seminar status.');
         }
 
