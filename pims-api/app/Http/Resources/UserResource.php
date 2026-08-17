@@ -16,6 +16,7 @@ class UserResource extends JsonResource
             'email'      => $this->email,
             'avatar_url' => $this->avatar_url ? Storage::disk('public')->url($this->avatar_url) : null,
             'roles'      => $this->roles->pluck('name'),
+            'permissions' => $this->getAllPermissions()->pluck('name'),
             'status'     => 'Active',
             'profile'    => match(true) {
                 $this->relationLoaded('student') && $this->student !== null => new StudentResource($this->student),

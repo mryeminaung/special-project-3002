@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Admin\AcademicYearController;
 use App\Http\Controllers\Api\Admin\DepartmentController;
 use App\Http\Controllers\Api\Admin\RankController;
 use App\Http\Controllers\Api\AnnouncementController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\ProjectEventController;
 use App\Http\Controllers\Api\ProposalController;
 use App\Http\Controllers\Api\SupervisorController;
+use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -35,6 +37,13 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
 
         Route::get('/dashboard', DashboardController::class);
+
+        // Notifications
+        Route::controller(NotificationController::class)->prefix('notifications')->group(function () {
+            Route::get('/', 'index');
+            Route::patch('/{id}/read', 'markRead');
+            Route::post('/read-all', 'markAllRead');
+        });
 
         // Announcements
         Route::controller(AnnouncementController::class)->prefix('announcements')->group(function () {
@@ -73,9 +82,15 @@ Route::prefix('v1')->group(function () {
             Route::get('/me', 'studentProjects');
             Route::get('/assigned', 'assignedProjects');
             Route::get('/{project:slug}', 'show');
-            Route::patch('/{project:slug}/seminar-deadlines', 'updateSeminarDeadlines');
-            Route::patch('/{project:slug}/seminar-status', 'updateSeminarStatus');
-            Route::patch('/{project:slug}/report-status', 'updateReportStatus');
+            Route::middleware('permission:set-seminar-deadlines')->patch('/{project:slug}/seminar-deadlines', 'updateSeminarDeadlines');
+            Route::middleware('permission:update-seminar-status')->patch('/{project:slug}/seminar-status', 'updateSeminarStatus');
+            Route::middleware('permission:update-report-status')->patch('/{project:slug}/report-status', 'updateReportStatus');
+            Route::middleware('permission:update-report-status')->patch('/{project:slug}/report-approval', 'approveReport');
+            Route::middleware('permission:manage-examiners')->group(function () {
+                Route::post('/{project:slug}/examiners', 'syncExaminers');
+                Route::delete('/{project:slug}/examiners/{userId}', 'removeExaminer');
+            });
+            Route::middleware('permission:mark-project-complete')->post('/{project:slug}/complete', 'markComplete');
         });
 
         // Proposals
@@ -87,8 +102,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/faculties', 'facultyProposals');
             Route::get('/{proposal:slug}', 'show');
             Route::delete('/{proposal:slug}', 'destroy');
-            Route::post('/{proposal:slug}/approve', 'approveByIC');
-            Route::post('/{proposal:slug}/reject', 'rejectByIC');
+            Route::middleware('permission:approve-proposal')->post('/{proposal:slug}/approve', 'approveByIC');
+            Route::middleware('permission:reject-proposal')->post('/{proposal:slug}/reject', 'rejectByIC');
             Route::post('/{proposal:slug}/join', 'joinFacultyProposal');
             Route::post('/{proposal:slug}/applications/{student:id}/accept', 'acceptApplicant');
             Route::post('/{proposal:slug}/applications/{student:id}/reject', 'rejectApplicant');
@@ -128,6 +143,13 @@ Route::prefix('v1')->group(function () {
             Route::get('/ranks', [RankController::class, 'index']);
             Route::put('/faculties/{id}', [FacultyController::class, 'update']);
             Route::post('/faculties/{id}/reset-password', [FacultyController::class, 'resetPassword']);
+
+            // Academic Years
+            Route::get('/academic-years', [AcademicYearController::class, 'index']);
+            Route::post('/academic-years', [AcademicYearController::class, 'store']);
+            Route::put('/academic-years/{academicYear}', [AcademicYearController::class, 'update']);
+            Route::post('/academic-years/{academicYear}/set-active', [AcademicYearController::class, 'setActive']);
+            Route::delete('/academic-years/{academicYear}', [AcademicYearController::class, 'destroy']);
         });
     });
 });

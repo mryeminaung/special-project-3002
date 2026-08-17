@@ -51,6 +51,12 @@ class FacultyController extends Controller
                     'year'    => optional($p->start_date)->format('Y'),
                     'outcome' => 'Completed',
                 ]),
+                'examiningProjects' => $data['examiningProjects']->map(fn($p) => [
+                    'id'       => $p->id,
+                    'title'    => $p->name,
+                    'status'   => $p->status,
+                    'students' => $p->members->count() . ' Students',
+                ]),
             ]
         );
     }

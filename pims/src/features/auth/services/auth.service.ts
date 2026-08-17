@@ -39,10 +39,10 @@ export const authService = {
 		newPassword: string,
 		newPasswordConfirmation: string,
 	): Promise<void> {
-		await api.post("auth/change-password", {
+		await api.post("auth/reset-password", {
 			current_password: currentPassword,
-			new_password: newPassword,
-			new_password_confirmation: newPasswordConfirmation,
+			password: newPassword,
+			password_confirmation: newPasswordConfirmation,
 		});
 	},
 };

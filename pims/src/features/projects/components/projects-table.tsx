@@ -22,7 +22,7 @@ import ViewDetail from "@/components/view-detail";
 import { cn } from "@/lib/utils";
 import { projectStatusColor } from "@/constants/badge-colors";
 import type { ProjectData } from "@/types";
-import { Search, ShieldCheckIcon } from "lucide-react";
+import { Search } from "lucide-react";
 import { useMemo, useState } from "react";
 
 export default function ProjectsTable({
@@ -136,35 +136,29 @@ export default function ProjectsTable({
 										<TableRow
 											key={project.id}
 											className="px-3">
-											<TableCell className="font-semibold text-sm">
-												{(project.title?.length ?? 0) > 50
-													? project.title!.substring(0, 50) + "…"
-													: (project.title ?? "—")}
+											<TableCell className="font-semibold text-sm max-w-[260px]">
+												<span className="block truncate" title={project.title ?? ""}>
+													{project.title ?? "—"}
+												</span>
 											</TableCell>
 											<TableCell>
-												{project.supervisor ? (
-													<div className="flex items-center gap-2">
-														<ShieldCheckIcon className="h-4 w-4 text-primary-700" />
-														<span className="text-sm">{project.supervisor.name}</span>
-													</div>
-												) : (
-													<span className="text-sm text-muted-foreground">—</span>
-												)}
+												<span className="text-sm">{project.supervisor?.name ?? "—"}</span>
 											</TableCell>
 											<TableCell className="text-sm">{project.leader?.name ?? "—"}</TableCell>
 											<TableCell>
-												<div className="flex flex-wrap gap-1 text-muted-foreground">
-													{(project.members ?? []).slice(0, 2).map((member) => (
-														<Badge
-															key={member.id}
-															variant="secondary">
+												<div className="flex items-center gap-1.5">
+													{(project.members ?? []).slice(0, 1).map((member) => (
+														<Badge key={member.id} variant="secondary">
 															{member.name}
 														</Badge>
 													))}
-													{(project.members?.length ?? 0) > 2 && (
-														<Badge variant="secondary">
-															+{(project.members?.length ?? 0) - 2}
+													{(project.members?.length ?? 0) > 1 && (
+														<Badge variant="outline" className="text-muted-foreground">
+															+{(project.members?.length ?? 0) - 1}
 														</Badge>
+													)}
+													{(project.members?.length ?? 0) === 0 && (
+														<span className="text-sm text-muted-foreground">—</span>
 													)}
 												</div>
 											</TableCell>

@@ -1,7 +1,7 @@
 import api from "@/api/api";
-import type { AdminStudent, Department, DepartmentDetail, ProjectArea, ProjectEvent } from "../types/admin.types";
+import type { AcademicYear, AdminStudent, Department, DepartmentDetail, ProjectArea, ProjectEvent } from "../types/admin.types";
 
-export type { AdminStudent, Department, DepartmentDetail, ProjectArea, ProjectEvent };
+export type { AcademicYear, AdminStudent, Department, DepartmentDetail, ProjectArea, ProjectEvent };
 
 function unwrapList<T>(res: { data: unknown }): T[] {
 	const outer = res.data as Record<string, unknown> | null;
@@ -135,4 +135,45 @@ export async function getRanksForSelect(): Promise<
 	const res = await api.get("/admin/ranks");
 	const body = res.data?.data ?? res.data;
 	return Array.isArray(body) ? body : Array.isArray(body?.data) ? body.data : [];
+}
+
+// ─── Academic Years ───────────────────────────────────────────────────────────
+
+export async function getAcademicYears(): Promise<AcademicYear[]> {
+	const res = await api.get("/admin/academic-years");
+	return unwrapList<AcademicYear>(res);
+}
+
+export async function createAcademicYear(payload: {
+	year: string;
+	semester: 1 | 2;
+	start_date: string;
+	end_date: string;
+	is_active?: boolean;
+}): Promise<AcademicYear> {
+	const res = await api.post("/admin/academic-years", payload);
+	return (res.data?.data ?? res.data) as AcademicYear;
+}
+
+export async function updateAcademicYear(
+	id: number,
+	payload: {
+		year?: string;
+		semester?: 1 | 2;
+		start_date?: string;
+		end_date?: string;
+		is_active?: boolean;
+	},
+): Promise<AcademicYear> {
+	const res = await api.put(`/admin/academic-years/${id}`, payload);
+	return (res.data?.data ?? res.data) as AcademicYear;
+}
+
+export async function setActiveAcademicYear(id: number): Promise<AcademicYear> {
+	const res = await api.post(`/admin/academic-years/${id}/set-active`);
+	return (res.data?.data ?? res.data) as AcademicYear;
+}
+
+export async function deleteAcademicYear(id: number): Promise<void> {
+	await api.delete(`/admin/academic-years/${id}`);
 }

@@ -6,10 +6,11 @@ export interface AuthUser {
 	id: number;
 	name: string;
 	email: string;
+	roles: string[];
+	permissions: string[];
 	phoneNumber?: string | null;
 	address?: string | null;
 	avatar_url?: string | null;
-	role?: string;
 	major?: string | null;
 	gpa?: string | null;
 	rank?: string | null;

@@ -1,6 +1,5 @@
 import { uploadReport, deleteReport } from "../services/student-project.service";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -18,8 +17,7 @@ type UploadReportProps = {
 	label: string;
 	slug: string;
 	type: "mid" | "final";
-	midReportUrl: string;
-	finalReportUrl: string;
+	reportUrl?: string | null;
 	progressStatus: { [key: string]: boolean };
 };
 
@@ -27,11 +25,10 @@ export function UploadReport({
 	label,
 	slug,
 	type,
-	midReportUrl,
-	finalReportUrl,
+	reportUrl,
 }: UploadReportProps) {
 	const queryClient = useQueryClient();
-	const existingReportUrl = type === "mid" ? midReportUrl : finalReportUrl;
+	const existingReportUrl = reportUrl ?? null;
 	const [isExistingReportDeleted, setIsExistingReportDeleted] = useState(false);
 	const [recentUploadedReportUrl, setRecentUploadedReportUrl] = useState<
 		string | null
@@ -132,10 +129,10 @@ export function UploadReport({
 	};
 
 	return (
-		<Card className="border-gray-200 shadow-sm p-5">
+		<div className="rounded-xl border p-4">
 			<Field className="w-full">
 				<div className="flex items-center justify-between mb-3">
-					<FieldLabel className="mb-2 block text-lg font-semibold text-foreground">
+					<FieldLabel className="text-sm font-semibold text-foreground">
 						{label}
 					</FieldLabel>
 					{hasExistingReport ? (
@@ -252,6 +249,6 @@ export function UploadReport({
 					)}
 				</div>
 			</Field>
-		</Card>
+		</div>
 	);
 }

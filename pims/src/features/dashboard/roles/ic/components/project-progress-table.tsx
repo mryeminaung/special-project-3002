@@ -8,8 +8,9 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { IconCheck, IconX, IconEye, IconMinus } from "@tabler/icons-react";
+import { IconCheck, IconX, IconMinus } from "@tabler/icons-react";
 import { Link } from "react-router";
+import ViewDetail from "@/components/view-detail";
 
 interface ProjectProgress {
 	id: string;
@@ -159,12 +160,12 @@ export default function ProjectProgressTable({
 							<TableRow
 								key={project.id}
 								className="border-b border-border/30 last:border-0">
-								<TableCell>
+								<TableCell className="max-w-[200px]">
 									<div>
-										<p className="font-medium text-foreground text-sm">
+										<p className="font-medium text-foreground text-sm truncate" title={project.name}>
 											{project.name}
 										</p>
-										<p className="text-xs text-muted-foreground md:hidden">
+										<p className="text-xs text-muted-foreground md:hidden truncate" title={project.supervisorName}>
 											{project.supervisorName}
 										</p>
 									</div>
@@ -185,14 +186,7 @@ export default function ProjectProgressTable({
 									<StatusIndicator status={project.finalSeminar} />
 								</TableCell>
 								<TableCell className="text-right">
-									<Link to={`/projects/${project.slug}/detail`}>
-										<Button
-											size="sm"
-											className="bg-violet-600 hover:bg-violet-700 text-white h-8 px-3 text-xs">
-											<IconEye size={14} className="mr-1" />
-											View
-										</Button>
-									</Link>
+									<ViewDetail url={`/projects/${project.slug}/detail`} />
 								</TableCell>
 							</TableRow>
 						))}

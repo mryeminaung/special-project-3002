@@ -17,8 +17,10 @@ import {
 	TableHeader,
 	TableRow,
 } from "@/components/ui/table";
-import { PROPOSAL_STATUS_COLORS } from "@/constants/badge-colors";
-import { Eye, Search } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { PROPOSAL_STATUS_COLORS, projectAreaColor, projectTypeColor, proposalAppliedTypeColor } from "@/constants/badge-colors";
+import { Search } from "lucide-react";
+import ViewDetail from "@/components/view-detail";
 import { useMemo, useState } from "react";
 import { Link } from "react-router";
 
@@ -142,19 +144,27 @@ export default function ProposalsTable({
 						) : (
 							filtered.map((proposal) => (
 								<TableRow key={proposal.id}>
-									<TableCell className="text-sm font-medium">
-										{proposal.title.length > 50
-											? proposal.title.slice(0, 50) + "…"
-											: proposal.title}
+									<TableCell className="text-sm font-medium max-w-[260px]">
+										<span className="block truncate" title={proposal.title}>
+											{proposal.title}
+										</span>
 									</TableCell>
 									<TableCell>
-										<Badge variant="outline" className="bg-slate-50 font-normal">
+										<Badge variant="outline" className={cn("font-normal", projectAreaColor())}>
 											{proposal.projectArea}
 										</Badge>
 									</TableCell>
 									<TableCell className="text-sm">{proposal.supervisor}</TableCell>
-									<TableCell className="text-sm capitalize">{proposal.type}</TableCell>
-									<TableCell className="text-sm capitalize">{proposal.projectType}</TableCell>
+									<TableCell>
+										<Badge variant="outline" className={cn("capitalize font-normal", proposalAppliedTypeColor(proposal.type))}>
+											{proposal.type}
+										</Badge>
+									</TableCell>
+									<TableCell>
+										<Badge variant="outline" className={cn("capitalize font-normal", projectTypeColor(proposal.projectType))}>
+											{proposal.projectType}
+										</Badge>
+									</TableCell>
 									<TableCell>
 										<Badge
 											className={`capitalize shadow-none border-none ${PROPOSAL_STATUS_COLORS[proposal.status] ?? ""}`}
@@ -166,12 +176,7 @@ export default function ProposalsTable({
 										{formatDate(proposal.submittedAt)}
 									</TableCell>
 									<TableCell className="text-center">
-										<Link
-											to={`/proposals/${proposal.type.toLowerCase()}/${proposal.slug}/detail`}
-											className="bg-primary-600 hover:bg-primary-700 transition-colors flex items-center justify-center text-white px-2 py-1.5 rounded-md gap-x-1">
-											<Eye className="size-3.5" />
-											<span className="text-[11px]">View</span>
-										</Link>
+										<ViewDetail url={`/proposals/${proposal.type.toLowerCase()}/${proposal.slug}/detail`} />
 									</TableCell>
 								</TableRow>
 							))

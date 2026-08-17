@@ -1,8 +1,10 @@
-import { PAGE_META, HEADINGS } from "@/constants/navigation";
 import Heading from "@/components/heading";
 import Loading from "@/components/loading";
+import TablePagination from "@/components/table-pagination";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { HEADINGS, PAGE_META } from "@/constants/navigation";
+import { useCan } from "@/hooks/use-can";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { useRoleChecker } from "@/hooks/use-role-checker";
 import { IconInfoCircle } from "@tabler/icons-react";
@@ -10,13 +12,12 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import type { AnnouncementItem } from "../announcement.types";
+import AnnouncementDetail from "../components/announcement-detail";
 import AnnouncementRow from "../components/announcement-row";
 import AnnouncementToolbar from "../components/announcement-toolbar";
-import TablePagination from "@/components/table-pagination";
-import AnnouncementDetail from "../components/announcement-detail";
 import { NewAnnouncement } from "../components/new-announcement";
-import { getAnnouncements } from "../services/announcement.service";
 import { useAnnouncements } from "../hooks/use-announcements";
+import { getAnnouncements } from "../services/announcement.service";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -37,6 +38,7 @@ export default function AnnouncementsPage() {
 	);
 
 	const { isIC, isStudent, isFaculty, isSupervisor } = useRoleChecker();
+	const { can } = useCan();
 	const isFacultyRole = isFaculty || isSupervisor;
 
 	const [search, setSearch] = useState("");
@@ -200,7 +202,7 @@ export default function AnnouncementsPage() {
 							: HEADINGS.announcements.descriptionDefault
 					}
 				/>
-				{isIC && <NewAnnouncement />}
+				{can("manage-announcements") && <NewAnnouncement />}
 			</div>
 
 			{/* Toolbar */}
@@ -234,7 +236,8 @@ export default function AnnouncementsPage() {
 							activeTab === tab.value
 								? "border-primary text-primary"
 								: "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
-						}`}>
+						}`}
+					>
 						{tab.label}
 					</button>
 				))}
@@ -289,16 +292,19 @@ export default function AnnouncementsPage() {
 						<Button
 							variant="link"
 							onClick={clearFilters}
-							className="mt-1">
+							className="mt-1"
+						>
 							Clear filters
 						</Button>
 					) : isIC ? (
 						<p className="mt-1 text-sm text-muted-foreground">
-							Create your first announcement to notify students and faculties.
+							Create your first announcement to notify students
+							and faculties.
 						</p>
 					) : (
 						<p className="mt-1 text-sm text-muted-foreground">
-							There are no announcements at this time. Check back later.
+							There are no announcements at this time. Check back
+							later.
 						</p>
 					)}
 				</div>

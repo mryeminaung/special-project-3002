@@ -78,4 +78,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(Announcement::class, 'created_by');
     }
+
+    public function examiningProjects()
+    {
+        return $this->belongsToMany(Project::class, 'project_examiner', 'user_id', 'project_id')->withTimestamps();
+    }
 }

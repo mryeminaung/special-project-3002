@@ -5,9 +5,9 @@ export default function ViewDetail({ url }: { url: string }) {
 	return (
 		<Link
 			to={url}
-			className="bg-primary-800 hover:cursor-pointer hover:bg-primary-800/80 flex items-center text-white px-2 py-2 rounded-md gap-x-1 justify-center">
-			<Eye className="size-4" />
-			<span className="text-[12px]">View</span>
+			className="inline-flex items-center gap-1 bg-primary-600 hover:bg-primary-700 transition-colors text-white px-2 py-1.5 rounded-md">
+			<Eye className="size-3.5" />
+			<span className="text-[11px]">View</span>
 		</Link>
 	);
 }
