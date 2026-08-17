@@ -32,3 +32,23 @@ export async function updateSeminarStatus(
 	const res = await api.patch(`/projects/${slug}/seminar-status`, { type, status });
 	return res.data;
 }
+
+export async function syncExaminers(slug: string, examinerIds: number[]) {
+	const res = await api.post(`/projects/${slug}/examiners`, { examiner_ids: examinerIds });
+	return res.data;
+}
+
+export async function removeExaminer(slug: string, userId: number) {
+	const res = await api.delete(`/projects/${slug}/examiners/${userId}`);
+	return res.data;
+}
+
+export async function approveReport(slug: string, type: "mid" | "final") {
+	const res = await api.patch(`/projects/${slug}/report-approval`, { type });
+	return res.data;
+}
+
+export async function markProjectComplete(slug: string) {
+	const res = await api.post(`/projects/${slug}/complete`);
+	return res.data;
+}

@@ -30,10 +30,15 @@ class FacultyService
       ->with(['leader', 'members'])
       ->get();
 
+    $examiningProjects = $user->examiningProjects()
+      ->with(['leader', 'members'])
+      ->get();
+
     return [
-      'user'           => $user,
-      'activeProjects' => $activeProjects,
-      'pastProjects'   => $pastProjects,
+      'user'              => $user,
+      'activeProjects'    => $activeProjects,
+      'pastProjects'      => $pastProjects,
+      'examiningProjects' => $examiningProjects,
     ];
   }
 

@@ -136,10 +136,10 @@ export default function AssignedProjectsTable({
 										<TableRow
 											key={project.id}
 											className="px-3">
-											<TableCell className="font-semibold">
-												{project.title.length > 50
-													? project.title.substring(0, 50) + "..."
-													: project.title}
+											<TableCell className="font-semibold max-w-[260px]">
+												<span className="block truncate" title={project.title}>
+													{project.title}
+												</span>
 											</TableCell>
 											<TableCell>
 												<div className="flex items-center gap-2">

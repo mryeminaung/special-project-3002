@@ -1,3 +1,4 @@
+import AcademicYearsPage from "./pages/academic-years-page";
 import DepartmentDetailPage from "./pages/department-detail-page";
 import DepartmentsListPage from "./pages/departments-list-page";
 import FacultiesListPage from "./pages/faculties-list-page";
@@ -24,5 +25,9 @@ export const adminRoutes = [
 	{
 		path: "/admin/departments/:id",
 		Component: DepartmentDetailPage,
+	},
+	{
+		path: "/admin/academic-years",
+		Component: AcademicYearsPage,
 	},
 ];

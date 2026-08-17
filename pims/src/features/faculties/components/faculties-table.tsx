@@ -20,9 +20,9 @@ import {
 } from "@/components/ui/table";
 import TableRowSkeleton from "@/components/table-row-skeleton";
 import { ROLE_COLORS, ROLE_LABELS } from "@/constants/badge-colors";
-import { Eye, Pencil, Search, KeyRound } from "lucide-react";
+import { Pencil, Search, KeyRound } from "lucide-react";
+import ViewDetail from "@/components/view-detail";
 import { useMemo, useState } from "react";
-import { Link } from "react-router";
 
 type Faculty = {
 	id: number;
@@ -195,12 +195,7 @@ export default function FacultiesTable({
 									</TableCell>
 									<TableCell className="text-center">
 										<div className="flex items-center justify-center gap-1">
-											<Link
-												to={`/faculties/${faculty.id}/detail`}
-												className="inline-flex items-center gap-1 bg-primary-600 hover:bg-primary-700 transition-colors text-white px-2 py-1.5 rounded-md">
-												<Eye className="size-3.5" />
-												<span className="text-[11px]">View</span>
-											</Link>
+											<ViewDetail url={`/faculties/${faculty.id}/detail`} />
 											{onEdit && (
 												<button
 													onClick={() => onEdit(faculty)}

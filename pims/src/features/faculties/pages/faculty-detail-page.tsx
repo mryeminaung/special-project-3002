@@ -136,7 +136,7 @@ export default function FacultyDetailPage() {
 			</div>
 
 			{/* Stats */}
-			<div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+			<div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
 				<StatCard
 					label="Active Supervisions"
 					value={faculty.activeProjects.length}
@@ -152,12 +152,42 @@ export default function FacultyDetailPage() {
 					value={faculty.activeProjects.length + faculty.pastProjects.length}
 					icon={UserIcon}
 				/>
+				<StatCard
+					label="Examining"
+					value={(faculty.examiningProjects ?? []).length}
+					icon={UsersIcon}
+				/>
 			</div>
 
 			{/* Main content */}
 			<div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+				{/* Active + Examining projects */}
+				<div className="lg:col-span-1 space-y-6">
+
+				{/* Examining projects */}
+				{(faculty.examiningProjects ?? []).length > 0 && (
+					<div className="space-y-3">
+						<h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
+							<UsersIcon className="h-4 w-4" />
+							Examining Projects
+						</h2>
+						{faculty.examiningProjects.map((p) => (
+							<div
+								key={p.id}
+								className="rounded-xl border border-violet-200 dark:border-violet-800 bg-violet-50 dark:bg-violet-950/30 p-4">
+								<p className="font-medium text-sm leading-snug">{p.title}</p>
+								<div className="mt-1.5 flex items-center gap-2 text-xs text-muted-foreground">
+									<span className="capitalize">{p.status}</span>
+									<span>·</span>
+									<span>{p.students}</span>
+								</div>
+							</div>
+						))}
+					</div>
+				)}
+
 				{/* Active projects */}
-				<div className="lg:col-span-1 space-y-3">
+				<div className="space-y-3">
 					<h2 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-2">
 						<ClockIcon className="h-4 w-4" />
 						Active Projects
@@ -182,6 +212,7 @@ export default function FacultyDetailPage() {
 						))
 					)}
 				</div>
+				</div>{/* end left col */}
 
 				{/* Supervision history */}
 				<div className="lg:col-span-2">

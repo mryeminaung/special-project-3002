@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\ProjectEventCreated;
 use App\Models\ProjectEvent;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -14,7 +15,9 @@ class ProjectEventService
 
     public function create(array $data): ProjectEvent
     {
-        return ProjectEvent::create($data);
+        $event = ProjectEvent::create($data);
+        ProjectEventCreated::dispatch($event);
+        return $event;
     }
 
     public function toggleActive(ProjectEvent $event): ProjectEvent

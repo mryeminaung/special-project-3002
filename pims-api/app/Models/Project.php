@@ -10,7 +10,10 @@ class Project extends Model
         'slug',
         'description',
         'area_id',
+        'academic_year_id',
         'status',
+        'mid_report_approved',
+        'final_report_approved',
         'mid_report',
         'final_report',
         'mid_seminar',
@@ -51,6 +54,11 @@ class Project extends Model
     public function area()
     {
         return $this->belongsTo(ProjectArea::class, 'area_id');
+    }
+
+    public function examiners()
+    {
+        return $this->belongsToMany(User::class, 'project_examiner', 'project_id', 'user_id')->withTimestamps();
     }
 
     protected $casts = [

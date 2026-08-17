@@ -47,6 +47,18 @@ export interface AdminStudent {
 	registered_at: string;
 }
 
+export interface AcademicYear {
+	id: number;
+	label: string;
+	year: string;
+	semester: 1 | 2;
+	startDate: string;
+	endDate: string;
+	isActive: boolean;
+	proposalsCount?: number;
+	projectsCount?: number;
+}
+
 export interface ProjectEvent {
 	id: number;
 	type: string;

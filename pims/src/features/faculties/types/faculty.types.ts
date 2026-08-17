@@ -15,4 +15,10 @@ export type FacultyDetailResponse = {
 		year?: string | null;
 		outcome: string;
 	}[];
+	examiningProjects: {
+		id: number;
+		title: string;
+		status: string;
+		students: string;
+	}[];
 };

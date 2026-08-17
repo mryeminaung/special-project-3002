@@ -7,6 +7,7 @@ use App\Enums\ProjectType;
 use App\Enums\ProposalStatus;
 use App\Enums\ProposalType;
 use App\Events\ProposalApproved;
+use App\Models\AcademicYear;
 use App\Models\Proposal;
 use App\Models\ProjectEvent;
 use App\Models\User;
@@ -32,8 +33,14 @@ class ProposalService
             }
         }
 
-        $data['slug']         = Str::slug($data['title'], '-');
-        $data['submitted_at'] = now();
+        $activeYear = AcademicYear::where('is_active', true)->first();
+        if (! $activeYear) {
+            return ['success' => false, 'message' => 'No active academic year. Please contact the administrator.'];
+        }
+
+        $data['slug']             = Str::slug($data['title'], '-');
+        $data['submitted_at']     = now();
+        $data['academic_year_id'] = $activeYear->id;
 
         if (($data['type'] ?? ProposalType::Student->value) === ProposalType::Student->value) {
             $studentId = $user->id;

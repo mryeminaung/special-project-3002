@@ -5,6 +5,7 @@ import { updateReportStatus, updateSeminarStatus } from "../services/project.ser
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { IconCheck, IconClock, IconDownload, IconFileText, IconLoader2 } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
+import { useCan } from "@/hooks/use-can";
 import toast from "react-hot-toast";
 
 type ProjectActivityProps = {
@@ -24,7 +25,6 @@ type ProjectActivityProps = {
 		finalSeminar?: string;
 		file?: string | null;
 	};
-	isIC?: boolean;
 	projectSlug?: string;
 };
 
@@ -40,7 +40,6 @@ type ActivityItem = {
 	title: string;
 	completed: boolean;
 	detail: string;
-	fileUrl?: string | null;
 	reportType?: "mid" | "final";
 	seminarType?: "mid" | "final";
 };
@@ -59,8 +58,9 @@ function getFileNameFromUrl(url: string): string {
 	}
 }
 
-export default function ProjectActivity({ project, isIC, projectSlug }: ProjectActivityProps) {
+export default function ProjectActivity({ project, projectSlug }: ProjectActivityProps) {
 	const queryClient = useQueryClient();
+	const { can } = useCan();
 
 	const midReportUrl = project?.midReportUrl ?? project?.mid_report_url;
 	const finalReportUrl = project?.finalReportUrl ?? project?.final_report_url;
@@ -97,7 +97,6 @@ export default function ProjectActivity({ project, isIC, projectSlug }: ProjectA
 			title: "Midterm Report",
 			completed: !!midReportCompleted,
 			detail: `Deadline: ${formatDateTime(midSeminarDeadline)}`,
-			fileUrl: midReportUrl,
 			reportType: "mid",
 		},
 		{
@@ -112,7 +111,6 @@ export default function ProjectActivity({ project, isIC, projectSlug }: ProjectA
 			title: "Final Report",
 			completed: !!finalReportCompleted,
 			detail: `Deadline: ${formatDateTime(finalSeminarDeadline)}`,
-			fileUrl: finalReportUrl,
 			reportType: "final",
 		},
 		{
@@ -195,7 +193,7 @@ export default function ProjectActivity({ project, isIC, projectSlug }: ProjectA
 													)}>
 													{item.completed ? "Completed" : "Pending"}
 												</span>
-												{isIC && projectSlug && (
+												{can('update-report-status') && projectSlug && (
 													<Button
 														size="sm"
 														variant="outline"
@@ -214,20 +212,6 @@ export default function ProjectActivity({ project, isIC, projectSlug }: ProjectA
 											</div>
 										</div>
 										<p className="text-xs text-muted-foreground mb-1">{item.detail}</p>
-										{/* File download row (shown when file exists) */}
-										{item.fileUrl && (
-											<a
-												href={item.fileUrl}
-												target="_blank"
-												rel="noopener noreferrer"
-												className="inline-flex items-center gap-1.5 text-xs text-primary-600 hover:text-primary-700 font-medium mt-1">
-												<IconDownload size={13} />
-												{getFileNameFromUrl(item.fileUrl)}
-											</a>
-										)}
-										{item.reportType && !item.fileUrl && (
-											<p className="text-xs text-muted-foreground/60 mt-1 italic">No report uploaded</p>
-										)}
 									</div>
 								</li>
 							);

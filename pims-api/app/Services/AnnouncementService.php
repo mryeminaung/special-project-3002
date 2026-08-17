@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Events\AnnouncementCreated;
 use App\Models\Announcement;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
@@ -20,7 +21,9 @@ class AnnouncementService
 
     public function create(array $data): Announcement
     {
-        return Announcement::create($data);
+        $announcement = Announcement::create($data);
+        AnnouncementCreated::dispatch($announcement);
+        return $announcement;
     }
 
     public function update(Announcement $announcement, array $data): Announcement

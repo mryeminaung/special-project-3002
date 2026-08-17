@@ -14,6 +14,7 @@ class Proposal extends Model
         'title',
         'description',
         'area_id',
+        'academic_year_id',
         'slug',
         'supervisor_id',
         'submitted_at',

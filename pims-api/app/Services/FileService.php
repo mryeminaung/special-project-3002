@@ -39,8 +39,15 @@ class FileService
 
         if ($projectId) {
             $project = Project::findOrFail($projectId);
-            $field = $type === 'mid' ? 'mid_report_url' : 'final_report_url';
-            $project->update([$field => $path]);
+            $urlField      = $type === 'mid' ? 'mid_report_url'      : 'final_report_url';
+            $statusField   = $type === 'mid' ? 'mid_report'          : 'final_report';
+            $approvedField = $type === 'mid' ? 'mid_report_approved'  : 'final_report_approved';
+
+            $project->update([
+                $urlField      => $path,
+                $statusField   => ProjectProgressStatus::Submitted->value,
+                $approvedField => false,   // reset approval when student re-uploads
+            ]);
         }
 
         return ['path' => $path];
@@ -60,9 +67,11 @@ class FileService
             $field = $type === 'mid' ? 'mid_report_url' : 'final_report_url';
             $statusField = $type === 'mid' ? 'mid_report' : 'final_report';
 
+            $approvedField = $type === 'mid' ? 'mid_report_approved' : 'final_report_approved';
             $project->update([
-                $field => null,
-                $statusField => ProjectProgressStatus::Not_Submitted->value,
+                $field         => null,
+                $statusField   => ProjectProgressStatus::Not_Submitted->value,
+                $approvedField => false,
             ]);
         }
 

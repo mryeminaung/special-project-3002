@@ -7,7 +7,7 @@ import {
 	SheetHeader,
 	SheetTitle,
 } from "@/components/ui/sheet";
-import { useRoleChecker } from "@/hooks/use-role-checker";
+import { useCan } from "@/hooks/use-can";
 import {
 	IconArrowLeft,
 	IconMailOpened,
@@ -58,7 +58,7 @@ export default function AnnouncementDetail({
 	onMarkAsUnread,
 	isRead,
 }: AnnouncementDetailProps) {
-	const { isIC } = useRoleChecker();
+	const { can } = useCan();
 	const queryClient = useQueryClient();
 	const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
@@ -149,7 +149,7 @@ export default function AnnouncementDetail({
 							)}
 						</Button>
 
-						{isIC && (
+						{can('manage-announcements') && (
 							<>
 								<EditAnnouncement announcement={announcement} />
 								<Button

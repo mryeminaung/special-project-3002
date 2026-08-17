@@ -20,9 +20,9 @@ import {
 import { cn } from "@/lib/utils";
 import { projectStatusColor } from "@/constants/badge-colors";
 import type { SupervisorData } from "@/types";
-import { Eye, Search, ShieldCheckIcon } from "lucide-react";
+import { Search } from "lucide-react";
+import ViewDetail from "@/components/view-detail";
 import { useMemo, useState } from "react";
-import { Link } from "react-router";
 
 export default function SupervisorsTable({
 	supervisors,
@@ -155,20 +155,12 @@ export default function SupervisorsTable({
 											</TableCell>
 											<TableCell>{supervisor.email}</TableCell>
 											<TableCell>
-												<div className="flex items-center gap-2">
-													<ShieldCheckIcon className="h-5 w-5 text-primary-700" />
-													<span className="text-sm">{supervisor.role}</span>
-												</div>
+												<span className="text-sm capitalize">{supervisor.role}</span>
 											</TableCell>
 											<TableCell>{supervisor.rank?.name ?? "N/A"}</TableCell>
 											<TableCell>{supervisor.department?.name ?? "N/A"}</TableCell>
 											<TableCell className="border">
-												<Link
-													to={`/faculties/${supervisor.id}/detail`}
-													className="bg-primary-800 hover:cursor-pointer hover:bg-primary-800/80 flex items-center text-white px-2 py-1.5 rounded-md gap-x-1">
-													<Eye className="size-4" />
-													<span className="text-[12px]">View</span>
-												</Link>
+												<ViewDetail url={`/faculties/${supervisor.id}/detail`} />
 											</TableCell>
 										</TableRow>
 									))

@@ -8,28 +8,50 @@ use Spatie\Permission\PermissionRegistrar;
 
 class RolePermissionSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
         app()->make(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        $roles = ["admin", 'ic', 'student-affairs', 'supervisor', 'faculty', 'student'];
-
+        // Roles
+        $roles = ['admin', 'ic', 'student-affairs', 'supervisor', 'faculty', 'student', 'examiner'];
         foreach ($roles as $role) {
-            Role::create(['name' => $role]);
+            Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
         }
 
-        // $icPermissions = ['approve proposal', 'reject proposal'];
-        // foreach ($icPermissions as $permission) {
-        //     Permission::create(['name' => $permission]);
-        // }
+        // Permissions
+        $permissions = [
+            // Proposals
+            'approve-proposal',
+            'reject-proposal',
 
-        // $permissions = ['create proposal', 'edit proposal', 'edit project', 'delete project', 'submit reports', 'create tasks', 'edit tasks', 'delete tasks'];
+            // Projects
+            'mark-project-complete',
+            'manage-examiners',
+            'set-seminar-deadlines',
+            'update-report-status',
+            'update-seminar-status',
 
-        // foreach ($permissions as $permission) {
-        //     Permission::create(['name' => $permission]);
-        // }
+            // Announcements
+            'manage-announcements',
+        ];
+
+        foreach ($permissions as $permission) {
+            Permission::firstOrCreate(['name' => $permission, 'guard_name' => 'web']);
+        }
+
+        // Assign permissions to roles
+        Role::findByName('ic')->syncPermissions([
+            'approve-proposal',
+            'reject-proposal',
+            'mark-project-complete',
+            'manage-announcements',
+        ]);
+
+        Role::findByName('supervisor')->syncPermissions([
+            'manage-examiners',
+            'set-seminar-deadlines',
+            'update-report-status',
+            'update-seminar-status',
+        ]);
     }
 }

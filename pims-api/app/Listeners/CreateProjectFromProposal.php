@@ -32,21 +32,22 @@ class CreateProjectFromProposal
 
         // Transform Proposal to Project
         $project = Project::create([
-            'name'          => $proposal->title,
-            'slug'          => $proposal->slug,
-            'description'   => $proposal->description,
-            'area_id'       => $proposal->area_id,
-            'project_type'  => $proposal->project_type,
-            'type'          => $proposal->type,
-            'leader_id'     => $leaderId,
-            'supervisor_id' => $proposal->supervisor_id,
-            'proposal_id'   => $proposal->id,
-            'file'          => $proposal->fileUrl,
-            'start_date'    => now(),
-            'mid_report'    => ProjectProgressStatus::Not_Submitted,
-            'mid_seminar'   => ProjectProgressStatus::Not_Completed,
-            'final_report'  => ProjectProgressStatus::Not_Submitted,
-            'final_seminar' => ProjectProgressStatus::Not_Completed,
+            'name'             => $proposal->title,
+            'slug'             => $proposal->slug,
+            'description'      => $proposal->description,
+            'area_id'          => $proposal->area_id,
+            'academic_year_id' => $proposal->academic_year_id,
+            'project_type'     => $proposal->project_type,
+            'type'             => $proposal->type,
+            'leader_id'        => $leaderId,
+            'supervisor_id'    => $proposal->supervisor_id,
+            'proposal_id'      => $proposal->id,
+            'file'             => $proposal->fileUrl,
+            'start_date'       => now(),
+            'mid_report'       => ProjectProgressStatus::Not_Submitted,
+            'mid_seminar'      => ProjectProgressStatus::Not_Completed,
+            'final_report'     => ProjectProgressStatus::Not_Submitted,
+            'final_seminar'    => ProjectProgressStatus::Not_Completed,
         ]);
 
         // Supervisor Role Assignment

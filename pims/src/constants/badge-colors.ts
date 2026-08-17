@@ -66,6 +66,10 @@ export const PROJECT_STATUS_COLORS: Record<string, string> = {
 export const projectStatusColor = (status: string) =>
 	PROJECT_STATUS_COLORS[status] ?? FALLBACK;
 
+// ── Project area ───────────────────────────────────────────────
+export const projectAreaColor = () =>
+    "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800/50 dark:text-slate-300 dark:border-slate-700";
+
 // ── User roles ─────────────────────────────────────────────────
 export const ROLE_COLORS: Record<string, string> = {
 	ic: "bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800",

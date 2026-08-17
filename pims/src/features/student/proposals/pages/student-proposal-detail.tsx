@@ -26,6 +26,7 @@ import {
 	proposalStatusColor,
 	proposalAppliedTypeColor,
 	projectTypeColor,
+	projectAreaColor,
 } from "@/constants/badge-colors";
 import { useCallback, useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
@@ -33,6 +34,7 @@ import toast, { Toaster } from "react-hot-toast";
 import DownloadFile from "@/components/download-file";
 import NavigateTo from "@/components/common/navigate-to";
 import { useRoleChecker } from "@/hooks/use-role-checker";
+import { useCan } from "@/hooks/use-can";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { ApprovalModal, CommentBox } from "@/features/proposals";
@@ -41,6 +43,7 @@ import type { ProposalDetail } from "../proposal.types";
 export default function StudentProposalDetailPage() {
 	const { slug } = useParams();
 	const { isIC, isStudent } = useRoleChecker();
+	const { can } = useCan();
 	const authUser = useAuthStore((state) => state.authUser);
 	const queryClient = useQueryClient();
 	const [showApprovalModal, setShowApprovalModal] = useState(false);
@@ -166,30 +169,24 @@ export default function StudentProposalDetailPage() {
 					<div className="flex flex-wrap gap-2 mt-4">
 						<Badge
 							variant="outline"
-							className={cn(
-								"capitalize font-medium",
-								proposalStatusColor(proposal.status),
-							)}>
+							className={cn("capitalize font-medium", proposalStatusColor(proposal.status))}>
 							{proposal.status}
 						</Badge>
 						<Badge
 							variant="outline"
-							className={cn(
-								"capitalize font-medium",
-								proposalAppliedTypeColor(proposal.type as string),
-							)}>
+							className={cn("capitalize font-medium", proposalAppliedTypeColor(proposal.type as string))}>
+							<span className="opacity-60 text-[10px] font-normal mr-0.5">By ·</span>
 							{proposal.type}
 						</Badge>
 						<Badge
 							variant="outline"
-							className={cn(
-								"capitalize font-medium",
-								projectTypeColor(proposal.projectType as string),
-							)}>
+							className={cn("capitalize font-medium", projectTypeColor(proposal.projectType as string))}>
+							<span className="opacity-60 text-[10px] font-normal mr-0.5">Type ·</span>
 							{proposal.projectType}
 						</Badge>
 						{proposal.projectArea && (
-							<Badge variant="outline" className="font-medium bg-slate-50 dark:bg-slate-900">
+							<Badge variant="outline" className={cn("font-medium", projectAreaColor())}>
+								<span className="opacity-60 text-[10px] font-normal mr-0.5">Area ·</span>
 								{proposal.projectArea}
 							</Badge>
 						)}
@@ -238,7 +235,7 @@ export default function StudentProposalDetailPage() {
 							<CommentBox
 								proposalStatus={proposal.status}
 								proposalId={Number(proposal.id)}
-								canComment={isIC || authUser.id === proposal.supervisor.id}
+								canComment={can('approve-proposal') || authUser.id === proposal.supervisor.id}
 							/>
 						</section>
 					</div>
@@ -314,7 +311,7 @@ export default function StudentProposalDetailPage() {
 							)}
 
 							{/* IC approval */}
-							{isIC && proposal.status === "pending" && (
+							{can('approve-proposal') && proposal.status === "pending" && (
 								<div className="p-4">
 									<p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
 										<CheckBadgeIcon className="size-4 text-primary-600" />

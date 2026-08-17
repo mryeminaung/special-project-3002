@@ -1,8 +1,8 @@
 import { updateSeminarStatus } from "../services/student-project.service";
 import { formatDateTime } from "@/lib/date";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
 	Select,
 	SelectContent,
@@ -10,7 +10,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { useRoleChecker } from "@/hooks/use-role-checker";
+import { useCan } from "@/hooks/use-can";
 import { useQueryClient } from "@tanstack/react-query";
 import { Calendar, Loader2, Presentation, Save } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -34,7 +34,7 @@ export default function SeminarCard({
 	finalSeminarDeadline,
 	progressStatus,
 }: SeminarCardProps) {
-	const { isSupervisor } = useRoleChecker();
+	const { can } = useCan();
 	const queryClient = useQueryClient();
 	const [savingType, setSavingType] = useState<"mid" | "final" | null>(null);
 
@@ -92,19 +92,21 @@ export default function SeminarCard({
 	};
 
 	return (
-		<Card className="border-gray-200 shadow-sm">
-			<CardHeader>
-				<CardTitle className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest">
-					<Presentation className="size-5 stroke-2 text-primary-600" />
-					Project Seminars
-				</CardTitle>
-			</CardHeader>
-			<CardContent className="space-y-4">
+		<div className="rounded-xl border px-5 py-4">
+			<div className="flex items-center gap-2 mb-1">
+				<Presentation size={14} />
+				<p className="text-sm font-semibold">Project Seminars</p>
+			</div>
+			<p className="text-xs text-muted-foreground mb-3">
+				Update seminar completion status.
+			</p>
+
+			<div className="space-y-4">
 				<div>
-					<p className="font-semibold">
-						Mid-term Seminar
-						<Badge className="bg-primary-600 ml-2">{midSeminarStatus}</Badge>
-					</p>
+					<div className="flex items-center gap-2">
+						<p className="text-sm font-semibold">Mid-term Seminar</p>
+						<Badge className={cn("text-xs capitalize", midSeminarStatus === "completed" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" : "bg-muted text-muted-foreground")}>{midSeminarStatus}</Badge>
+					</div>
 					<div className="mt-1 flex items-center gap-x-2">
 						<Calendar className="size-3 stroke-2 text-primary-600" />
 						<p className="flex items-center gap-1.5 text-sm">
@@ -112,7 +114,7 @@ export default function SeminarCard({
 						</p>
 					</div>
 
-					{isSupervisor && (
+					{can('update-seminar-status') && (
 						<div className="mt-3 flex items-center gap-2">
 							<Select
 								value={midSeminarStatus}
@@ -143,10 +145,10 @@ export default function SeminarCard({
 				</div>
 
 				<div>
-					<p className="font-semibold">
-						Final Seminar
-						<Badge className="bg-primary-600 ml-2">{finalSeminarStatus}</Badge>
-					</p>
+					<div className="flex items-center gap-2">
+						<p className="text-sm font-semibold">Final Seminar</p>
+						<Badge className={cn("text-xs capitalize", finalSeminarStatus === "completed" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300" : "bg-muted text-muted-foreground")}>{finalSeminarStatus}</Badge>
+					</div>
 					<div className="mt-1 flex items-center gap-x-2">
 						<Calendar className="size-3 stroke-2 text-primary-600" />
 						<p className="flex items-center gap-1.5 text-sm">
@@ -154,7 +156,7 @@ export default function SeminarCard({
 						</p>
 					</div>
 
-					{isSupervisor && (
+					{can('update-seminar-status') && (
 						<>
 							<div className="mt-3 flex items-center gap-2">
 								<Select
@@ -195,7 +197,7 @@ export default function SeminarCard({
 						</>
 					)}
 				</div>
-			</CardContent>
-		</Card>
+			</div>
+		</div>
 	);
 }

@@ -8,6 +8,7 @@ import {
 	IconSettings,
 	IconSchool,
 	IconUsersGroup,
+	IconUserCheck,
 	IconUserStar,
 } from "@tabler/icons-react";
 
@@ -68,6 +69,8 @@ export const PAGE_META = {
 		subtitle: "Faculty Proposals",
 	},
 	settings: { title: "MIIT | Settings", subtitle: "Settings" },
+	academicYears: { title: "MIIT | Academic Years", subtitle: "Academic Years" },
+	examiners: { title: "MIIT | Examiners", subtitle: "Examiners" },
 } as const;
 
 // ─── Heading Content (title + description passed to <Heading />) ─────────────
@@ -168,12 +171,23 @@ export const HEADINGS = {
 		title: "Settings",
 		description: "Manage your account, security, and preferences",
 	},
+
+	// Academic Years
+	academicYears: {
+		title: "Academic Years",
+		description: "Define semesters and set the active year for proposal tracking.",
+	},
 } as const;
 
 // ─── Sidebar Navigation Items ────────────────────────────────────────────────
 export const NAV_ITEMS = {
 	admin: [
 		{ title: "Dashboard", url: "/dashboard", icon: IconLayoutDashboard },
+		{
+			title: "Academic Years",
+			url: "/admin/academic-years",
+			icon: IconCalendarEvent,
+		},
 		{
 			title: "Project Areas",
 			url: "/admin/project-areas",
@@ -200,6 +214,7 @@ export const NAV_ITEMS = {
 		},
 		{ title: "Supervisors", url: "/supervisors", icon: IconUserStar },
 		{ title: "Projects", url: "/projects", icon: IconListDetails },
+		{ title: "Examiners", url: "/examiners", icon: IconUserCheck },
 		{ title: "Faculties", url: "/faculties", icon: IconUsersGroup },
 		{ title: "Students", url: "/students", icon: IconSchool },
 		{ title: "Settings", url: "/settings", icon: IconSettings },
