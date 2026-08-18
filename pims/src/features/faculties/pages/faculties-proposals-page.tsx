@@ -1,5 +1,6 @@
 import { getFacultyProposals, joinProposal } from "@/features/proposals/services/proposal.service";
 import { getAcademicYears } from "@/features/admin/services/admin.service";
+import { useProposalEligibility } from "@/hooks/use-proposal-eligibility";
 import Heading from "@/components/heading";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,7 @@ import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { PAGE_META } from "@/constants/navigation";
 import { cn } from "@/lib/utils";
 
-const JOIN_LIMIT = 2;
+const JOIN_LIMIT = 1; // kept for display; real limit enforced via useProposalEligibility
 
 type ProjectTypeFilter = "all" | "special" | "capstone" | "master-thesis";
 type MajorFilter = "all" | "CSE" | "ECE";
@@ -140,6 +141,7 @@ export default function FacultiesProposalsPage() {
 	const [yearId, setYearId] = useState<number | undefined>(undefined);
 	const queryClient = useQueryClient();
 	const authUser = useAuthStore((state) => state.authUser);
+	const { canJoin, pendingCount, pendingLimit } = useProposalEligibility();
 
 	const userMajorNormalized = (authUser?.profile?.major ?? authUser?.major ?? "").toLowerCase();
 	const userMajorCategory: "CSE" | "ECE" | null =
@@ -179,11 +181,11 @@ export default function FacultiesProposalsPage() {
 	});
 
 	const facultyProposals = facultyProposalsResponse?.data?.proposals ?? [];
-	const joinedCount = facultyProposalsResponse?.data?.joined_proposals_count ?? 0;
 
 	const filtered = useMemo(() => {
 		const q = search.toLowerCase();
 		return facultyProposals.filter((p) => {
+			const majorUpper = p.eligibleMajors.toUpperCase() as "CSE" | "ECE" | "BOTH";
 			const matchesType =
 				activeTab === "all"
 					? true
@@ -193,14 +195,15 @@ export default function FacultiesProposalsPage() {
 			const matchesSearch =
 				!q || p.title.toLowerCase().includes(q) || p.supervisorName.toLowerCase().includes(q);
 			const matchesMajor =
-				majorFilter === "all" || p.eligibleMajors === "both" || p.eligibleMajors === majorFilter;
+				majorFilter === "all" || majorUpper === "BOTH" || majorUpper === majorFilter;
 			return matchesType && matchesSearch && matchesMajor;
 		});
 	}, [facultyProposals, activeTab, search, majorFilter]);
 
 	const getButtonState = (p: FacultyProposal) => {
-		const isMajorEligible = p.eligibleMajors === "both" || userMajorCategory === p.eligibleMajors;
-		const hasReachedLimit = joinedCount >= JOIN_LIMIT && !p.isJoined;
+		const majorUpper = p.eligibleMajors.toUpperCase() as "CSE" | "ECE" | "BOTH";
+		const isMajorEligible = majorUpper === "BOTH" || userMajorCategory === majorUpper;
+		const hasReachedLimit = !canJoin && !p.isJoined;
 		const isTeamFull = p.availableSlots === 0;
 		const isJoining = joinMutation.isPending && joinMutation.variables === p.slug;
 		const isDisabled = isJoining || p.isJoined || hasReachedLimit || isTeamFull || !isMajorEligible || p.status !== "approved";
@@ -212,7 +215,7 @@ export default function FacultiesProposalsPage() {
 		if (p.status !== "approved")
 			return { isDisabled: true, label: "Awaiting IC Approval", Icon: null, variant: "muted" as const };
 		if (hasReachedLimit)
-			return { isDisabled, label: `Limit Reached (${JOIN_LIMIT}/${JOIN_LIMIT})`, Icon: null, variant: "muted" as const };
+			return { isDisabled, label: `Limit Reached (${pendingCount}/${pendingLimit})`, Icon: null, variant: "muted" as const };
 		if (isTeamFull)
 			return { isDisabled, label: "Team Full", Icon: null, variant: "muted" as const };
 		if (!isMajorEligible)
@@ -243,8 +246,8 @@ export default function FacultiesProposalsPage() {
 				<div className="flex items-center gap-2 shrink-0 self-start sm:mt-1">
 					<div className="rounded-full border bg-card px-4 py-1.5 text-sm">
 						Applied{" "}
-						<span className={`font-bold ${joinedCount >= JOIN_LIMIT ? "text-rose-600" : "text-foreground"}`}>
-							{joinedCount}/{JOIN_LIMIT}
+						<span className={`font-bold ${!canJoin ? "text-rose-600" : "text-foreground"}`}>
+							{pendingCount}/{pendingLimit}
 						</span>
 					</div>
 					<div className="rounded-full border bg-card px-4 py-1.5 text-sm text-muted-foreground">
@@ -397,7 +400,7 @@ export default function FacultiesProposalsPage() {
 										</div>
 										<div className="flex items-center justify-between text-xs text-muted-foreground">
 											<span className="rounded-full bg-background border px-2 py-0.5">
-												{proposal.eligibleMajors === "both" ? "CSE & ECE" : proposal.eligibleMajors}
+												{proposal.eligibleMajors.toLowerCase() === "both" ? "CSE & ECE" : proposal.eligibleMajors.toUpperCase()}
 											</span>
 											{proposal.availableSlots === 0 ? (
 												<span className="text-rose-500 font-medium">Team full</span>

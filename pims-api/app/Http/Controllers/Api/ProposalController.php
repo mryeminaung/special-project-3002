@@ -12,6 +12,7 @@ use App\Http\Resources\proposal\StudentProposalResource;
 use App\Enums\ProposalType;
 use App\Models\Proposal;
 use App\Models\User;
+use App\Services\ProposalEligibilityService;
 use App\Services\ProposalService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
@@ -23,8 +24,24 @@ class ProposalController extends Controller
     use ApiResponse;
 
     public function __construct(
-        private ProposalService $proposalService
+        private ProposalService $proposalService,
+        private ProposalEligibilityService $eligibilityService
     ) {}
+
+    public function eligibility()
+    {
+        $user = Auth::user();
+
+        if ($user->hasRole('student')) {
+            $result = $this->eligibilityService->checkStudentEligibility($user);
+        } elseif ($user->hasAnyRole(['faculty', 'supervisor']) && ! $user->hasRole('ic')) {
+            $result = $this->eligibilityService->checkFacultyEligibility($user);
+        } else {
+            $result = ['eligible' => true, 'reason' => null, 'current' => 0, 'limit' => 0];
+        }
+
+        return $this->successResponse('Eligibility retrieved.', $result);
+    }
 
     public function index(Request $request)
     {
@@ -160,10 +177,6 @@ public function facultyProposals(Request $request)
     {
         $yearId = $request->query('year_id') ? (int) $request->query('year_id') : null;
         $proposals = $this->proposalService->myProposals(Auth::user(), $yearId);
-
-        if ($proposals->isEmpty()) {
-            return $this->errorResponse('No proposals found for the student', 404);
-        }
 
         return $this->successResponse(
             'Student proposals retrieved successfully.',

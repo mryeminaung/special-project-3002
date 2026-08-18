@@ -3,8 +3,6 @@ import {
 	IconFileDescription,
 	IconCircleCheck,
 	IconAlertTriangle,
-	IconTrendingUp,
-	IconTrendingDown,
 } from "@tabler/icons-react";
 import { useNavigate } from "react-router";
 import type { StatCardData } from "../types";
@@ -22,7 +20,6 @@ const defaultStats: StatCardData[] = [
 		icon: "FileDescription",
 		color: "text-amber-600 bg-amber-50 dark:bg-amber-950 dark:text-amber-400",
 		pageUrl: "/proposals",
-		trend: { value: 3, direction: "up" },
 	},
 	{
 		label: "Approved Projects",
@@ -30,7 +27,6 @@ const defaultStats: StatCardData[] = [
 		icon: "CircleCheck",
 		color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950 dark:text-emerald-400",
 		pageUrl: "/projects",
-		trend: { value: 8, direction: "up" },
 	},
 	{
 		label: "Completed Projects",
@@ -38,7 +34,6 @@ const defaultStats: StatCardData[] = [
 		icon: "CircleCheck",
 		color: "text-teal-600 bg-teal-50 dark:bg-teal-950 dark:text-teal-400",
 		pageUrl: "/projects",
-		trend: { value: 5, direction: "up" },
 	},
 	{
 		label: "Overdue Projects",
@@ -46,7 +41,6 @@ const defaultStats: StatCardData[] = [
 		icon: "AlertTriangle",
 		color: "text-red-600 bg-red-50 dark:bg-red-950 dark:text-red-400",
 		pageUrl: "/projects",
-		trend: { value: 1, direction: "down" },
 	},
 ];
 
@@ -81,26 +75,9 @@ export default function StatCards({
 						className="group cursor-pointer rounded-xl border-0 shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-0.5"
 						onClick={() => navigate(card.pageUrl)}>
 						<CardContent className="p-5">
-							<div className="flex items-start justify-between">
-								<div className={`flex h-10 w-10 items-center justify-center rounded-lg ${card.color}`}>
-									<IconComponent size={20} />
-								</div>
-								{card.trend && (
-									<div
-										className={`flex items-center gap-1 text-xs font-medium ${
-											card.trend.direction === "up"
-												? "text-emerald-600"
-												: "text-red-600"
-										}`}>
-										{card.trend.direction === "up" ? (
-											<IconTrendingUp size={14} />
-										) : (
-											<IconTrendingDown size={14} />
-										)}
-										<span>{card.trend.value}%</span>
-									</div>
-								)}
-							</div>
+							<div className={`flex h-10 w-10 items-center justify-center rounded-lg ${card.color}`}>
+							<IconComponent size={20} />
+						</div>
 							<div className="mt-4">
 								<p className="text-2xl font-bold tracking-tight text-foreground">
 									{card.value}

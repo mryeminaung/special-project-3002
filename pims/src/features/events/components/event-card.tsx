@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import { formatDate } from "@/lib/date";
 import type { EventType } from "../events.type";
 import EventSelectionModal from "./event-selection-modal";
+import { useProposalEligibility } from "@/hooks/use-proposal-eligibility";
 
 type EventCardProps = {
 	eventType: EventType;
@@ -33,13 +34,14 @@ export default function EventCard({ eventType, title, icon }: EventCardProps) {
 	const storedConfig = useEventStore((state) => state.eventConfigurations[eventType]);
 	const { isStudent, isIC, isFaculty } = useRoleChecker();
 	const { canSubmit, configuration } = useEventGuard(eventType);
+	const { canCreate, reason: eligibilityReason } = useProposalEligibility();
 
 	const [confirmDelete, setConfirmDelete] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
 	const [isToggling, setIsToggling] = useState(false);
 
-	const canCreateProposal = isEnrollmentOpen && isStudent && canSubmit;
-	const canCreateFacultyProposal = isEnrollmentOpen && isFaculty && !isIC && canSubmit;
+	const canCreateProposal = isEnrollmentOpen && isStudent && canSubmit && canCreate;
+	const canCreateFacultyProposal = isEnrollmentOpen && isFaculty && !isIC && canSubmit && canCreate;
 
 	const formatUrl = storedConfig?.formatUrl ?? null;
 
@@ -245,13 +247,16 @@ export default function EventCard({ eventType, title, icon }: EventCardProps) {
 				{/* Student actions */}
 				{isStudent && isEnrollmentOpen && configuration && (
 					<>
-						<Link to={`/proposals/new/student?event=${eventType}`}>
+						<Link
+							to={`/proposals/new/student?event=${eventType}`}
+							title={!canCreateProposal ? (eligibilityReason ?? undefined) : undefined}
+							className={!canCreateProposal ? "pointer-events-none" : ""}>
 							<Button
 								size="sm"
 								className={`w-full text-xs ${
 									canCreateProposal
 										? "bg-primary-600 hover:bg-primary-700 text-white"
-										: "bg-muted text-muted-foreground cursor-not-allowed pointer-events-none"
+										: "bg-muted text-muted-foreground cursor-not-allowed"
 								}`}>
 								Create Proposal
 							</Button>
@@ -266,13 +271,16 @@ export default function EventCard({ eventType, title, icon }: EventCardProps) {
 
 				{/* Faculty actions */}
 				{isFaculty && !isIC && isEnrollmentOpen && configuration && (
-					<Link to={`/proposals/new/faculty?event=${eventType}`}>
+					<Link
+						to={`/proposals/new/faculty?event=${eventType}`}
+						title={!canCreateFacultyProposal ? (eligibilityReason ?? undefined) : undefined}
+						className={!canCreateFacultyProposal ? "pointer-events-none" : ""}>
 						<Button
 							size="sm"
 							className={`w-full text-xs ${
 								canCreateFacultyProposal
 									? "bg-primary-600 hover:bg-primary-700 text-white"
-									: "bg-muted text-muted-foreground cursor-not-allowed pointer-events-none"
+									: "bg-muted text-muted-foreground cursor-not-allowed"
 							}`}>
 							Create Proposal
 						</Button>

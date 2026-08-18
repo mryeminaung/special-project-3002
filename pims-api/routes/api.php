@@ -106,6 +106,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/', 'index');
             Route::post('/', 'store');
             Route::get('/me', 'myProposals');
+            Route::get('/eligibility', 'eligibility');
             Route::get('/faculties', 'facultyProposals');
             Route::middleware('permission:view-all-proposals')->get('/all', 'allProposals');
             Route::get('/{proposal:slug}', 'show');

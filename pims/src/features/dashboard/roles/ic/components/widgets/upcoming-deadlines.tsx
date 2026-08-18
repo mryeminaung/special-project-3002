@@ -9,37 +9,18 @@ import {
 import { formatShortDate } from "@/lib/date";
 import type { DeadlineItem } from "../../types";
 
+function futureDate(daysFromNow: number): string {
+	const d = new Date();
+	d.setDate(d.getDate() + daysFromNow);
+	return d.toISOString().slice(0, 10);
+}
+
 const defaultDeadlines: DeadlineItem[] = [
-	{
-		id: 1,
-		title: "Mid-term Report Submission",
-		date: "2024-07-25",
-		type: "report",
-	},
-	{
-		id: 2,
-		title: "Final Proposal Review - Batch 12",
-		date: "2024-07-28",
-		type: "proposal",
-	},
-	{
-		id: 3,
-		title: "Capstone Project Defense",
-		date: "2024-08-05",
-		type: "defense",
-	},
-	{
-		id: 4,
-		title: "Mid-Seminar Presentation",
-		date: "2024-08-10",
-		type: "seminar",
-	},
-	{
-		id: 5,
-		title: "Faculty Evaluation Deadline",
-		date: "2024-08-15",
-		type: "report",
-	},
+	{ id: "1-mid",   title: "Project Alpha — Mid Seminar",   date: futureDate(4),  type: "seminar" },
+	{ id: "2-mid",   title: "Project Beta — Mid Seminar",    date: futureDate(9),  type: "seminar" },
+	{ id: "3-final", title: "Project Gamma — Final Seminar", date: futureDate(12), type: "defense" },
+	{ id: "4-final", title: "Project Delta — Final Seminar", date: futureDate(18), type: "defense" },
+	{ id: "5-mid",   title: "Project Epsilon — Mid Seminar", date: futureDate(25), type: "seminar" },
 ];
 
 const iconMap: Record<string, React.ComponentType<{ className?: string; size?: number }>> = {

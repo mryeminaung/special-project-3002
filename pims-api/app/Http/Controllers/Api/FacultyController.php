@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Services\FacultyService;
+use App\Services\ProposalEligibilityService;
 use App\Traits\ApiResponse;
 use Illuminate\Support\Facades\Storage;
 
@@ -73,7 +74,7 @@ class FacultyController extends Controller
             'rank'         => $user->faculty?->rank?->name,
             'department'   => $user->faculty?->department?->name,
             'workloadCount' => $user->workload_count,
-            'maxCapacity'  => 5,
+            'maxCapacity'  => ProposalEligibilityService::FACULTY_LIMIT,
         ]);
 
         return $this->successResponse('Faculties retrieved successfully.', $data);

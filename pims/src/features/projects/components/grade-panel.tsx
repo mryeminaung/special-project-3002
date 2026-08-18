@@ -37,6 +37,7 @@ type GradeEntry = {
 type Props = {
 	projectSlug: string;
 	members: Member[];
+	readOnly?: boolean;
 };
 
 type FormState = {
@@ -55,7 +56,7 @@ const INITIAL_FORM: FormState = {
 	gradeId: null,
 };
 
-export default function GradePanel({ projectSlug, members }: Props) {
+export default function GradePanel({ projectSlug, members, readOnly = false }: Props) {
 	const queryClient = useQueryClient();
 	const [open, setOpen] = useState(false);
 	const [form, setForm] = useState<FormState>(INITIAL_FORM);
@@ -68,7 +69,10 @@ export default function GradePanel({ projectSlug, members }: Props) {
 		staleTime: 30_000,
 	});
 
-	const gradesByStudent: Record<number, GradeEntry[]> = data?.data ?? {};
+	const gradesByStudent: Record<number, GradeEntry[]> = (() => {
+		const raw: { student: { id: number }; grades: GradeEntry[] }[] = data?.data ?? [];
+		return Object.fromEntries(raw.map((g) => [g.student.id, g.grades]));
+	})();
 
 	function openForNew(studentId: number) {
 		setForm({ ...INITIAL_FORM, student_id: studentId });
@@ -150,14 +154,16 @@ export default function GradePanel({ projectSlug, members }: Props) {
 							<div key={member.id} className="px-4 py-3 space-y-2">
 								<div className="flex items-center justify-between gap-2">
 									<p className="text-sm font-medium truncate">{member.name}</p>
-									<Button
-										size="sm"
-										variant="outline"
-										className="h-7 px-2 text-xs gap-1 shrink-0"
-										onClick={() => openForNew(member.id)}>
-										<IconPlus size={12} />
-										Add
-									</Button>
+									{!readOnly && (
+										<Button
+											size="sm"
+											variant="outline"
+											className="h-7 px-2 text-xs gap-1 shrink-0"
+											onClick={() => openForNew(member.id)}>
+											<IconPlus size={12} />
+											Add
+										</Button>
+									)}
 								</div>
 
 								<div className="grid grid-cols-2 gap-2">
@@ -176,7 +182,7 @@ export default function GradePanel({ projectSlug, members }: Props) {
 													<span className="font-medium capitalize text-muted-foreground">
 														{type}
 													</span>
-													{entry && (
+													{entry && !readOnly && (
 														<button
 															type="button"
 															onClick={() => openForEdit(entry)}

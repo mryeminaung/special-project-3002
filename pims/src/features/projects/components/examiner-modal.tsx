@@ -64,10 +64,14 @@ export default function ExaminerModal({ open, onClose, projectSlug, assignedIds 
 			(f.department ?? "").toLowerCase().includes(search.toLowerCase()),
 	);
 
+	const MAX_EXAMINERS = 3;
+
 	function toggle(id: number) {
-		setSelected((prev) =>
-			prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
-		);
+		setSelected((prev) => {
+			if (prev.includes(id)) return prev.filter((x) => x !== id);
+			if (prev.length >= MAX_EXAMINERS) return prev;
+			return [...prev, id];
+		});
 	}
 
 	async function handleSave() {
@@ -145,15 +149,19 @@ export default function ExaminerModal({ open, onClose, projectSlug, assignedIds 
 					) : (
 						filtered.map((f) => {
 							const isSelected = selected.includes(f.id);
+							const isDisabled = !isSelected && selected.length >= MAX_EXAMINERS;
 							return (
 								<button
 									key={f.id}
 									type="button"
 									onClick={() => toggle(f.id)}
+									disabled={isDisabled}
 									className={cn(
 										"flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors",
 										isSelected
 											? "bg-primary-50 dark:bg-primary-900/30"
+											: isDisabled
+											? "opacity-40 cursor-not-allowed"
 											: "hover:bg-muted/60",
 									)}>
 									<Avatar className="h-8 w-8 shrink-0">
@@ -183,8 +191,13 @@ export default function ExaminerModal({ open, onClose, projectSlug, assignedIds 
 				</div>
 
 				<DialogFooter>
-					<p className="mr-auto text-xs text-muted-foreground self-center">
-						{selected.length} selected
+					<p className="mr-auto text-xs self-center">
+						<span className={selected.length >= MAX_EXAMINERS ? "text-amber-600 font-medium" : "text-muted-foreground"}>
+							{selected.length}/{MAX_EXAMINERS} selected
+						</span>
+						{selected.length >= MAX_EXAMINERS && (
+							<span className="ml-1.5 text-amber-600">· Max reached</span>
+						)}
 					</p>
 					<Button variant="outline" onClick={onClose} disabled={isSaving}>
 						Cancel

@@ -274,9 +274,9 @@ export default function StudentProjectDetailPage() {
 				</div>
 			)}
 
-			{/* Grades — student can view their own grades */}
+			{/* Grades — read-only for students */}
 			{isStudent && members.length > 0 && (
-				<GradePanel projectSlug={project.slug} members={members} />
+				<GradePanel projectSlug={project.slug} members={members} readOnly />
 			)}
 		</div>
 	);

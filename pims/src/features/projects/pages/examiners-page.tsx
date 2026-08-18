@@ -220,7 +220,7 @@ export default function ExaminersPage() {
 								<TableHead>Project</TableHead>
 								<TableHead className="hidden md:table-cell">Status</TableHead>
 								<TableHead>Examiners</TableHead>
-								<TableHead className="w-24">Action</TableHead>
+								<TableHead className="w-28">Action</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>

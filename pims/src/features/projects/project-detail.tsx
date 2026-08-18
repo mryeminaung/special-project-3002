@@ -271,9 +271,9 @@ export default function ProjectDetailPage() {
 				</div>
 			)}
 
-			{/* Grades — IC can view all grades */}
+			{/* Grades — read-only for IC */}
 			{isIC && members.length > 0 && (
-				<GradePanel projectSlug={slug!} members={members} />
+				<GradePanel projectSlug={slug!} members={members} readOnly />
 			)}
 
 			{/* Mark Complete */}

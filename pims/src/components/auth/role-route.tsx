@@ -14,6 +14,7 @@ function createRoleRoute(...allowedRoles: UserRole[]) {
 
 export const AdminRoute            = createRoleRoute("admin");
 export const ICRoute               = createRoleRoute("ic");
+export const SARoute               = createRoleRoute("student-affairs");
 export const SupervisorRoute       = createRoleRoute("supervisor");
 export const FacultyRoute          = createRoleRoute("faculty");
 export const StudentRoute          = createRoleRoute("student");

@@ -16,7 +16,7 @@ import AppLogo from "./app-logo";
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 	const authUser = useAuthStore((state) => state.authUser);
-	const { isAdmin, isIC, isStudent, isFaculty, isSupervisor, isExaminer, isTeamLeader } =
+	const { isAdmin, isIC, isStudent, isFaculty, isSupervisor, isExaminer, isTeamLeader, isStudentAffairs } =
 		useRoleChecker();
 
 	const navMain = [
@@ -30,6 +30,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 		...(isFaculty && !isSupervisor && !isAdmin && !isIC ? NAV_ITEMS.faculty : []),
 		// examiner shares supervisor nav (assigned projects + proposals)
 		...(isExaminer && !isSupervisor && !isFaculty && !isIC ? NAV_ITEMS.supervisor : []),
+		// student affairs
+		...(isStudentAffairs ? NAV_ITEMS.studentAffairs : []),
 	];
 
 	return (

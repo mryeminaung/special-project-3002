@@ -87,6 +87,10 @@ class RolePermissionSeeder extends Seeder
             'upload-report',
         ]);
 
+        Role::findByName('student-affairs')->syncPermissions([
+            'view-all-proposals',
+        ]);
+
         Role::findByName('admin')->syncPermissions([
             'manage-departments',
             'manage-project-areas',

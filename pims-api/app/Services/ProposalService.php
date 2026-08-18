@@ -18,6 +18,10 @@ use Illuminate\Support\Str;
 
 class ProposalService
 {
+    public function __construct(
+        private ProposalEligibilityService $eligibility
+    ) {}
+
     public function listPaginated(?int $yearId = null): LengthAwarePaginator
     {
         return Proposal::with('supervisor:id,name', 'area:id,name', 'academicYear:id,year')
@@ -55,23 +59,16 @@ class ProposalService
         $data['academic_year_id'] = $activeYear->id;
 
         if (($data['type'] ?? ProposalType::Student->value) === ProposalType::Student->value) {
-            $studentId = $user->id;
-
-            $isLeader = Proposal::where('student_id', $studentId)
-                ->whereNotNull('student_id')
-                ->exists();
-
-            $isMember = DB::table('proposal_student')
-                ->where('user_id', $studentId)
-                ->where('status', 'accepted')
-                ->exists();
-
-            if ($isLeader || $isMember) {
-                return ['success' => false, 'message' => 'Student is already part of another proposal as leader or member.'];
+            $check = $this->eligibility->checkStudentEligibility($user);
+            if (! $check['canCreate']) {
+                return ['success' => false, 'message' => $check['reason']];
             }
-
             $data['student_id'] = $user->id;
         } else {
+            $check = $this->eligibility->checkFacultyEligibility($user);
+            if (! $check['eligible']) {
+                return ['success' => false, 'message' => $check['reason']];
+            }
             $data['student_id'] = null;
         }
 
@@ -108,6 +105,14 @@ class ProposalService
 
     public function rejectByIC(Proposal $proposal): array
     {
+        if ($proposal->status === ProposalStatus::Approved) {
+            return ['success' => false, 'message' => 'Cannot reject an already approved proposal.'];
+        }
+
+        if ($proposal->status === ProposalStatus::Rejected) {
+            return ['success' => true, 'message' => 'Proposal is already rejected.'];
+        }
+
         $proposal->update(['status' => ProposalStatus::Rejected]);
 
         return ['success' => true, 'message' => 'Proposal Rejected!'];
@@ -154,10 +159,9 @@ public function listFacultyProposals(?int $yearId = null): Collection
             return ['success' => false, 'message' => 'You have already joined this proposal.', 'status' => 422];
         }
 
-        $joinedProposalsCount = $this->getJoinedProposalsCount($user);
-
-        if ($joinedProposalsCount >= 2) {
-            return ['success' => false, 'message' => 'Students can join up to 2 proposals only.', 'status' => 422];
+        $eligibility = $this->eligibility->checkStudentEligibility($user);
+        if (! $eligibility['canJoin']) {
+            return ['success' => false, 'message' => $eligibility['reason'], 'status' => 422];
         }
 
         $currentMembersCount = $proposal->applications()->count();
@@ -179,7 +183,7 @@ public function listFacultyProposals(?int $yearId = null): Collection
             'data'    => [
                 'proposal_id'        => $proposal->id,
                 'available_slots'    => max($maxStudents - ($currentMembersCount + 1), 0),
-                'joined_proposals'   => $joinedProposalsCount + 1,
+                'joined_proposals'   => $eligibility['pendingCount'] + 1,
                 'joined_proposal'    => true,
                 'application_status' => 'pending',
             ],
@@ -221,6 +225,13 @@ public function listFacultyProposals(?int $yearId = null): Collection
             ->where('proposal_id', $proposal->id)
             ->where('user_id', $student->id)
             ->update(['status' => 'accepted', 'updated_at' => now()]);
+
+        // Free all other pending applications this student has on different proposals.
+        DB::table('proposal_student')
+            ->where('user_id', $student->id)
+            ->where('status', 'pending')
+            ->where('proposal_id', '!=', $proposal->id)
+            ->delete();
 
         $acceptedCount = DB::table('proposal_student')
             ->where('proposal_id', $proposal->id)

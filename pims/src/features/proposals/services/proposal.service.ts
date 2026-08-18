@@ -96,6 +96,11 @@ export async function deleteComment(commentId: number) {
 	await api.delete(`/comments/${commentId}`);
 }
 
+export async function getProposalEligibility() {
+	const res = await api.get("/proposals/eligibility");
+	return res.data;
+}
+
 export async function getProposalProjectAreas() {
 	const res = await api.get("/project-areas");
 	return res.data;

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\ProjectStatus;
+use App\Services\ProposalEligibilityService;
 use App\Enums\ProposalStatus;
 use App\Models\Department;
 use App\Models\Project;
@@ -130,15 +131,15 @@ class DashboardService
                 fn($p) => collect()
                     ->when($p->mid_seminar_deadline, fn($c) => $c->push([
                         'id'    => $p->id . '-mid',
-                        'title' => $p->name . ' - Mid Seminar',
+                        'title' => $p->name . ' — Mid Seminar',
                         'date'  => $p->mid_seminar_deadline,
                         'type'  => 'seminar',
                     ]))
                     ->when($p->final_seminar_deadline, fn($c) => $c->push([
                         'id'    => $p->id . '-final',
-                        'title' => $p->name . ' - Final Seminar',
+                        'title' => $p->name . ' — Final Seminar',
                         'date'  => $p->final_seminar_deadline,
-                        'type'  => 'seminar',
+                        'type'  => 'defense',
                     ]))
             )
             ->filter(fn($d) => Carbon::parse($d['date'])->isFuture())
@@ -153,12 +154,14 @@ class DashboardService
         return User::role('faculty')
             ->with('faculty.department')
             ->withCount(['projects as assigned' => fn($q) => $q->where('status', ProjectStatus::Active)])
+            ->orderByDesc('assigned')
+            ->limit(10)
             ->get()
             ->map(fn($user) => [
                 'id'          => $user->id,
                 'name'        => $user->name,
                 'assigned'    => $user->assigned ?? 0,
-                'maxCapacity' => 10,
+                'maxCapacity' => ProposalEligibilityService::FACULTY_LIMIT,
                 'department'  => $user->faculty?->department?->name ?? 'N/A',
             ])
             ->toArray();
@@ -220,27 +223,57 @@ class DashboardService
 
     public function getStudentAffairsDashboardData(): array
     {
-        $totalStudents = Student::count();
-
-        $byGraduationStatus = Student::select('graduation_status', DB::raw('count(*) as total'))
-            ->groupBy('graduation_status')
-            ->pluck('total', 'graduation_status')
-            ->toArray();
-
         $byMajor = Student::select('major_id', DB::raw('count(*) as total'))
             ->with('major:id,name')
             ->groupBy('major_id')
             ->get()
             ->map(fn($s) => [
                 'major' => $s->major?->name ?? 'Unknown',
-                'total' => $s->total,
+                'total' => (int) $s->total,
+            ])
+            ->toArray();
+
+        $proposalsByStatus = Proposal::select('status', DB::raw('count(*) as total'))
+            ->groupBy('status')
+            ->get()
+            ->mapWithKeys(fn($r) => [$r->status->value => (int) $r->total])
+            ->toArray();
+
+        $projectsByStatus = Project::select('status', DB::raw('count(*) as total'))
+            ->groupBy('status')
+            ->get()
+            ->mapWithKeys(fn($r) => [$r->status->value => (int) $r->total])
+            ->toArray();
+
+        $recentProposals = Proposal::with('supervisor:id,name', 'area:id,name')
+            ->latest('submitted_at')
+            ->limit(5)
+            ->get()
+            ->map(fn($p) => [
+                'id'          => $p->id,
+                'title'       => $p->title,
+                'slug'        => $p->slug,
+                'status'      => $p->status->value,
+                'type'        => $p->type->value,
+                'supervisor'  => $p->supervisor?->name,
+                'submittedAt' => $p->submitted_at?->format('Y-m-d'),
+                'documentUrl' => $p->fileUrl,
             ])
             ->toArray();
 
         return [
-            'totalStudents'      => $totalStudents,
-            'byGraduationStatus' => $byGraduationStatus,
-            'byMajor'            => $byMajor,
+            'stats' => [
+                'totalStudents'   => Student::count(),
+                'totalProposals'  => Proposal::count(),
+                'totalProjects'   => Project::count(),
+                'totalSupervisors' => User::role('supervisor')->count(),
+                'activeProjects'  => Project::where('status', ProjectStatus::Active)->count(),
+                'pendingProposals' => Proposal::where('status', ProposalStatus::Pending)->count(),
+            ],
+            'byMajor'           => $byMajor,
+            'proposalsByStatus' => $proposalsByStatus,
+            'projectsByStatus'  => $projectsByStatus,
+            'recentProposals'   => $recentProposals,
         ];
     }
 

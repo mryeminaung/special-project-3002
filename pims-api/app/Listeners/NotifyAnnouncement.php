@@ -22,6 +22,6 @@ class NotifyAnnouncement
             default                          => ['student', 'faculty', 'supervisor'],
         };
 
-        User::role($roles)->each(fn(User $user) => $user->notify($notification));
+        User::role($roles)->distinct()->each(fn(User $user) => $user->notify($notification));
     }
 }

@@ -19,6 +19,7 @@ class ProposalTableResource extends JsonResource
             'status'       => $this->status->value,
             'submittedAt'  => $this->submitted_at->format('Y-m-d'),
             'academicYear' => $this->academicYear?->year,
+            'documentUrl'  => $this->fileUrl,
         ];
     }
 }

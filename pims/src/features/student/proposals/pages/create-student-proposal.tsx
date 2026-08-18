@@ -42,8 +42,8 @@ const ProposalSchema = z.object({
 	type: z.enum(["student", "faculty"]),
 	members: z
 		.array(z.string())
-		.min(2, "Select at least 2 team members")
-		.max(3, "Maximum 3 members allowed"),
+		.min(1, "Select at least 1 additional team member")
+		.max(3, "You can add up to 3 additional members"),
 
 	fileUrl: z.string().min(1, "Proposal file is required"),
 });

@@ -116,9 +116,8 @@ export default function FacultyProposalDetailPage() {
 
 	const approveMutation = useMutation({
 		mutationFn: () => approveProposal(proposal?.slug),
-		onMutate: () => setShowApprovalModal(true),
+		onSuccess: () => setShowApprovalModal(true),
 		onError: (error: any) => {
-			setShowApprovalModal(false);
 			toast.error(error.response?.data?.message || "Failed to approve proposal.");
 		},
 	});
@@ -182,7 +181,7 @@ export default function FacultyProposalDetailPage() {
 			<Toaster />
 			<ApprovalModal
 				isOpen={showApprovalModal}
-				isLoading={approveMutation.isPending}
+				proposalTitle={proposal?.title}
 				onComplete={handleApprovalModalComplete}
 			/>
 
@@ -374,11 +373,20 @@ export default function FacultyProposalDetailPage() {
 											Reject
 										</Button>
 										<Button
-											onClick={() => approveMutation.mutate()} disabled={approveMutation.isPending}
+											onClick={() => approveMutation.mutate()} disabled={approveMutation.isPending || rejectMutation.isPending}
 											size="sm"
 											className="flex-1 gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white">
-											<HandThumbUpIcon className="size-3.5 stroke-2" />
-											Approve
+											{approveMutation.isPending ? (
+												<span className="flex items-center gap-1.5">
+													<span className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-white/30 border-t-white" />
+													Approving…
+												</span>
+											) : (
+												<>
+													<HandThumbUpIcon className="size-3.5 stroke-2" />
+													Approve
+												</>
+											)}
 										</Button>
 									</div>
 								</div>
