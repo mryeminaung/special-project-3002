@@ -15,6 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
 import ProposalCard from "../components/proposal-card";
+import { getAcademicYears } from "@/features/admin/services/admin.service";
 
 export default function MyProposasPage() {
 	useHeaderInitializer(PAGE_META.myProposals.title, PAGE_META.myProposals.subtitle);
@@ -22,10 +23,17 @@ export default function MyProposasPage() {
 	const [search, setSearch] = useState("");
 	const [statusFilter, setStatusFilter] = useState("all");
 	const [projectTypeFilter, setProjectTypeFilter] = useState("all");
+	const [yearId, setYearId] = useState<number | undefined>(undefined);
+
+	const { data: academicYears = [] } = useQuery({
+		queryKey: ["academicYears"],
+		queryFn: getAcademicYears,
+		staleTime: 60_000,
+	});
 
 	const { data: myProposals, isLoading } = useQuery({
-		queryKey: ["myProposals"],
-		queryFn: getMyProposals,
+		queryKey: ["myProposals", yearId],
+		queryFn: () => getMyProposals(yearId),
 	});
 
 	const proposals = myProposals?.data || [];
@@ -47,12 +55,13 @@ export default function MyProposasPage() {
 	});
 
 	const hasActiveFilters =
-		search !== "" || statusFilter !== "all" || projectTypeFilter !== "all";
+		search !== "" || statusFilter !== "all" || projectTypeFilter !== "all" || yearId !== undefined;
 
 	const clearFilters = () => {
 		setSearch("");
 		setStatusFilter("all");
 		setProjectTypeFilter("all");
+		setYearId(undefined);
 	};
 
 	return (
@@ -94,6 +103,22 @@ export default function MyProposasPage() {
 						<SelectItem value="special">Special</SelectItem>
 						<SelectItem value="capstone">Capstone</SelectItem>
 						<SelectItem value="master">Master</SelectItem>
+					</SelectContent>
+				</Select>
+				<Select
+					value={yearId ? String(yearId) : "all"}
+					onValueChange={(v) => setYearId(v === "all" ? undefined : Number(v))}
+				>
+					<SelectTrigger className="w-full sm:w-40">
+						<SelectValue placeholder="Academic Year" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="all">All Years</SelectItem>
+						{academicYears.map((y: any) => (
+							<SelectItem key={y.id} value={String(y.id)}>
+								{y.year}
+							</SelectItem>
+						))}
 					</SelectContent>
 				</Select>
 				{hasActiveFilters && (

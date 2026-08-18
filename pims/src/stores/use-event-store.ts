@@ -7,6 +7,7 @@ type EventConfiguration = {
 	description: string;
 	startDate: string;
 	endDate: string;
+	formatUrl?: string | null;
 };
 
 type EnrollmentByEvent = Record<EventType, boolean>;
@@ -47,6 +48,8 @@ type BackendProjectEvent = {
 	end_date?: string | null;
 	is_active?: boolean;
 	isActive?: boolean;
+	formatUrl?: string | null;
+	format_url?: string | null;
 };
 
 const DEFAULT_ENROLLMENT_BY_EVENT: EnrollmentByEvent = {
@@ -86,6 +89,7 @@ function normalizeEventStatus(payload: BackendProjectEvent) {
 		detail: payload.detail ?? null,
 		startDate: payload.startDate ?? payload.start_date ?? null,
 		endDate: payload.endDate ?? payload.end_date ?? null,
+		formatUrl: payload.formatUrl ?? payload.format_url ?? null,
 	};
 }
 
@@ -110,6 +114,7 @@ function applyStatuses(statuses: BackendProjectEvent[]) {
 				description: normalized.detail ?? "",
 				startDate: normalized.startDate ?? "",
 				endDate: normalized.endDate ?? "",
+				formatUrl: normalized.formatUrl ?? null,
 			};
 		}
 	}
@@ -184,6 +189,7 @@ export const useEventStore = create<EventStoreState>()(
 				start_date: configuration.startDate,
 				end_date: configuration.endDate,
 				is_active: true,
+				format_url: configuration.formatUrl ?? null,
 			};
 
 			if (existingId) {
@@ -213,6 +219,7 @@ export const useEventStore = create<EventStoreState>()(
 				start_date: configuration.startDate,
 				end_date: configuration.endDate,
 				is_active: get().enrollmentByEvent[eventType],
+				format_url: configuration.formatUrl ?? null,
 			};
 
 			await api.patch<ApiSuccessResponse<BackendProjectEvent>>(

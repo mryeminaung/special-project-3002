@@ -1,5 +1,6 @@
 export interface ProjectArea {
 	id: number;
+	slug: string;
 	name: string;
 	description: string;
 	projects_count: number;

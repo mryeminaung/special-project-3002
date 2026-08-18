@@ -43,11 +43,13 @@ type Faculty = {
 export default function FacultiesTable({
 	facultyData,
 	isLoading = false,
+	showView = true,
 	onEdit,
 	onResetPassword,
 }: {
 	facultyData: Faculty[];
 	isLoading?: boolean;
+	showView?: boolean;
 	onEdit?: (faculty: Faculty) => void;
 	onResetPassword?: (faculty: Faculty) => void;
 }) {
@@ -195,7 +197,7 @@ export default function FacultiesTable({
 									</TableCell>
 									<TableCell className="text-center">
 										<div className="flex items-center justify-center gap-1">
-											<ViewDetail url={`/faculties/${faculty.id}/detail`} />
+											{showView && <ViewDetail url={`/faculties/${faculty.id}/detail`} />}
 											{onEdit && (
 												<button
 													onClick={() => onEdit(faculty)}

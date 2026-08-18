@@ -31,6 +31,7 @@ class BrowseFacultyResource extends JsonResource
             'availableSlots'    => max($maxStudents - $membersCount, 0),
             'isJoined'          => (bool) $currentUserApplication,
             'applicationStatus' => $currentUserApplication?->pivot?->status,
+            'academicYear'      => $this->academicYear?->year,
         ];
     }
 }

@@ -86,6 +86,24 @@ class FileController extends Controller
         );
     }
 
+    public function uploadProposalFormat(Request $request)
+    {
+        $request->validate([
+            'file' => ['required', 'mimes:pdf,doc,docx', 'max:10240'],
+        ], [
+            'file.required' => 'Please upload a file.',
+            'file.mimes'    => 'Only PDF, DOC, or DOCX files are allowed.',
+            'file.max'      => 'File size must not exceed 10MB.',
+        ]);
+
+        $path = $this->fileService->uploadProposalFormat($request->file('file'));
+
+        return $this->successResponse(
+            'Proposal format uploaded successfully.',
+            ['url' => "storage/{$path}"]
+        );
+    }
+
     public function deleteReport(Request $request)
     {
         $validated = $request->validate([

@@ -159,3 +159,8 @@ body::-webkit-scrollbar {
     @apply bg-background text-foreground;
   }
 }
+
+@keyframes progress {
+  from { width: 0% }
+  to   { width: 100% }
+}

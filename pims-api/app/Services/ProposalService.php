@@ -18,9 +18,25 @@ use Illuminate\Support\Str;
 
 class ProposalService
 {
-    public function listPaginated(): LengthAwarePaginator
+    public function __construct(
+        private ProposalEligibilityService $eligibility
+    ) {}
+
+    public function listPaginated(?int $yearId = null): LengthAwarePaginator
     {
-        return Proposal::with('supervisor:id,name', 'area:id,name')->orderBy('id')->paginate(5);
+        return Proposal::with('supervisor:id,name', 'area:id,name', 'academicYear:id,year')
+            ->when($yearId, fn ($q) => $q->where('academic_year_id', $yearId))
+            ->orderBy('id')
+            ->paginate(5);
+    }
+
+    public function listAll(?int $supervisorId = null, ?int $yearId = null): LengthAwarePaginator
+    {
+        return Proposal::with('supervisor:id,name', 'area:id,name', 'academicYear:id,year')
+            ->when($supervisorId, fn ($q) => $q->where('supervisor_id', $supervisorId))
+            ->when($yearId, fn ($q) => $q->where('academic_year_id', $yearId))
+            ->orderByDesc('id')
+            ->paginate(10);
     }
 
     public function create(array $data, User $user): array
@@ -43,23 +59,16 @@ class ProposalService
         $data['academic_year_id'] = $activeYear->id;
 
         if (($data['type'] ?? ProposalType::Student->value) === ProposalType::Student->value) {
-            $studentId = $user->id;
-
-            $isLeader = Proposal::where('student_id', $studentId)
-                ->whereNotNull('student_id')
-                ->exists();
-
-            $isMember = DB::table('proposal_student')
-                ->where('user_id', $studentId)
-                ->where('status', 'accepted')
-                ->exists();
-
-            if ($isLeader || $isMember) {
-                return ['success' => false, 'message' => 'Student is already part of another proposal as leader or member.'];
+            $check = $this->eligibility->checkStudentEligibility($user);
+            if (! $check['canCreate']) {
+                return ['success' => false, 'message' => $check['reason']];
             }
-
             $data['student_id'] = $user->id;
         } else {
+            $check = $this->eligibility->checkFacultyEligibility($user);
+            if (! $check['eligible']) {
+                return ['success' => false, 'message' => $check['reason']];
+            }
             $data['student_id'] = null;
         }
 
@@ -96,24 +105,25 @@ class ProposalService
 
     public function rejectByIC(Proposal $proposal): array
     {
+        if ($proposal->status === ProposalStatus::Approved) {
+            return ['success' => false, 'message' => 'Cannot reject an already approved proposal.'];
+        }
+
+        if ($proposal->status === ProposalStatus::Rejected) {
+            return ['success' => true, 'message' => 'Proposal is already rejected.'];
+        }
+
         $proposal->update(['status' => ProposalStatus::Rejected]);
 
         return ['success' => true, 'message' => 'Proposal Rejected!'];
     }
 
-    public function browseBySupervisor(User $supervisor): LengthAwarePaginator
-    {
-        return Proposal::where('supervisor_id', $supervisor->id)
-            ->with('supervisor:id,name', 'area:id,name')
-            ->orderBy('id')
-            ->paginate(5);
-    }
-
-    public function listFacultyProposals(): Collection
+public function listFacultyProposals(?int $yearId = null): Collection
     {
         return Proposal::where('type', ProposalType::Faculty)
-            ->with(['applications' => fn($q) => $q->withPivot('status'), 'supervisor:id,name'])
+            ->with(['applications' => fn($q) => $q->withPivot('status'), 'supervisor:id,name', 'academicYear:id,year'])
             ->withCount('applications')
+            ->when($yearId, fn($q) => $q->where('academic_year_id', $yearId))
             ->orderBy('id')
             ->get();
     }
@@ -149,10 +159,9 @@ class ProposalService
             return ['success' => false, 'message' => 'You have already joined this proposal.', 'status' => 422];
         }
 
-        $joinedProposalsCount = $this->getJoinedProposalsCount($user);
-
-        if ($joinedProposalsCount >= 2) {
-            return ['success' => false, 'message' => 'Students can join up to 2 proposals only.', 'status' => 422];
+        $eligibility = $this->eligibility->checkStudentEligibility($user);
+        if (! $eligibility['canJoin']) {
+            return ['success' => false, 'message' => $eligibility['reason'], 'status' => 422];
         }
 
         $currentMembersCount = $proposal->applications()->count();
@@ -174,7 +183,7 @@ class ProposalService
             'data'    => [
                 'proposal_id'        => $proposal->id,
                 'available_slots'    => max($maxStudents - ($currentMembersCount + 1), 0),
-                'joined_proposals'   => $joinedProposalsCount + 1,
+                'joined_proposals'   => $eligibility['pendingCount'] + 1,
                 'joined_proposal'    => true,
                 'application_status' => 'pending',
             ],
@@ -216,6 +225,13 @@ class ProposalService
             ->where('proposal_id', $proposal->id)
             ->where('user_id', $student->id)
             ->update(['status' => 'accepted', 'updated_at' => now()]);
+
+        // Free all other pending applications this student has on different proposals.
+        DB::table('proposal_student')
+            ->where('user_id', $student->id)
+            ->where('status', 'pending')
+            ->where('proposal_id', '!=', $proposal->id)
+            ->delete();
 
         $acceptedCount = DB::table('proposal_student')
             ->where('proposal_id', $proposal->id)
@@ -272,10 +288,11 @@ class ProposalService
         return ['success' => true, 'message' => 'Student rejected and removed from application list.', 'data' => null, 'status' => 200];
     }
 
-    public function myProposals(User $user): Collection
+    public function myProposals(User $user, ?int $yearId = null): Collection
     {
         return $user->teamProposals()
-            ->with(['supervisor', 'leader', 'members'])
+            ->with(['supervisor', 'leader', 'members', 'academicYear:id,year'])
+            ->when($yearId, fn($q) => $q->where('academic_year_id', $yearId))
             ->get();
     }
 

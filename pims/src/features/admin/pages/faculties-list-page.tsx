@@ -57,6 +57,7 @@ export default function FacultiesListPage() {
 			<FacultiesTable
 				facultyData={facultyData?.data ?? []}
 				isLoading={isFetching}
+				showView={false}
 				onEdit={handleEdit}
 				onResetPassword={handleResetPassword}
 			/>

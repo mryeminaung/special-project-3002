@@ -12,25 +12,29 @@ use Illuminate\Support\Facades\DB;
 
 class ProjectService
 {
-    public function list(): Collection
+    public function list(?int $yearId = null): Collection
     {
-        return Project::with(['leader', 'supervisor', 'members', 'area', 'examiners'])->get();
-    }
-
-    public function studentProjects(User $user): Collection
-    {
-        return Project::with(['leader', 'supervisor', 'members', 'area'])
-            ->where('leader_id', $user->id)
-            ->orWhereHas('members', function ($query) use ($user) {
-                $query->where('users.id', $user->id);
-            })
+        return Project::with(['leader', 'supervisor', 'members', 'area', 'examiners', 'academicYear'])
+            ->when($yearId, fn ($q) => $q->where('academic_year_id', $yearId))
             ->get();
     }
 
-    public function assignedProjects(User $supervisor): Collection
+    public function studentProjects(User $user, ?int $yearId = null): Collection
     {
-        return Project::with(['leader', 'supervisor', 'members', 'area'])
+        return Project::with(['leader', 'supervisor', 'members', 'area', 'academicYear'])
+            ->where(function ($q) use ($user) {
+                $q->where('leader_id', $user->id)
+                  ->orWhereHas('members', fn ($m) => $m->where('users.id', $user->id));
+            })
+            ->when($yearId, fn ($q) => $q->where('academic_year_id', $yearId))
+            ->get();
+    }
+
+    public function assignedProjects(User $supervisor, ?int $yearId = null): Collection
+    {
+        return Project::with(['leader', 'supervisor', 'members', 'area', 'academicYear'])
             ->where('supervisor_id', $supervisor->id)
+            ->when($yearId, fn ($q) => $q->where('academic_year_id', $yearId))
             ->get();
     }
 
@@ -214,6 +218,12 @@ class ProjectService
 
             $project->update(['status' => 'completed']);
 
+            // Stamp completed_at to preserve history, then demote role if no other active projects
+            $project->examiners()->newPivotStatement()
+                ->where('project_id', $project->id)
+                ->whereNull('completed_at')
+                ->update(['completed_at' => now()]);
+
             foreach ($examiners as $examiner) {
                 $this->demoteExaminerIfIdle($examiner, $project->id);
             }
@@ -229,6 +239,7 @@ class ProjectService
         $stillExamining = DB::table('project_examiner')
             ->join('projects', 'project_examiner.project_id', '=', 'projects.id')
             ->where('project_examiner.user_id', $user->id)
+            ->whereNull('project_examiner.completed_at')
             ->where('projects.id', '!=', $excludeProjectId)
             ->where('projects.status', '!=', 'completed')
             ->exists();

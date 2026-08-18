@@ -12,6 +12,7 @@ use App\Http\Resources\proposal\StudentProposalResource;
 use App\Enums\ProposalType;
 use App\Models\Proposal;
 use App\Models\User;
+use App\Services\ProposalEligibilityService;
 use App\Services\ProposalService;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
@@ -23,12 +24,29 @@ class ProposalController extends Controller
     use ApiResponse;
 
     public function __construct(
-        private ProposalService $proposalService
+        private ProposalService $proposalService,
+        private ProposalEligibilityService $eligibilityService
     ) {}
 
-    public function index()
+    public function eligibility()
     {
-        $proposals = $this->proposalService->listPaginated();
+        $user = Auth::user();
+
+        if ($user->hasRole('student')) {
+            $result = $this->eligibilityService->checkStudentEligibility($user);
+        } elseif ($user->hasAnyRole(['faculty', 'supervisor']) && ! $user->hasRole('ic')) {
+            $result = $this->eligibilityService->checkFacultyEligibility($user);
+        } else {
+            $result = ['eligible' => true, 'reason' => null, 'current' => 0, 'limit' => 0];
+        }
+
+        return $this->successResponse('Eligibility retrieved.', $result);
+    }
+
+    public function index(Request $request)
+    {
+        $yearId = $request->query('year_id') ? (int) $request->query('year_id') : null;
+        $proposals = $this->proposalService->listPaginated($yearId);
         $data = $this->paginatedResponse(ProposalTableResource::class, $proposals);
 
         return $this->successResponse("Proposals retrieved successfully.", $data);
@@ -96,19 +114,11 @@ class ProposalController extends Controller
         return $this->errorResponse('Proposal type not recognized', 404);
     }
 
-    public function browseProposals()
+public function facultyProposals(Request $request)
     {
-        $proposals = $this->proposalService->browseBySupervisor(Auth::user());
-
-        $data = $this->paginatedResponse(ProposalTableResource::class, $proposals);
-
-        return $this->successResponse("Proposals retrieved successfully.", $data);
-    }
-
-    public function facultyProposals()
-    {
+        $yearId = $request->query('year_id') ? (int) $request->query('year_id') : null;
         $joinedProposalsCount = $this->proposalService->getJoinedProposalsCount(Auth::user());
-        $proposals = $this->proposalService->listFacultyProposals();
+        $proposals = $this->proposalService->listFacultyProposals($yearId);
 
         return $this->successResponse(
             "Faculty proposals retrieved successfully.",
@@ -152,13 +162,21 @@ class ProposalController extends Controller
         return $this->successResponse($result['message'], $result['data'] ?? null, $result['status']);
     }
 
-    public function myProposals()
+    public function allProposals(Request $request)
     {
-        $proposals = $this->proposalService->myProposals(Auth::user());
+        $supervisorId = $request->boolean('mine') ? Auth::id() : null;
+        $yearId = $request->query('year_id') ? (int) $request->query('year_id') : null;
 
-        if ($proposals->isEmpty()) {
-            return $this->errorResponse('No proposals found for the student', 404);
-        }
+        $proposals = $this->proposalService->listAll($supervisorId, $yearId);
+        $data = $this->paginatedResponse(ProposalTableResource::class, $proposals);
+
+        return $this->successResponse('All proposals retrieved.', $data);
+    }
+
+    public function myProposals(Request $request)
+    {
+        $yearId = $request->query('year_id') ? (int) $request->query('year_id') : null;
+        $proposals = $this->proposalService->myProposals(Auth::user(), $yearId);
 
         return $this->successResponse(
             'Student proposals retrieved successfully.',

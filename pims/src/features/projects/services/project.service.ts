@@ -1,7 +1,7 @@
 import api from "@/api/api";
 
-export async function getProjects() {
-	const res = await api.get("/projects");
+export async function getProjects(yearId?: number) {
+	const res = await api.get(`/projects${yearId ? `?year_id=${yearId}` : ""}`);
 	return res.data.data;
 }
 
@@ -10,8 +10,13 @@ export async function getProject(slug: string) {
 	return res.data;
 }
 
-export async function getAssignedProjects() {
-	const res = await api.get("/projects/assigned");
+export async function getStudentProjects(yearId?: number) {
+	const res = await api.get(`/projects/me${yearId ? `?year_id=${yearId}` : ""}`);
+	return res.data.data;
+}
+
+export async function getAssignedProjects(yearId?: number) {
+	const res = await api.get(`/projects/assigned${yearId ? `?year_id=${yearId}` : ""}`);
 	return res.data.data;
 }
 

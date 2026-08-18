@@ -29,13 +29,16 @@ export const PAGE_META = {
 		title: "MIIT | Student Affairs Dashboard",
 		subtitle: "Dashboard",
 	},
+	saProposals: { title: "MIIT | Proposals Review", subtitle: "Proposals" },
+	saProjects: { title: "MIIT | Projects Overview", subtitle: "Projects" },
+	saStudents: { title: "MIIT | Students", subtitle: "Students" },
 	announcements: { title: "MIIT | Announcements", subtitle: "Announcements" },
 	events: { title: "MIIT | Events", subtitle: "Events" },
 	proposals: { title: "MIIT | Proposals", subtitle: "Submitted Proposals" },
 	myProposals: { title: "MIIT | My Proposals", subtitle: "My Proposals" },
-	browseProposals: {
-		title: "MIIT | Browse Proposals",
-		subtitle: "Browse Proposals",
+	allProposals: {
+		title: "MIIT | All Proposals",
+		subtitle: "All Proposals",
 	},
 	createProposal: {
 		title: "MIIT | Proposal Submission",
@@ -126,10 +129,9 @@ export const HEADINGS = {
 		description:
 			"View and track the status of proposals you've led or joined as a team member.",
 	},
-	browseProposals: {
-		title: "Browse Proposals",
-		description:
-			"Browse and manage project proposals with team assignments and supervisors.",
+	allProposals: {
+		title: "All Proposals",
+		description: "Browse all submitted proposals. Filter by yours using the Mine toggle.",
 	},
 	createProposal: {
 		title: "Submit Your Proposal",
@@ -225,14 +227,26 @@ export const NAV_ITEMS = {
 		{ title: "Events", url: "/events", icon: IconCalendarEvent },
 		{ title: "Announcements", url: "/announcements", icon: IconSend },
 		{
-			title: "Browse Proposals",
-			url: "/proposals/browse",
+			title: "Proposals",
+			url: "/proposals/all",
 			icon: IconDeviceTabletSearch,
 		},
 		{
 			title: "Assigned Projects",
 			url: "/assigned-projects",
 			icon: IconListDetails,
+		},
+		{ title: "Settings", url: "/settings", icon: IconSettings },
+	],
+
+	faculty: [
+		{ title: "Dashboard", url: "/dashboard", icon: IconLayoutDashboard },
+		{ title: "Events", url: "/events", icon: IconCalendarEvent },
+		{ title: "Announcements", url: "/announcements", icon: IconSend },
+		{
+			title: "Proposals",
+			url: "/proposals/all",
+			icon: IconDeviceTabletSearch,
 		},
 		{ title: "Settings", url: "/settings", icon: IconSettings },
 	],
@@ -259,11 +273,12 @@ export const NAV_ITEMS = {
 		{ title: "Dashboard", url: "/dashboard", icon: IconLayoutDashboard },
 		{
 			title: "Project Proposals",
-			url: "/proposals",
+			url: "/sa/proposals",
 			icon: IconFileDescription,
 		},
+		{ title: "Projects", url: "/sa/projects", icon: IconListDetails },
+		{ title: "Students", url: "/sa/students", icon: IconSchool },
 		{ title: "Supervisors", url: "/supervisors", icon: IconUserStar },
-		{ title: "Projects", url: "/projects", icon: IconListDetails },
 		{ title: "Settings", url: "/settings", icon: IconSettings },
 	],
 } as const;

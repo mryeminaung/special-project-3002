@@ -18,23 +18,26 @@ class ProjectController extends Controller
         private ProjectService $projectService
     ) {}
 
-    public function index()
+    public function index(Request $request)
     {
-        $projects = $this->projectService->list();
+        $yearId = $request->query('year_id') ? (int) $request->query('year_id') : null;
+        $projects = $this->projectService->list($yearId);
 
         return $this->successResponse('Projects retrieved successfully.', ProjectResource::collection($projects));
     }
 
-    public function studentProjects()
+    public function studentProjects(Request $request)
     {
-        $projects = $this->projectService->studentProjects(Auth::user());
+        $yearId = $request->query('year_id') ? (int) $request->query('year_id') : null;
+        $projects = $this->projectService->studentProjects(Auth::user(), $yearId);
 
         return $this->successResponse('Success', StudentProjectResource::collection($projects));
     }
 
-    public function assignedProjects()
+    public function assignedProjects(Request $request)
     {
-        $projects = $this->projectService->assignedProjects(Auth::user());
+        $yearId = $request->query('year_id') ? (int) $request->query('year_id') : null;
+        $projects = $this->projectService->assignedProjects(Auth::user(), $yearId);
 
         return $this->successResponse('Projects retrieved successfully.', ProjectResource::collection($projects));
     }

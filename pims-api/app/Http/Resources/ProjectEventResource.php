@@ -21,6 +21,7 @@ class ProjectEventResource extends JsonResource
             'startDate' => $this->start_date,
             'endDate'   => $this->end_date,
             'isActive'  => $this->is_active,
+            'formatUrl' => $this->format_url,
         ];
     }
 }

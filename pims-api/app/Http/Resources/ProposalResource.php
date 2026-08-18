@@ -20,7 +20,8 @@ class ProposalResource extends JsonResource
             'supervisor'  => $this->whenLoaded('supervisor', fn($s) => ['id' => $s->id, 'name' => $s->name]),
             'submittedBy' => $this->leader ? new MemberResource($this->leader) : null,
             'members'     => MemberResource::collection($this->whenLoaded('members', fn() => $this->members, collect())),
-            'submittedAt' => $this->submitted_at?->format('Y-m-d'),
+            'submittedAt'  => $this->submitted_at?->format('Y-m-d'),
+            'academicYear' => $this->academicYear?->year,
         ];
     }
 }

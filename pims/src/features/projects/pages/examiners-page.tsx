@@ -23,7 +23,7 @@ import {
 	TableRow,
 } from "@/components/ui/table";
 import { cn, getInitials } from "@/lib/utils";
-import { projectStatusColor } from "@/constants/badge-colors";
+import { projectStatusColor, projectTypeColor } from "@/constants/badge-colors";
 import ViewDetail from "@/components/view-detail";
 import { IconSearch, IconX, IconUserStar } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
@@ -39,12 +39,23 @@ type Project = {
 	examiners?: Examiner[];
 };
 
+type AssignmentFilter = "all" | "assigned" | "missing";
+
+const MAX_EXAMINERS = 3;
+
+const ASSIGNMENT_TABS: { value: AssignmentFilter; label: string }[] = [
+	{ value: "all", label: "All" },
+	{ value: "assigned", label: "Assigned" },
+	{ value: "missing", label: "Missing" },
+];
+
 export default function ExaminersPage() {
 	useHeaderInitializer(PAGE_META.examiners.title, PAGE_META.examiners.subtitle);
 
 	const { isIC } = useRoleChecker();
 	const [search, setSearch] = useState("");
 	const [statusFilter, setStatusFilter] = useState("all");
+	const [assignmentFilter, setAssignmentFilter] = useState<AssignmentFilter>("all");
 
 	const { data: projects = [], isLoading } = useQuery<Project[]>({
 		queryKey: ["projects"],
@@ -55,13 +66,19 @@ export default function ExaminersPage() {
 	const filtered = useMemo(() => {
 		return projects.filter((p) => {
 			if (statusFilter !== "all" && p.status !== statusFilter) return false;
+
+			const hasExaminers = (p.examiners?.length ?? 0) > 0;
+			const isMissing = !hasExaminers && p.status !== "completed";
+			if (assignmentFilter === "assigned" && !hasExaminers) return false;
+			if (assignmentFilter === "missing" && !isMissing) return false;
+
 			if (!search) return true;
 			const q = search.toLowerCase();
 			if (p.title.toLowerCase().includes(q)) return true;
 			if ((p.examiners ?? []).some((e) => e.name.toLowerCase().includes(q))) return true;
 			return false;
 		});
-	}, [projects, search, statusFilter]);
+	}, [projects, search, statusFilter, assignmentFilter]);
 
 	if (!isIC) return <UnAuthorized />;
 
@@ -91,33 +108,39 @@ export default function ExaminersPage() {
 					</p>
 					<p className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">{withExaminers}</p>
 				</div>
-				<div className={cn(
-					"rounded-xl border px-5 py-4",
-					withoutExaminers > 0
-						? "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800"
-						: "bg-card",
-				)}>
-					<p className={cn(
-						"text-xs font-semibold uppercase tracking-wider mb-1",
+				<div
+					className={cn(
+						"rounded-xl border px-5 py-4",
 						withoutExaminers > 0
-							? "text-amber-600 dark:text-amber-400"
-							: "text-muted-foreground",
-					)}>
+							? "bg-amber-50 dark:bg-amber-950/30 border-amber-200 dark:border-amber-800"
+							: "bg-card",
+					)}
+				>
+					<p
+						className={cn(
+							"text-xs font-semibold uppercase tracking-wider mb-1",
+							withoutExaminers > 0
+								? "text-amber-600 dark:text-amber-400"
+								: "text-muted-foreground",
+						)}
+					>
 						Missing Examiners
 					</p>
-					<p className={cn(
-						"text-2xl font-bold",
-						withoutExaminers > 0
-							? "text-amber-700 dark:text-amber-300"
-							: "text-foreground",
-					)}>
+					<p
+						className={cn(
+							"text-2xl font-bold",
+							withoutExaminers > 0
+								? "text-amber-700 dark:text-amber-300"
+								: "text-foreground",
+						)}
+					>
 						{withoutExaminers}
 					</p>
 				</div>
 			</div>
 
 			{/* Filters */}
-			<div className="flex flex-wrap items-center gap-3 mb-6">
+			<div className="flex flex-wrap items-center gap-3 mb-4">
 				<div className="relative flex-1 min-w-48 max-w-sm">
 					<IconSearch
 						size={14}
@@ -133,7 +156,8 @@ export default function ExaminersPage() {
 						<button
 							type="button"
 							onClick={() => setSearch("")}
-							className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
+							className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+						>
 							<IconX size={14} />
 						</button>
 					)}
@@ -150,6 +174,30 @@ export default function ExaminersPage() {
 						<SelectItem value="completed">Completed</SelectItem>
 					</SelectContent>
 				</Select>
+			</div>
+
+			{/* Assignment filter tabs */}
+			<div className="flex items-center gap-1 mb-6 border-b border-border">
+				{ASSIGNMENT_TABS.map((tab) => (
+					<button
+						key={tab.value}
+						type="button"
+						onClick={() => setAssignmentFilter(tab.value)}
+						className={cn(
+							"px-4 py-2 text-sm font-medium border-b-2 -mb-px transition-colors",
+							assignmentFilter === tab.value
+								? "border-foreground text-foreground"
+								: "border-transparent text-muted-foreground hover:text-foreground",
+						)}
+					>
+						{tab.label}
+						{tab.value === "missing" && withoutExaminers > 0 && (
+							<span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 text-[10px] font-bold w-4 h-4">
+								{withoutExaminers}
+							</span>
+						)}
+					</button>
+				))}
 			</div>
 
 			{/* Table */}
@@ -172,7 +220,7 @@ export default function ExaminersPage() {
 								<TableHead>Project</TableHead>
 								<TableHead className="hidden md:table-cell">Status</TableHead>
 								<TableHead>Examiners</TableHead>
-								<TableHead className="w-24">Action</TableHead>
+								<TableHead className="w-28">Action</TableHead>
 							</TableRow>
 						</TableHeader>
 						<TableBody>
@@ -181,34 +229,56 @@ export default function ExaminersPage() {
 								return (
 									<TableRow key={project.id}>
 										<TableCell className="max-w-[260px]">
-											<p className="font-medium truncate" title={project.title}>{project.title}</p>
-											<p className="text-xs text-muted-foreground mt-0.5 capitalize">{project.type}</p>
+											<p className="font-medium truncate" title={project.title}>
+												{project.title}
+											</p>
+											<Badge
+												variant="outline"
+												className={cn(
+													"mt-1 text-[10px] font-medium capitalize",
+													projectTypeColor(project.type),
+												)}
+											>
+												{project.type}
+											</Badge>
 										</TableCell>
 										<TableCell className="hidden md:table-cell">
 											<Badge
 												variant="outline"
-												className={cn("capitalize text-xs font-medium", projectStatusColor(project.status))}>
+												className={cn(
+													"capitalize text-xs font-medium",
+													projectStatusColor(project.status),
+												)}
+											>
 												{project.status}
 											</Badge>
 										</TableCell>
 										<TableCell>
 											{examiners.length > 0 ? (
-												<div className="flex items-center gap-2 flex-wrap">
-													{examiners.map((e) => (
-														<div key={e.id} className="flex items-center gap-1.5">
-															<Avatar className="h-6 w-6 shrink-0">
-																<AvatarFallback className="bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 text-[10px] font-semibold">
-																	{getInitials(e.name)}
-																</AvatarFallback>
-															</Avatar>
-															<span className="text-xs text-muted-foreground hidden sm:inline">{e.name}</span>
-														</div>
-													))}
+												<div className="flex flex-col gap-1.5">
+													<div className="flex items-center gap-2 flex-wrap">
+														{examiners.map((e) => (
+															<div key={e.id} className="flex items-center gap-1.5">
+																<Avatar className="h-6 w-6 shrink-0">
+																	<AvatarFallback className="bg-violet-100 dark:bg-violet-900/40 text-violet-700 dark:text-violet-300 text-[10px] font-semibold">
+																		{getInitials(e.name)}
+																	</AvatarFallback>
+																</Avatar>
+																<span className="text-xs text-muted-foreground">{e.name}</span>
+															</div>
+														))}
+													</div>
+													<p className="text-[10px] text-muted-foreground/60">
+														{examiners.length} / {MAX_EXAMINERS} assigned
+													</p>
 												</div>
 											) : project.status === "completed" ? (
 												<span className="text-xs text-muted-foreground">—</span>
 											) : (
-												<Badge variant="outline" className="text-xs font-medium bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800">
+												<Badge
+													variant="outline"
+													className="text-xs font-medium bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-800"
+												>
 													Not assigned
 												</Badge>
 											)}

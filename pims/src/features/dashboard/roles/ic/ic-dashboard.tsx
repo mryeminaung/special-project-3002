@@ -4,9 +4,7 @@ import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { useQuery } from "@tanstack/react-query";
 import ChartsSection from "./components/charts-section";
 import ProjectProgressTable from "./components/project-progress-table";
-import QuickActions from "./components/quick-actions";
 import StatCards from "./components/stat-cards";
-import LatestNotifications from "./components/widgets/latest-notifications";
 import RecentActivities from "./components/widgets/recent-activities";
 import SupervisorWorkload from "./components/widgets/supervisor-workload";
 import UpcomingDeadlines from "./components/widgets/upcoming-deadlines";
@@ -45,23 +43,15 @@ export default function ICDashboard() {
 				<ProjectProgressTable projects={dashboardData?.projectProgress} />
 			</div>
 
-			{/* Widgets Grid (2x2) */}
+			{/* Widgets Grid */}
 			<div className="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
 				<RecentActivities activities={dashboardData?.recentActivities} />
 				<UpcomingDeadlines deadlines={dashboardData?.upcomingDeadlines} />
-				<SupervisorWorkload workload={dashboardData?.supervisorWorkload} />
-				<LatestNotifications notifications={dashboardData?.notifications} />
 			</div>
 
-			{/* Quick Actions */}
+			{/* Supervisor Workload — full width */}
 			<div className="mb-6">
-				<Heading
-					title="Quick Actions"
-					description="Common tasks and shortcuts"
-				/>
-				<div className="mt-4">
-					<QuickActions />
-				</div>
+				<SupervisorWorkload workload={dashboardData?.supervisorWorkload} />
 			</div>
 		</>
 	);

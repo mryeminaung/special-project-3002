@@ -1,16 +1,22 @@
 import api from "@/api/api";
 import type { Comment } from "@/types";
 
-export async function getProposals(page: number) {
-	const endpoint = page > 1 ? `/proposals?page=${page}` : "/proposals";
-	const res = await api.get(endpoint);
+export async function getProposals(page: number, yearId?: number) {
+	const params = new URLSearchParams();
+	if (page > 1) params.set("page", String(page));
+	if (yearId) params.set("year_id", String(yearId));
+	const query = params.toString();
+	const res = await api.get(`/proposals${query ? `?${query}` : ""}`);
 	return res.data;
 }
 
-export async function browseProposals(page: number) {
-	const endpoint =
-		page > 1 ? `/proposals/browse?page=${page}` : "/proposals/browse";
-	const res = await api.get(endpoint);
+export async function getAllProposals(page: number, mine = false, yearId?: number) {
+	const params = new URLSearchParams();
+	if (page > 1) params.set("page", String(page));
+	if (mine) params.set("mine", "1");
+	if (yearId) params.set("year_id", String(yearId));
+	const query = params.toString();
+	const res = await api.get(`/proposals/all${query ? `?${query}` : ""}`);
 	return res.data;
 }
 
@@ -34,8 +40,11 @@ export async function rejectProposal(slug: string) {
 	return res.data;
 }
 
-export async function getFacultyProposals() {
-	const res = await api.get("/proposals/faculties");
+export async function getFacultyProposals(yearId?: number) {
+	const params = new URLSearchParams();
+	if (yearId) params.set("year_id", String(yearId));
+	const query = params.toString();
+	const res = await api.get(`/proposals/faculties${query ? `?${query}` : ""}`);
 	return res.data;
 }
 
@@ -85,6 +94,11 @@ export async function editComment(
 
 export async function deleteComment(commentId: number) {
 	await api.delete(`/comments/${commentId}`);
+}
+
+export async function getProposalEligibility() {
+	const res = await api.get("/proposals/eligibility");
+	return res.data;
 }
 
 export async function getProposalProjectAreas() {

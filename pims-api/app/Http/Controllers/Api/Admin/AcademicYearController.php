@@ -67,4 +67,14 @@ class AcademicYearController extends Controller
 
         return $this->successResponse('Academic year deleted.', null, 204);
     }
+
+    public function activeYear()
+    {
+        $year = $this->service->getActive();
+
+        return $this->successResponse(
+            $year ? 'Active academic year retrieved.' : 'No active academic year.',
+            $year ? new AcademicYearResource($year) : null,
+        );
+    }
 }

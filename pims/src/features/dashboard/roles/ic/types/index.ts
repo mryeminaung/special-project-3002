@@ -30,7 +30,7 @@ export interface ActivityItem {
 }
 
 export interface DeadlineItem {
-	id: number;
+	id: string | number;
 	title: string;
 	date: string;
 	type: "proposal" | "seminar" | "report" | "defense";

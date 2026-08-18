@@ -8,7 +8,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import type { EventType } from "@/pages/events/events.type";
+import type { EventType } from "@/features/events/events.type";
 import { useEventStore } from "@/stores/use-event-store";
 import { useEffect } from "react";
 import { Controller } from "react-hook-form";

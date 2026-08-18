@@ -13,7 +13,7 @@ class RolePermissionSeeder extends Seeder
         app()->make(PermissionRegistrar::class)->forgetCachedPermissions();
 
         // Roles
-        $roles = ['admin', 'ic', 'student-affairs', 'supervisor', 'faculty', 'student', 'examiner'];
+        $roles = ['admin', 'ic', 'student-affairs', 'supervisor', 'faculty', 'student', 'examiner', 'team-leader'];
         foreach ($roles as $role) {
             Role::firstOrCreate(['name' => $role, 'guard_name' => 'web']);
         }
@@ -23,6 +23,8 @@ class RolePermissionSeeder extends Seeder
             // Proposals
             'approve-proposal',
             'reject-proposal',
+            'view-all-proposals',
+            'submit-proposal',
 
             // Projects
             'mark-project-complete',
@@ -30,9 +32,20 @@ class RolePermissionSeeder extends Seeder
             'set-seminar-deadlines',
             'update-report-status',
             'update-seminar-status',
+            'upload-report',
+
+            // Grades
+            'give-grade',
 
             // Announcements
             'manage-announcements',
+
+            // Admin
+            'manage-events',
+            'manage-departments',
+            'manage-project-areas',
+            'manage-faculties',
+            'manage-students',
         ];
 
         foreach ($permissions as $permission) {
@@ -45,6 +58,8 @@ class RolePermissionSeeder extends Seeder
             'reject-proposal',
             'mark-project-complete',
             'manage-announcements',
+            'view-all-proposals',
+            'manage-events',
         ]);
 
         Role::findByName('supervisor')->syncPermissions([
@@ -52,6 +67,35 @@ class RolePermissionSeeder extends Seeder
             'set-seminar-deadlines',
             'update-report-status',
             'update-seminar-status',
+            'view-all-proposals',
+        ]);
+
+        Role::findByName('faculty')->syncPermissions([
+            'view-all-proposals',
+        ]);
+
+        Role::findByName('examiner')->syncPermissions([
+            'give-grade',
+        ]);
+
+        Role::findByName('student')->syncPermissions([
+            'submit-proposal',
+        ]);
+
+        Role::findByName('team-leader')->syncPermissions([
+            'submit-proposal',
+            'upload-report',
+        ]);
+
+        Role::findByName('student-affairs')->syncPermissions([
+            'view-all-proposals',
+        ]);
+
+        Role::findByName('admin')->syncPermissions([
+            'manage-departments',
+            'manage-project-areas',
+            'manage-faculties',
+            'manage-students',
         ]);
     }
 }

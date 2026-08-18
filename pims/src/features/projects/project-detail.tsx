@@ -21,6 +21,7 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import ProjectActivity from "./components/project-activity";
+import GradePanel from "./components/grade-panel";
 
 const PROJECT_TYPE_LABELS: Record<string, string> = {
 	special: "Special",
@@ -147,6 +148,12 @@ export default function ProjectDetailPage() {
 									{project.projectArea}
 								</Badge>
 							)}
+							{project.academicYear && (
+								<Badge variant="outline" className="font-medium bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950/40 dark:text-violet-300 dark:border-violet-800">
+									<span className="opacity-60 text-[10px] font-normal mr-0.5">Year ·</span>
+									{project.academicYear}
+								</Badge>
+							)}
 						</div>
 
 						<h1 className="text-2xl font-bold tracking-tight mb-3 leading-snug">
@@ -262,6 +269,11 @@ export default function ProjectDetailPage() {
 						))}
 					</div>
 				</div>
+			)}
+
+			{/* Grades — read-only for IC */}
+			{isIC && members.length > 0 && (
+				<GradePanel projectSlug={slug!} members={members} readOnly />
 			)}
 
 			{/* Mark Complete */}

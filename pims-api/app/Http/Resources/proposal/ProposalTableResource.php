@@ -16,8 +16,10 @@ class ProposalTableResource extends JsonResource
             'projectArea' => $this->area?->name,
             'type'        => $this->type->value,
             'projectType' => $this->project_type->value,
-            'status'      => $this->status->value,
-            'submittedAt' => $this->submitted_at->format('Y-m-d'),
+            'status'       => $this->status->value,
+            'submittedAt'  => $this->submitted_at->format('Y-m-d'),
+            'academicYear' => $this->academicYear?->year,
+            'documentUrl'  => $this->fileUrl,
         ];
     }
 }

@@ -31,8 +31,8 @@ type Faculty = {
 	name: string;
 	email: string;
 	department?: string;
-	workload_count?: number;
-	max_capacity?: number;
+	workloadCount?: number;
+	maxCapacity?: number;
 };
 
 function WorkloadBar({ count, capacity }: { count?: number; capacity?: number }) {
@@ -204,11 +204,15 @@ export default function SupervisorSelection({ control, error }: Props) {
 											<div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
 												{filtered.map((sup) => {
 													const isSelected = field.value === sup.id.toString();
+													const isAtCapacity = (sup.workloadCount ?? 0) >= (sup.maxCapacity ?? 5);
 													return (
 														<button
 															key={sup.id}
 															type="button"
+															disabled={isAtCapacity && !isSelected}
+															title={isAtCapacity && !isSelected ? `${sup.name} has reached the supervision limit` : undefined}
 															onClick={() => {
+																if (isAtCapacity) return;
 																field.onChange(sup.id.toString());
 																setOpen(false);
 																setSearch("");
@@ -216,7 +220,9 @@ export default function SupervisorSelection({ control, error }: Props) {
 															className={`w-full rounded-xl border p-4 text-left transition-all duration-150 hover:shadow-sm ${
 																isSelected
 																	? "border-primary bg-primary/5 ring-1 ring-primary"
-																	: "hover:border-border/80 hover:bg-muted/20"
+																	: isAtCapacity
+																		? "opacity-50 cursor-not-allowed bg-muted/30"
+																		: "hover:border-border/80 hover:bg-muted/20"
 															}`}
 														>
 															<div className="flex items-start justify-between gap-2">
@@ -239,8 +245,8 @@ export default function SupervisorSelection({ control, error }: Props) {
 																)}
 															</div>
 															<WorkloadBar
-																count={sup.workload_count}
-																capacity={sup.max_capacity}
+																count={sup.workloadCount}
+																capacity={sup.maxCapacity}
 															/>
 														</button>
 													);

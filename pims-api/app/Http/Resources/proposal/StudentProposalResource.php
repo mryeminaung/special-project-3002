@@ -24,6 +24,7 @@ class StudentProposalResource extends JsonResource
             'members'        => MemberResource::collection($this->whenLoaded('members', fn() => $this->members, collect())),
             'projectArea'    => $this->area?->name,
             'submittedAt'    => $this->submitted_at->format('Y-m-d'),
+            'academicYear'   => $this->academicYear?->year,
         ];
     }
 }

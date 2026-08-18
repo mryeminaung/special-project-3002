@@ -40,6 +40,7 @@ class ProjectResource extends JsonResource
             'examiners'    => MemberResource::collection($this->whenLoaded('examiners')),
             'status'       => $this->status,
             'projectArea'  => $this->area?->name,
+            'academicYear' => $this->academicYear?->year,
             'startedAt'    => $this->start_date?->format('Y-m-d'),
             'approvedAt'   => $this->created_at?->format('Y-m-d'),
         ];

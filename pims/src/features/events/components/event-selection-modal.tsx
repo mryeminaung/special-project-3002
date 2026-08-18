@@ -1,3 +1,4 @@
+import api from "@/api/api";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -12,7 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useEventStore } from "@/stores/use-event-store";
-import { type ReactNode, useState, useEffect } from "react";
+import { IconLoader2, IconPaperclip, IconTrash, IconUpload } from "@tabler/icons-react";
+import { type ReactNode, useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import type { EventType } from "../events.type";
 
@@ -21,6 +23,7 @@ type EventConfigValues = {
 	description: string;
 	startDate: string;
 	endDate: string;
+	formatUrl?: string | null;
 };
 
 type EventSelectionModalProps = {
@@ -30,6 +33,23 @@ type EventSelectionModalProps = {
 	initialValues?: EventConfigValues;
 	children: ReactNode;
 };
+
+async function uploadFormatFile(file: File): Promise<string> {
+	const formData = new FormData();
+	formData.append("file", file);
+	const res = await api.post("/upload-proposal-format", formData, {
+		headers: { "Content-Type": "multipart/form-data" },
+	});
+	return res.data?.data?.url as string;
+}
+
+function getFileName(url: string) {
+	try {
+		return decodeURIComponent(url.split("?")[0]).split("/").pop() ?? "format-document";
+	} catch {
+		return "format-document";
+	}
+}
 
 export default function EventSelectionModal({
 	eventType,
@@ -46,7 +66,10 @@ export default function EventSelectionModal({
 	const [description, setDescription] = useState("");
 	const [startDate, setStartDate] = useState("");
 	const [endDate, setEndDate] = useState("");
+	const [formatUrl, setFormatUrl] = useState<string | null>(null);
+	const [isUploading, setIsUploading] = useState(false);
 	const [isSaving, setIsSaving] = useState(false);
+	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	useEffect(() => {
 		if (open && mode === "edit" && initialValues) {
@@ -54,26 +77,44 @@ export default function EventSelectionModal({
 			setDescription(initialValues.description);
 			setStartDate(initialValues.startDate?.split("T")[0] ?? "");
 			setEndDate(initialValues.endDate?.split("T")[0] ?? "");
+			setFormatUrl(initialValues.formatUrl ?? null);
 		}
 	}, [open, mode, initialValues]);
 
 	const canSave =
 		title.trim().length > 0 &&
-		description.trim().length > 0 &&
 		startDate.length > 0 &&
 		endDate.length > 0 &&
-		!isSaving;
+		!isSaving &&
+		!isUploading;
 
 	function resetForm() {
 		setTitle("");
 		setDescription("");
 		setStartDate("");
 		setEndDate("");
+		setFormatUrl(null);
 	}
 
 	function handleOpenChange(nextOpen: boolean) {
 		setOpen(nextOpen);
 		if (!nextOpen) resetForm();
+	}
+
+	async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+		const file = e.target.files?.[0];
+		if (!file) return;
+		try {
+			setIsUploading(true);
+			const url = await uploadFormatFile(file);
+			setFormatUrl(url);
+			toast.success("Format document uploaded.");
+		} catch {
+			toast.error("Failed to upload format document.");
+		} finally {
+			setIsUploading(false);
+			if (fileInputRef.current) fileInputRef.current.value = "";
+		}
 	}
 
 	async function handleSave() {
@@ -86,25 +127,24 @@ export default function EventSelectionModal({
 				description: description.trim(),
 				startDate,
 				endDate,
+				formatUrl,
 			};
 
 			if (mode === "edit") {
 				await updateProjectEvent(eventType, config);
-				toast.success("Event details updated successfully.");
+				toast.success("Event details updated.");
 			} else {
 				await createProjectEvent(eventType, config);
-				toast.success("Event details created successfully.");
+				toast.success("Enrollment opened.");
 			}
 
 			setOpen(false);
 			resetForm();
 		} catch (error: any) {
-			const message =
+			toast.error(
 				error?.response?.data?.message ??
-				(mode === "edit"
-					? "Failed to update event details."
-					: "Failed to create event details.");
-			toast.error(message);
+					(mode === "edit" ? "Failed to update event." : "Failed to open enrollment."),
+			);
 		} finally {
 			setIsSaving(false);
 		}
@@ -117,62 +157,112 @@ export default function EventSelectionModal({
 			<DialogContent className="sm:max-w-md">
 				<DialogHeader>
 					<DialogTitle>
-						{mode === "edit" ? "Edit" : "Create"} — {eventTitle} Event
+						{mode === "edit" ? "Edit" : "Open"} — {eventTitle} Enrollment
 					</DialogTitle>
 				</DialogHeader>
 
 				<div className="grid gap-4">
 					<div className="grid gap-2">
-						<Label htmlFor={`event-title-${eventTitle}`}>Title</Label>
+						<Label htmlFor={`ev-title-${eventType}`}>
+							Title <span className="text-destructive">*</span>
+						</Label>
 						<Input
-							id={`event-title-${eventTitle}`}
-							placeholder="Enter event title"
+							id={`ev-title-${eventType}`}
+							placeholder="e.g. Special Project 2025 – Batch 14"
 							value={title}
 							onChange={(e) => setTitle(e.target.value)}
-							className="focus:border-primary-500 focus:ring-primary-500"
+							disabled={isSaving}
 						/>
 					</div>
 
 					<div className="grid gap-2">
-						<Label htmlFor={`event-detail-${eventTitle}`}>Description</Label>
+						<Label htmlFor={`ev-desc-${eventType}`}>Description</Label>
 						<Textarea
-							id={`event-detail-${eventTitle}`}
-							placeholder="Describe this event"
-							className="min-h-28 resize-none focus:border-primary-500 focus:ring-primary-500"
+							id={`ev-desc-${eventType}`}
+							placeholder="Instructions or notes for students…"
+							className="min-h-24 resize-none"
 							value={description}
 							onChange={(e) => setDescription(e.target.value)}
+							disabled={isSaving}
 						/>
 					</div>
 
 					<div className="grid grid-cols-2 gap-4">
 						<div className="grid gap-2">
-							<Label htmlFor={`start-date-${eventTitle}`}>Start Date</Label>
+							<Label htmlFor={`ev-start-${eventType}`}>
+								Start Date <span className="text-destructive">*</span>
+							</Label>
 							<Input
-								id={`start-date-${eventTitle}`}
+								id={`ev-start-${eventType}`}
 								type="date"
 								value={startDate}
+								min={new Date().toISOString().split("T")[0]}
 								onChange={(e) => setStartDate(e.target.value)}
-								className="focus:border-primary-500 focus:ring-primary-500"
+								disabled={isSaving}
 							/>
 						</div>
-
 						<div className="grid gap-2">
-							<Label htmlFor={`end-date-${eventTitle}`}>End Date</Label>
+							<Label htmlFor={`ev-end-${eventType}`}>
+								End Date <span className="text-destructive">*</span>
+							</Label>
 							<Input
-								id={`end-date-${eventTitle}`}
+								id={`ev-end-${eventType}`}
 								type="date"
 								value={endDate}
-								onChange={(e) => setEndDate(e.target.value)}
 								min={startDate || undefined}
-								className="focus:border-primary-500 focus:ring-primary-500"
+								onChange={(e) => setEndDate(e.target.value)}
+								disabled={isSaving}
 							/>
 						</div>
+					</div>
+
+					{/* Proposal format upload */}
+					<div className="grid gap-2">
+						<Label>Proposal Format <span className="text-xs text-muted-foreground font-normal">(optional)</span></Label>
+						{formatUrl ? (
+							<div className="flex items-center gap-2 rounded-lg border bg-muted/40 px-3 py-2">
+								<IconPaperclip size={14} className="text-primary-600 shrink-0" />
+								<a
+									href={`http://localhost:8000/${formatUrl}`}
+									target="_blank"
+									rel="noopener noreferrer"
+									className="flex-1 text-xs text-primary-600 hover:underline truncate">
+									{getFileName(formatUrl)}
+								</a>
+								<button
+									type="button"
+									onClick={() => setFormatUrl(null)}
+									className="text-muted-foreground hover:text-destructive shrink-0">
+									<IconTrash size={13} />
+								</button>
+							</div>
+						) : (
+							<button
+								type="button"
+								onClick={() => fileInputRef.current?.click()}
+								disabled={isUploading || isSaving}
+								className="flex items-center gap-2 rounded-lg border border-dashed px-3 py-2.5 text-xs text-muted-foreground hover:border-primary-400 hover:text-primary-600 transition-colors disabled:opacity-50">
+								{isUploading ? (
+									<IconLoader2 size={14} className="animate-spin" />
+								) : (
+									<IconUpload size={14} />
+								)}
+								{isUploading ? "Uploading…" : "Upload PDF / DOC / DOCX"}
+							</button>
+						)}
+						<input
+							ref={fileInputRef}
+							type="file"
+							accept=".pdf,.doc,.docx"
+							className="hidden"
+							onChange={handleFileChange}
+						/>
 					</div>
 				</div>
 
 				<DialogFooter>
 					<DialogClose asChild>
-						<Button type="button" variant="outline">
+						<Button type="button" variant="outline" disabled={isSaving || isUploading}>
 							Cancel
 						</Button>
 					</DialogClose>
@@ -180,8 +270,9 @@ export default function EventSelectionModal({
 						type="button"
 						onClick={handleSave}
 						disabled={!canSave}
-						className="bg-primary-600 text-white hover:bg-primary-700 disabled:bg-gray-300 disabled:text-gray-500">
-						{isSaving ? "Saving..." : mode === "edit" ? "Update" : "Save"}
+						className="bg-primary-600 text-white hover:bg-primary-700 disabled:opacity-50">
+						{isSaving && <IconLoader2 size={14} className="animate-spin mr-1" />}
+						{isSaving ? "Saving…" : mode === "edit" ? "Update" : "Open Enrollment"}
 					</Button>
 				</DialogFooter>
 			</DialogContent>

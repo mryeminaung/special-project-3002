@@ -27,6 +27,7 @@ class ProjectEventStoreRequest extends FormRequest
             'start_date' => 'nullable|date',
             'end_date'   => 'nullable|date|after_or_equal:start_date',
             'is_active'  => 'required|boolean',
+            'format_url' => 'nullable|string',
         ];
     }
 }
