@@ -1,5 +1,6 @@
-import { getProject, removeExaminer } from "../../services/project.service";
-import ExaminerModal from "../../components/examiner-modal";
+import { getProject, removeExaminer } from "@/features/projects/services/project.service";
+import ExaminerModal from "@/features/projects/components/examiner-modal";
+import GradePanel from "@/features/projects/components/grade-panel";
 import { formatDate } from "@/lib/date";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,10 +16,11 @@ import {
 } from "@tabler/icons-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
+import { useCan } from "@/hooks/use-can";
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
-import ProjectActivity from "../../components/project-activity";
+import ProjectActivity from "@/features/projects/components/project-activity";
 import SeminarDeadline from "@/features/student/projects/components/seminar-deadline";
 
 const PROJECT_TYPE_LABELS: Record<string, string> = {
@@ -54,6 +56,7 @@ export default function FacultyProjectDetailPage() {
 	const navigate = useNavigate();
 	const { slug } = useParams();
 	const queryClient = useQueryClient();
+	const { can } = useCan();
 	const [examinerModalOpen, setExaminerModalOpen] = useState(false);
 
 	const { data: projectDetail, isLoading } = useQuery({
@@ -137,6 +140,12 @@ export default function FacultyProjectDetailPage() {
 								<Badge variant="outline" className={cn("font-medium", projectAreaColor())}>
 									<span className="opacity-60 text-[10px] font-normal mr-0.5">Area ·</span>
 									{project.projectArea}
+								</Badge>
+							)}
+							{project.academicYear && (
+								<Badge variant="outline" className="font-medium bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950/40 dark:text-violet-300 dark:border-violet-800">
+									<span className="opacity-60 text-[10px] font-normal mr-0.5">Year ·</span>
+									{project.academicYear}
 								</Badge>
 							)}
 						</div>
@@ -284,6 +293,11 @@ export default function FacultyProjectDetailPage() {
 					)}
 				</div>
 			</div>
+
+			{/* Grades */}
+			{can("give-grade") && (
+				<GradePanel projectSlug={project.slug} members={members} />
+			)}
 
 			{/* Activity */}
 			<ProjectActivity project={project} projectSlug={slug} />

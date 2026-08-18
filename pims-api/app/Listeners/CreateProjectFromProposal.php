@@ -4,6 +4,7 @@ namespace App\Listeners;
 use App\Enums\ProjectProgressStatus;
 use App\Events\ProposalApproved;
 use App\Models\Project;
+use App\Models\User;
 
 class CreateProjectFromProposal
 {
@@ -53,6 +54,12 @@ class CreateProjectFromProposal
         // Supervisor Role Assignment
         if (! $project->supervisor->hasRole('supervisor')) {
             $project->supervisor->assignRole('supervisor');
+        }
+
+        // Team Leader Role Assignment
+        $leader = User::find($leaderId);
+        if ($leader && ! $leader->hasRole('team-leader')) {
+            $leader->assignRole('team-leader');
         }
 
         // Sync the team members

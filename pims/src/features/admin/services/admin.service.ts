@@ -25,11 +25,15 @@ export async function createProjectArea(payload: {
 }
 
 export async function updateProjectArea(
-	id: number,
+	slug: string,
 	payload: { name: string; description?: string },
 ): Promise<ProjectArea> {
-	const res = await api.put(`/project-areas/${id}`, payload);
+	const res = await api.patch(`/project-areas/${slug}`, payload);
 	return (res.data?.data ?? res.data) as ProjectArea;
+}
+
+export async function deleteProjectArea(slug: string): Promise<void> {
+	await api.delete(`/project-areas/${slug}`);
 }
 
 export async function getDepartments(): Promise<Department[]> {
@@ -140,7 +144,7 @@ export async function getRanksForSelect(): Promise<
 // ─── Academic Years ───────────────────────────────────────────────────────────
 
 export async function getAcademicYears(): Promise<AcademicYear[]> {
-	const res = await api.get("/admin/academic-years");
+	const res = await api.get("/academic-years");
 	return unwrapList<AcademicYear>(res);
 }
 
@@ -176,4 +180,9 @@ export async function setActiveAcademicYear(id: number): Promise<AcademicYear> {
 
 export async function deleteAcademicYear(id: number): Promise<void> {
 	await api.delete(`/admin/academic-years/${id}`);
+}
+
+export async function getActiveAcademicYear(): Promise<AcademicYear | null> {
+	const res = await api.get("/academic-years/active");
+	return (res.data?.data ?? null) as AcademicYear | null;
 }

@@ -18,9 +18,21 @@ use Illuminate\Support\Str;
 
 class ProposalService
 {
-    public function listPaginated(): LengthAwarePaginator
+    public function listPaginated(?int $yearId = null): LengthAwarePaginator
     {
-        return Proposal::with('supervisor:id,name', 'area:id,name')->orderBy('id')->paginate(5);
+        return Proposal::with('supervisor:id,name', 'area:id,name', 'academicYear:id,year')
+            ->when($yearId, fn ($q) => $q->where('academic_year_id', $yearId))
+            ->orderBy('id')
+            ->paginate(5);
+    }
+
+    public function listAll(?int $supervisorId = null, ?int $yearId = null): LengthAwarePaginator
+    {
+        return Proposal::with('supervisor:id,name', 'area:id,name', 'academicYear:id,year')
+            ->when($supervisorId, fn ($q) => $q->where('supervisor_id', $supervisorId))
+            ->when($yearId, fn ($q) => $q->where('academic_year_id', $yearId))
+            ->orderByDesc('id')
+            ->paginate(10);
     }
 
     public function create(array $data, User $user): array
@@ -101,19 +113,12 @@ class ProposalService
         return ['success' => true, 'message' => 'Proposal Rejected!'];
     }
 
-    public function browseBySupervisor(User $supervisor): LengthAwarePaginator
-    {
-        return Proposal::where('supervisor_id', $supervisor->id)
-            ->with('supervisor:id,name', 'area:id,name')
-            ->orderBy('id')
-            ->paginate(5);
-    }
-
-    public function listFacultyProposals(): Collection
+public function listFacultyProposals(?int $yearId = null): Collection
     {
         return Proposal::where('type', ProposalType::Faculty)
-            ->with(['applications' => fn($q) => $q->withPivot('status'), 'supervisor:id,name'])
+            ->with(['applications' => fn($q) => $q->withPivot('status'), 'supervisor:id,name', 'academicYear:id,year'])
             ->withCount('applications')
+            ->when($yearId, fn($q) => $q->where('academic_year_id', $yearId))
             ->orderBy('id')
             ->get();
     }
@@ -272,10 +277,11 @@ class ProposalService
         return ['success' => true, 'message' => 'Student rejected and removed from application list.', 'data' => null, 'status' => 200];
     }
 
-    public function myProposals(User $user): Collection
+    public function myProposals(User $user, ?int $yearId = null): Collection
     {
         return $user->teamProposals()
-            ->with(['supervisor', 'leader', 'members'])
+            ->with(['supervisor', 'leader', 'members', 'academicYear:id,year'])
+            ->when($yearId, fn($q) => $q->where('academic_year_id', $yearId))
             ->get();
     }
 

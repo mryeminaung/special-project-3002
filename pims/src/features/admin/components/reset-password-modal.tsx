@@ -1,4 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { resetFacultyPassword, type AdminFaculty } from "../services/admin.service";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,6 +28,16 @@ export default function ResetPasswordModal({
 	const [tempPassword, setTempPassword] = useState<string | null>(null);
 	const [copied, setCopied] = useState(false);
 
+	useEffect(() => {
+		if (!open) {
+			const timer = setTimeout(() => {
+				setTempPassword(null);
+				setCopied(false);
+			}, 300);
+			return () => clearTimeout(timer);
+		}
+	}, [open]);
+
 	const mutation = useMutation({
 		mutationFn: () => resetFacultyPassword(faculty!.id),
 		onSuccess: (data) => {
@@ -54,8 +65,6 @@ export default function ResetPasswordModal({
 	};
 
 	const handleClose = () => {
-		setTempPassword(null);
-		setCopied(false);
 		onOpenChange(false);
 	};
 

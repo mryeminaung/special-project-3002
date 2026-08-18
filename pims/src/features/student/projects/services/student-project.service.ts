@@ -1,7 +1,10 @@
 import api from "@/api/api";
 
-export async function getMyProjects() {
-	const res = await api.get("/projects/me");
+export async function getMyProjects(yearId?: number) {
+	const params = new URLSearchParams();
+	if (yearId) params.set("year_id", String(yearId));
+	const query = params.toString();
+	const res = await api.get(`/projects/me${query ? `?${query}` : ""}`);
 	return res.data;
 }
 

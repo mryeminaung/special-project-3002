@@ -33,9 +33,9 @@ export const PAGE_META = {
 	events: { title: "MIIT | Events", subtitle: "Events" },
 	proposals: { title: "MIIT | Proposals", subtitle: "Submitted Proposals" },
 	myProposals: { title: "MIIT | My Proposals", subtitle: "My Proposals" },
-	browseProposals: {
-		title: "MIIT | Browse Proposals",
-		subtitle: "Browse Proposals",
+	allProposals: {
+		title: "MIIT | All Proposals",
+		subtitle: "All Proposals",
 	},
 	createProposal: {
 		title: "MIIT | Proposal Submission",
@@ -126,10 +126,9 @@ export const HEADINGS = {
 		description:
 			"View and track the status of proposals you've led or joined as a team member.",
 	},
-	browseProposals: {
-		title: "Browse Proposals",
-		description:
-			"Browse and manage project proposals with team assignments and supervisors.",
+	allProposals: {
+		title: "All Proposals",
+		description: "Browse all submitted proposals. Filter by yours using the Mine toggle.",
 	},
 	createProposal: {
 		title: "Submit Your Proposal",
@@ -225,14 +224,26 @@ export const NAV_ITEMS = {
 		{ title: "Events", url: "/events", icon: IconCalendarEvent },
 		{ title: "Announcements", url: "/announcements", icon: IconSend },
 		{
-			title: "Browse Proposals",
-			url: "/proposals/browse",
+			title: "Proposals",
+			url: "/proposals/all",
 			icon: IconDeviceTabletSearch,
 		},
 		{
 			title: "Assigned Projects",
 			url: "/assigned-projects",
 			icon: IconListDetails,
+		},
+		{ title: "Settings", url: "/settings", icon: IconSettings },
+	],
+
+	faculty: [
+		{ title: "Dashboard", url: "/dashboard", icon: IconLayoutDashboard },
+		{ title: "Events", url: "/events", icon: IconCalendarEvent },
+		{ title: "Announcements", url: "/announcements", icon: IconSend },
+		{
+			title: "Proposals",
+			url: "/proposals/all",
+			icon: IconDeviceTabletSearch,
 		},
 		{ title: "Settings", url: "/settings", icon: IconSettings },
 	],

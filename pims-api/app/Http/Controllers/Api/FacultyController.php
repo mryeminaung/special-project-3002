@@ -23,8 +23,6 @@ class FacultyController extends Controller
         return $this->successResponse('Faculties retrieved successfully.', UserResource::collection($this->facultyService->list()));
     }
 
-    public function show(string $id) {}
-
     public function detail(string $id)
     {
         $data = $this->facultyService->detail((int) $id);

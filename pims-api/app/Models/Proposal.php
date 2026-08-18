@@ -85,6 +85,11 @@ class Proposal extends Model
         return $this->hasMany(Comment::class, 'proposal_id');
     }
 
+    public function academicYear()
+    {
+        return $this->belongsTo(AcademicYear::class, 'academic_year_id');
+    }
+
     public function project()
     {
         return $this->hasOne(Project::class, 'proposal_id');

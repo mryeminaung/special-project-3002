@@ -2,6 +2,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\AcademicYear;
 
 class Project extends Model
 {
@@ -56,9 +57,29 @@ class Project extends Model
         return $this->belongsTo(ProjectArea::class, 'area_id');
     }
 
+    public function academicYear()
+    {
+        return $this->belongsTo(AcademicYear::class, 'academic_year_id');
+    }
+
     public function examiners()
     {
-        return $this->belongsToMany(User::class, 'project_examiner', 'project_id', 'user_id')->withTimestamps();
+        return $this->belongsToMany(User::class, 'project_examiner', 'project_id', 'user_id')
+            ->withTimestamps()
+            ->withPivot('completed_at')
+            ->wherePivotNull('completed_at');
+    }
+
+    public function examinerHistory()
+    {
+        return $this->belongsToMany(User::class, 'project_examiner', 'project_id', 'user_id')
+            ->withTimestamps()
+            ->withPivot('completed_at');
+    }
+
+    public function grades()
+    {
+        return $this->hasMany(Grade::class);
     }
 
     protected $casts = [

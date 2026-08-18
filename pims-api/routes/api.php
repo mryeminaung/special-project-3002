@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\ProjectEventController;
 use App\Http\Controllers\Api\ProposalController;
 use App\Http\Controllers\Api\SupervisorController;
+use App\Http\Controllers\Api\GradeController;
 use App\Http\Controllers\Api\NotificationController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
@@ -91,6 +92,13 @@ Route::prefix('v1')->group(function () {
                 Route::delete('/{project:slug}/examiners/{userId}', 'removeExaminer');
             });
             Route::middleware('permission:mark-project-complete')->post('/{project:slug}/complete', 'markComplete');
+
+            // Grades
+            Route::get('/{project:slug}/grades', [GradeController::class, 'index']);
+            Route::middleware('permission:give-grade')->group(function () {
+                Route::post('/{project:slug}/grades', [GradeController::class, 'store']);
+                Route::patch('/{project:slug}/grades/{grade}', [GradeController::class, 'update']);
+            });
         });
 
         // Proposals
@@ -98,8 +106,8 @@ Route::prefix('v1')->group(function () {
             Route::get('/', 'index');
             Route::post('/', 'store');
             Route::get('/me', 'myProposals');
-            Route::get('/browse', 'browseProposals');
             Route::get('/faculties', 'facultyProposals');
+            Route::middleware('permission:view-all-proposals')->get('/all', 'allProposals');
             Route::get('/{proposal:slug}', 'show');
             Route::delete('/{proposal:slug}', 'destroy');
             Route::middleware('permission:approve-proposal')->post('/{proposal:slug}/approve', 'approveByIC');
@@ -134,7 +142,12 @@ Route::prefix('v1')->group(function () {
             Route::post('/upload-to-s3', 'uploadToS3');
             Route::post('/upload-report', 'uploadReport');
             Route::post('/delete-report', 'deleteReport');
+            Route::post('/upload-proposal-format', 'uploadProposalFormat');
         });
+
+        // Academic years (accessible to all authenticated users)
+        Route::get('/academic-years/active', [AcademicYearController::class, 'activeYear']);
+        Route::get('/academic-years', [AcademicYearController::class, 'index']);
 
         // Admin
         Route::prefix('admin')->middleware('role:admin')->group(function () {

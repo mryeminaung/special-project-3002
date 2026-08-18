@@ -15,16 +15,24 @@ import { useQuery } from "@tanstack/react-query";
 import { MagnifyingGlassIcon, XMarkIcon } from "@heroicons/react/24/solid";
 import { useState } from "react";
 import { ProjectCard } from "../components/project-card";
+import { getAcademicYears } from "@/features/admin/services/admin.service";
 
 export default function MyProjects() {
 	useHeaderInitializer(PAGE_META.myProjects.title, PAGE_META.myProjects.subtitle);
 
 	const [search, setSearch] = useState("");
 	const [statusFilter, setStatusFilter] = useState("all");
+	const [yearId, setYearId] = useState<number | undefined>(undefined);
+
+	const { data: academicYears = [] } = useQuery({
+		queryKey: ["academicYears"],
+		queryFn: getAcademicYears,
+		staleTime: 60_000,
+	});
 
 	const { data: projects, isLoading } = useQuery({
-		queryKey: ["my-projects"],
-		queryFn: getMyProjects,
+		queryKey: ["my-projects", yearId],
+		queryFn: () => getMyProjects(yearId),
 	});
 
 	const projectList = projects?.data || [];
@@ -41,11 +49,12 @@ export default function MyProjects() {
 		return matchesSearch && matchesStatus;
 	});
 
-	const hasActiveFilters = search !== "" || statusFilter !== "all";
+	const hasActiveFilters = search !== "" || statusFilter !== "all" || yearId !== undefined;
 
 	const clearFilters = () => {
 		setSearch("");
 		setStatusFilter("all");
+		setYearId(undefined);
 	};
 
 	return (
@@ -76,6 +85,22 @@ export default function MyProjects() {
 						<SelectItem value="active">Active</SelectItem>
 						<SelectItem value="under review">Under Review</SelectItem>
 						<SelectItem value="completed">Completed</SelectItem>
+					</SelectContent>
+				</Select>
+				<Select
+					value={yearId ? String(yearId) : "all"}
+					onValueChange={(v) => setYearId(v === "all" ? undefined : Number(v))}
+				>
+					<SelectTrigger className="w-full sm:w-40">
+						<SelectValue placeholder="Academic Year" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="all">All Years</SelectItem>
+						{academicYears.map((y: any) => (
+							<SelectItem key={y.id} value={String(y.id)}>
+								{y.year}
+							</SelectItem>
+						))}
 					</SelectContent>
 				</Select>
 				{hasActiveFilters && (

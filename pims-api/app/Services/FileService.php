@@ -58,6 +58,11 @@ class FileService
         return $file->store('proposals', 'public');
     }
 
+    public function uploadProposalFormat(UploadedFile $file): string
+    {
+        return $file->store('proposal-formats', 'public');
+    }
+
     public function deleteReport(string $filePath, ?int $projectId, string $type): bool
     {
         Storage::disk('public')->delete($filePath);

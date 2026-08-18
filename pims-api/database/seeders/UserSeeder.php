@@ -62,11 +62,21 @@ class UserSeeder extends Seeder
             'password' => $facultyPassword,
         ];
 
-        $maleNames   = ['Aung', 'Kyaw', 'Min', 'Tun', 'Soe', 'Naing'];
-        $femaleNames = ['Moe', 'May', 'Hnin', 'Yin', 'Nwe', 'Thiri'];
+        $maleNames = [
+            'Aung', 'Kyaw', 'Min', 'Tun', 'Soe', 'Naing',
+            'Zaw', 'Htet', 'Ye', 'Myo', 'Win', 'Thant',
+            'Thurein', 'Ko', 'Bo',
+        ];
+        $femaleNames = [
+            'Moe', 'May', 'Hnin', 'Yin', 'Nwe', 'Thiri',
+            'Su', 'Phyu', 'Wai', 'Khin', 'Ei', 'Myint',
+            'Thin', 'Yi', 'Lay',
+        ];
 
-        for ($i = 0; $i < 100; $i++) {
-            $isMale = $i % 2 == 0;
+        $usedEmails = ['khaine_aye_san@miit.edu.mm'];
+
+        for ($i = 0; $i < 49; $i++) {
+            $isMale = $i % 2 === 0;
 
             $name = $isMale
                 ? $this->generateName($maleNames, 'U')
@@ -78,9 +88,15 @@ class UserSeeder extends Seeder
                 strtolower($name)
             );
 
+            $email = "{$emailPrefix}@miit.edu.mm";
+            if (in_array($email, $usedEmails)) {
+                $email = "{$emailPrefix}_{$i}@miit.edu.mm";
+            }
+            $usedEmails[] = $email;
+
             $faculty_data[] = [
                 'name'     => $name,
-                'email'    => "{$emailPrefix}@miit.edu.mm",
+                'email'    => $email,
                 'password' => $facultyPassword,
             ];
         }

@@ -8,6 +8,7 @@ import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useEventGuard } from "@/hooks/use-event-guard";
+import { useActiveAcademicYear } from "@/hooks/use-active-academic-year";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useEventStore } from "@/stores/use-event-store";
@@ -114,12 +115,14 @@ export default function CreateStudentProposalPage() {
 	const eventGuard = useEventGuard(eventType ?? "special");
 	const fetchEventStatuses = useEventStore((state) => state.fetchEventStatuses);
 	const isLoadingStatuses = useEventStore((state) => state.isLoadingStatuses);
+	const { hasActiveYear, isLoading: isLoadingYear } = useActiveAcademicYear();
 
 	useEffect(() => {
 		void fetchEventStatuses();
 	}, [fetchEventStatuses]);
 
 	const isEventBlocked = eventType ? !eventGuard.canSubmit : false;
+	const isYearBlocked = !isLoadingYear && !hasActiveYear;
 
 	return (
 		<>
@@ -131,6 +134,19 @@ export default function CreateStudentProposalPage() {
 							review"
 					/>
 				</div>
+
+				{isYearBlocked && (
+					<Card className="px-6 py-8 border-red-200 bg-red-50 shadow-sm mb-5">
+						<div className="text-center">
+							<h3 className="text-lg font-semibold text-red-800 mb-2">
+								No Active Academic Year
+							</h3>
+							<p className="text-sm text-red-700">
+								Proposal submissions are currently unavailable. Please contact the administrator to set an active academic year.
+							</p>
+						</div>
+					</Card>
+				)}
 
 				{!isLoadingStatuses && isEventBlocked && (
 					<Card className="px-6 py-8 border-amber-200 bg-amber-50 shadow-sm mb-5">
@@ -229,7 +245,7 @@ export default function CreateStudentProposalPage() {
 						<div className="flex flex-col sm:flex-row items-center justify-end gap-3 mt-5">
 							<Button
 								type="submit"
-								disabled={isSubmitting || isEventBlocked}
+								disabled={isSubmitting || isEventBlocked || isYearBlocked}
 								className="hover:cursor-pointer w-full sm:w-fit order-1 sm:order-2 bg-primary-700 hover:bg-primary-700/80 hover:text-white text-white"
 								variant={"outline"}
 							>

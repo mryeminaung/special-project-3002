@@ -1,4 +1,5 @@
 import { getFacultyProposals, joinProposal } from "@/features/proposals/services/proposal.service";
+import { getAcademicYears } from "@/features/admin/services/admin.service";
 import Heading from "@/components/heading";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -136,6 +137,7 @@ export default function FacultiesProposalsPage() {
 	const [activeTab, setActiveTab] = useState<ProjectTypeFilter>("all");
 	const [search, setSearch] = useState("");
 	const [majorFilter, setMajorFilter] = useState<MajorFilter>("all");
+	const [yearId, setYearId] = useState<number | undefined>(undefined);
 	const queryClient = useQueryClient();
 	const authUser = useAuthStore((state) => state.authUser);
 
@@ -149,9 +151,15 @@ export default function FacultiesProposalsPage() {
 				? "ECE"
 				: null;
 
+	const { data: academicYears = [] } = useQuery({
+		queryKey: ["academicYears"],
+		queryFn: getAcademicYears,
+		staleTime: 60_000,
+	});
+
 	const { data: facultyProposalsResponse, isLoading } = useQuery<FacultyProposalsResponse>({
-		queryKey: ["facultyProposals"],
-		queryFn: getFacultyProposals,
+		queryKey: ["facultyProposals", yearId],
+		queryFn: () => getFacultyProposals(yearId),
 		refetchOnWindowFocus: false,
 		staleTime: 30_000,
 	});
@@ -280,6 +288,23 @@ export default function FacultiesProposalsPage() {
 						<SelectItem value="all">All Majors</SelectItem>
 						<SelectItem value="CSE">CSE</SelectItem>
 						<SelectItem value="ECE">ECE</SelectItem>
+					</SelectContent>
+				</Select>
+
+				<Select
+					value={yearId ? String(yearId) : "all"}
+					onValueChange={(v) => setYearId(v === "all" ? undefined : Number(v))}
+				>
+					<SelectTrigger className="w-40">
+						<SelectValue placeholder="Academic Year" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value="all">All Years</SelectItem>
+						{(academicYears as any[]).map((y) => (
+							<SelectItem key={y.id} value={String(y.id)}>
+								{y.year}
+							</SelectItem>
+						))}
 					</SelectContent>
 				</Select>
 			</div>

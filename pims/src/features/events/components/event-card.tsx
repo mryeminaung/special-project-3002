@@ -9,6 +9,7 @@ import {
 	IconTrash,
 	IconCheck,
 	IconX,
+	IconPaperclip,
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { Link } from "react-router";
@@ -24,21 +25,35 @@ type EventCardProps = {
 };
 
 export default function EventCard({ eventType, title, icon }: EventCardProps) {
-	const isEnrollmentOpen = useEventStore(
-		(state) => state.enrollmentByEvent[eventType],
-	);
-	const deleteEventConfiguration = useEventStore(
-		(state) => state.deleteEventConfiguration,
-	);
+	const isEnrollmentOpen = useEventStore((state) => state.enrollmentByEvent[eventType]);
+	const isLoadingStatuses = useEventStore((state) => state.isLoadingStatuses);
+	const toggleEnrollmentWindow = useEventStore((state) => state.toggleEnrollmentWindow);
+	const deleteEventConfiguration = useEventStore((state) => state.deleteEventConfiguration);
 
+	const storedConfig = useEventStore((state) => state.eventConfigurations[eventType]);
 	const { isStudent, isIC, isFaculty } = useRoleChecker();
 	const { canSubmit, configuration } = useEventGuard(eventType);
 
 	const [confirmDelete, setConfirmDelete] = useState(false);
 	const [isDeleting, setIsDeleting] = useState(false);
+	const [isToggling, setIsToggling] = useState(false);
 
 	const canCreateProposal = isEnrollmentOpen && isStudent && canSubmit;
 	const canCreateFacultyProposal = isEnrollmentOpen && isFaculty && !isIC && canSubmit;
+
+	const formatUrl = storedConfig?.formatUrl ?? null;
+
+	async function handleToggleOff() {
+		try {
+			setIsToggling(true);
+			await toggleEnrollmentWindow(eventType);
+			toast.success(`${title} enrollment closed.`);
+		} catch {
+			toast.error("Failed to close enrollment.");
+		} finally {
+			setIsToggling(false);
+		}
+	}
 
 	async function handleDelete() {
 		try {
@@ -84,10 +99,10 @@ export default function EventCard({ eventType, title, icon }: EventCardProps) {
 
 			<hr className="border-border mx-5" />
 
-			{/* Event info — visible to all roles */}
-			<div className="flex-1 p-5 py-4">
+			{/* Event info */}
+			<div className="flex-1 p-5 py-4 space-y-2">
 				{configuration ? (
-					<div className="flex flex-col gap-2">
+					<>
 						<p className="text-sm font-medium text-foreground line-clamp-1">
 							{configuration.title}
 						</p>
@@ -98,11 +113,21 @@ export default function EventCard({ eventType, title, icon }: EventCardProps) {
 							</span>
 						</div>
 						{configuration.description && (
-							<p className="text-xs text-muted-foreground line-clamp-2 mt-1">
+							<p className="text-xs text-muted-foreground line-clamp-2">
 								{configuration.description}
 							</p>
 						)}
-					</div>
+						{formatUrl && (
+							<a
+								href={`http://localhost:8000/${formatUrl}`}
+								target="_blank"
+								rel="noopener noreferrer"
+								className="inline-flex items-center gap-1.5 text-xs text-primary-600 hover:underline mt-1">
+								<IconPaperclip size={12} />
+								Proposal Format
+							</a>
+						)}
+					</>
 				) : (
 					<p className="text-xs text-muted-foreground italic">
 						{isEnrollmentOpen
@@ -114,21 +139,43 @@ export default function EventCard({ eventType, title, icon }: EventCardProps) {
 
 			{/* Actions */}
 			<div className="p-5 pt-0 flex flex-col gap-2">
-				{/* IC actions */}
-				{isIC && isEnrollmentOpen && (
+				{/* IC: enrollment toggle + manage actions */}
+				{isIC && (
 					<>
-						{!configuration ? (
-							<EventSelectionModal
-								eventType={eventType}
-								eventTitle={title}
-								mode="create">
+						{/* Toggle row */}
+						<div className="flex items-center justify-between rounded-lg border bg-muted/40 px-3 py-2">
+							<span className="text-xs font-medium text-foreground">
+								{isEnrollmentOpen ? "Enrollment open" : "Enrollment closed"}
+							</span>
+							{isEnrollmentOpen ? (
 								<button
 									type="button"
-									className="w-full cursor-pointer rounded-lg bg-primary-600 px-4 py-2 text-xs font-medium text-white transition-all hover:bg-primary-700">
-									Set Event Details
+									role="switch"
+									aria-checked={true}
+									disabled={isToggling || isLoadingStatuses}
+									onClick={handleToggleOff}
+									className="relative h-5 w-9 rounded-full bg-primary transition-colors focus-visible:outline-none disabled:opacity-50">
+									<span className="absolute top-0.5 left-0.5 size-4 rounded-full bg-white shadow transition-transform translate-x-4" />
 								</button>
-							</EventSelectionModal>
-						) : (
+							) : (
+								<EventSelectionModal
+									eventType={eventType}
+									eventTitle={title}
+									mode="create">
+									<button
+										type="button"
+										role="switch"
+										aria-checked={false}
+										disabled={isToggling || isLoadingStatuses}
+										className="relative h-5 w-9 rounded-full bg-muted-foreground/30 transition-colors focus-visible:outline-none disabled:opacity-50">
+										<span className="absolute top-0.5 left-0.5 size-4 rounded-full bg-white shadow transition-transform translate-x-0" />
+									</button>
+								</EventSelectionModal>
+							)}
+						</div>
+
+						{/* Edit / Delete when configuration exists */}
+						{configuration && (
 							<>
 								{confirmDelete ? (
 									<div className="flex items-center gap-2 rounded-lg border border-red-200 bg-red-50 px-3 py-2">
@@ -155,7 +202,7 @@ export default function EventCard({ eventType, title, icon }: EventCardProps) {
 											eventType={eventType}
 											eventTitle={title}
 											mode="edit"
-											initialValues={configuration}>
+											initialValues={storedConfig ?? undefined}>
 											<Button
 												variant="outline"
 												size="sm"
@@ -168,13 +215,29 @@ export default function EventCard({ eventType, title, icon }: EventCardProps) {
 											variant="outline"
 											size="sm"
 											onClick={() => setConfirmDelete(true)}
-											className="flex-1 gap-1.5 text-xs text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700">
+											disabled={isEnrollmentOpen}
+											title={isEnrollmentOpen ? "Close enrollment before deleting" : undefined}
+											className="flex-1 gap-1.5 text-xs text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700 disabled:opacity-40 disabled:cursor-not-allowed">
 											<IconTrash size={13} />
 											Delete
 										</Button>
 									</div>
 								)}
 							</>
+						)}
+
+						{/* Set Details when open but not yet configured */}
+						{isEnrollmentOpen && !configuration && (
+							<EventSelectionModal
+								eventType={eventType}
+								eventTitle={title}
+								mode="create">
+								<button
+									type="button"
+									className="w-full cursor-pointer rounded-lg bg-primary-600 px-4 py-2 text-xs font-medium text-white transition-all hover:bg-primary-700">
+									Set Event Details
+								</button>
+							</EventSelectionModal>
 						)}
 					</>
 				)}

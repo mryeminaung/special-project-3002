@@ -55,7 +55,7 @@ export default function ProjectAreaModal({ open, onClose, area }: Props) {
 			const payload = { name: name.trim(), description: description.trim() };
 
 			if (isEdit && area) {
-				await updateProjectArea(area.id, payload);
+				await updateProjectArea(area.slug, payload);
 				toast.success("Project area updated.");
 			} else {
 				await createProjectArea(payload);

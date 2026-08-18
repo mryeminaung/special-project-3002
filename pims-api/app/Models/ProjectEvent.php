@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 class ProjectEvent extends Model
 {
     protected $fillable = [
-        'title', 'detail', 'type', 'start_date', 'end_date', 'is_active',
+        'title', 'detail', 'type', 'start_date', 'end_date', 'is_active', 'format_url',
     ];
 
     protected $casts = [

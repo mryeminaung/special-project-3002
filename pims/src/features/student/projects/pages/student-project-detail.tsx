@@ -1,4 +1,5 @@
 import { useParams, useNavigate } from "react-router";
+import GradePanel from "@/features/projects/components/grade-panel";
 import { useHeaderInitializer } from "@/hooks/use-header-initializer";
 import { formatDate } from "@/lib/date";
 import { Badge } from "@/components/ui/badge";
@@ -123,6 +124,11 @@ export default function StudentProjectDetailPage() {
 							{project.projectArea && (
 								<Badge variant="outline" className={cn("font-medium", projectAreaColor())}>
 									{project.projectArea}
+								</Badge>
+							)}
+							{project.academicYear && (
+								<Badge variant="outline" className="font-medium bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950/40 dark:text-violet-300 dark:border-violet-800">
+									{project.academicYear}
 								</Badge>
 							)}
 						</div>
@@ -266,6 +272,11 @@ export default function StudentProjectDetailPage() {
 						progressStatus={project.progressStatus}
 					/>
 				</div>
+			)}
+
+			{/* Grades — student can view their own grades */}
+			{isStudent && members.length > 0 && (
+				<GradePanel projectSlug={project.slug} members={members} />
 			)}
 		</div>
 	);

@@ -35,7 +35,7 @@ export function FacultyCards({ data }: { data: FacultyCardProps }) {
 			title: "Project Members",
 			cardIcon: IconUsers,
 			count: data.projectMembers ?? 0,
-			pageUrl: "/proposals/browse",
+			pageUrl: "/proposals/all",
 		},
 		{
 			title: "Pending Proposals",
