@@ -311,6 +311,7 @@ export default function FacultyProjectDetailPage() {
 				onClose={() => setExaminerModalOpen(false)}
 				projectSlug={project.slug}
 				assignedIds={examiners.map((e) => e.id)}
+				supervisorId={project.supervisor?.id}
 			/>
 		</div>
 	);

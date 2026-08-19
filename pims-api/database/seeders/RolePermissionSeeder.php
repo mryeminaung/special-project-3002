@@ -76,9 +76,7 @@ class RolePermissionSeeder extends Seeder
             'view-all-proposals',
         ]);
 
-        Role::findByName('examiner')->syncPermissions([
-            'give-grade',
-        ]);
+        Role::findByName('examiner')->syncPermissions([]);
 
         Role::findByName('student')->syncPermissions([
             'submit-proposal',

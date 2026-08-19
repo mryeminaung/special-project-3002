@@ -42,8 +42,9 @@ class GradeService
 
     public function give(Project $project, array $data, User $examiner): array
     {
-        // Verify the examiner is assigned to this project
-        if (! $project->examiners()->where('user_id', $examiner->id)->exists()) {
+        // IC can grade any project; assigned examiners can grade their own projects
+        $isIC = $examiner->hasRole('ic');
+        if (! $isIC && ! $project->examiners()->where('user_id', $examiner->id)->exists()) {
             return ['success' => false, 'message' => 'You are not an examiner for this project.', 'status' => 403];
         }
 

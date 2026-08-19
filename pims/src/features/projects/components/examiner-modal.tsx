@@ -30,6 +30,7 @@ type Props = {
 	onClose: () => void;
 	projectSlug: string;
 	assignedIds: number[];
+	supervisorId?: number;
 };
 
 async function getFacultiesForExaminer(): Promise<Faculty[]> {
@@ -38,7 +39,7 @@ async function getFacultiesForExaminer(): Promise<Faculty[]> {
 	return Array.isArray(body) ? body : [];
 }
 
-export default function ExaminerModal({ open, onClose, projectSlug, assignedIds }: Props) {
+export default function ExaminerModal({ open, onClose, projectSlug, assignedIds, supervisorId }: Props) {
 	const queryClient = useQueryClient();
 	const [search, setSearch] = useState("");
 	const [selected, setSelected] = useState<number[]>([]);
@@ -59,9 +60,10 @@ export default function ExaminerModal({ open, onClose, projectSlug, assignedIds 
 
 	const filtered = faculties.filter(
 		(f) =>
-			f.name.toLowerCase().includes(search.toLowerCase()) ||
-			f.email.toLowerCase().includes(search.toLowerCase()) ||
-			(f.department ?? "").toLowerCase().includes(search.toLowerCase()),
+			f.id !== supervisorId &&
+			(f.name.toLowerCase().includes(search.toLowerCase()) ||
+				f.email.toLowerCase().includes(search.toLowerCase()) ||
+				(f.department ?? "").toLowerCase().includes(search.toLowerCase())),
 	);
 
 	const MAX_EXAMINERS = 3;
