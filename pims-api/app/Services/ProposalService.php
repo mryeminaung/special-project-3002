@@ -244,18 +244,14 @@ public function listFacultyProposals(?int $yearId = null): Collection
             $project->members()->attach($student->id);
         }
 
-        // When team is full, promote the first accepted student to project leader
-        // (replaces the temporary supervisor placeholder set at IC approval time).
-        if ($maxStudents > 0 && $acceptedCount >= $maxStudents && $project) {
-            $leaderId = DB::table('proposal_student')
-                ->where('proposal_id', $proposal->id)
-                ->where('status', 'accepted')
-                ->orderBy('id')
-                ->value('user_id');
+        // The first accepted student becomes the team leader immediately.
+        // (Replaces the temporary supervisor placeholder set at IC approval time.)
+        if ($acceptedCount === 1 && $project && $project->leader_id === $project->supervisor_id) {
+            $project->update(['leader_id' => $student->id]);
+            $proposal->update(['student_id' => $student->id]);
 
-            if ($leaderId && $project->leader_id === $project->supervisor_id) {
-                $project->update(['leader_id' => $leaderId]);
-                $proposal->update(['student_id' => $leaderId]);
+            if ($student->hasRole('student') && ! $student->hasRole('team-leader')) {
+                $student->assignRole('team-leader');
             }
         }
 

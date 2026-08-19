@@ -1,4 +1,4 @@
-import { getProject, markProjectComplete } from "./services/project.service";
+import { getProject, markProjectComplete, removeExaminer } from "./services/project.service";
 import { formatDate } from "@/lib/date";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import {
 	IconCalendarCheck,
 	IconCheck,
 	IconUserStar,
+	IconX,
 } from "@tabler/icons-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -22,6 +23,7 @@ import { useNavigate, useParams } from "react-router";
 import { toast } from "sonner";
 import ProjectActivity from "./components/project-activity";
 import GradePanel from "./components/grade-panel";
+import ExaminerModal from "./components/examiner-modal";
 
 const PROJECT_TYPE_LABELS: Record<string, string> = {
 	special: "Special",
@@ -59,6 +61,7 @@ export default function ProjectDetailPage() {
 	const { slug } = useParams();
 	const queryClient = useQueryClient();
 	const [completing, setCompleting] = useState(false);
+	const [examinerModalOpen, setExaminerModalOpen] = useState(false);
 
 	const { data: projectDetail, isLoading } = useQuery({
 		queryKey: ["projectDetail", slug],
@@ -69,6 +72,16 @@ export default function ProjectDetailPage() {
 	useHeaderInitializer(project?.title ?? "Project", project?.title ?? "Project");
 
 	const examiners: { id: number; name: string; email: string }[] = project?.examiners ?? [];
+
+	async function handleRemoveExaminer(userId: number) {
+		try {
+			await removeExaminer(slug!, userId);
+			toast.success("Examiner removed.");
+			await queryClient.invalidateQueries({ queryKey: ["projectDetail", slug] });
+		} catch {
+			toast.error("Failed to remove examiner.");
+		}
+	}
 
 	async function handleMarkComplete() {
 		if (!window.confirm("Mark this project as completed? Examiner roles will be removed.")) return;
@@ -245,17 +258,34 @@ export default function ProjectDetailPage() {
 				</div>
 			</div>
 
-			{/* Examiners — read-only for IC */}
-			{isIC && examiners.length > 0 && (
-				<div className="rounded-xl bg-muted/40 px-5 py-4">
-					<p className="text-sm font-semibold mb-0.5 flex items-center gap-1.5">
-						<IconUserStar size={14} />
-						Examiners
-					</p>
-					<p className="text-xs text-muted-foreground mb-4">Faculty members assigned to examine this project.</p>
-					<div className="flex flex-wrap gap-3">
-						{examiners.map((examiner) => (
-							<div key={examiner.id} className="flex items-center gap-3 rounded-lg bg-background px-4 py-3">
+			{/* Examiners */}
+			<div className="rounded-xl bg-muted/40 px-5 py-4">
+				<div className="flex items-center justify-between mb-1">
+					<div>
+						<p className="text-sm font-semibold flex items-center gap-1.5">
+							<IconUserStar size={14} />
+							Examiners
+						</p>
+						<p className="text-xs text-muted-foreground mt-0.5">
+							Faculty members assigned to examine this project.
+						</p>
+					</div>
+					{can("manage-examiners") && (
+						<Button
+							size="sm"
+							onClick={() => setExaminerModalOpen(true)}
+							className="gap-1.5 bg-primary-600 hover:bg-primary-600/90 text-white shrink-0">
+							<IconUserStar size={14} />
+							Manage Examiners
+						</Button>
+					)}
+				</div>
+				<div className="mt-4 flex flex-wrap gap-3">
+					{examiners.length > 0 ? (
+						examiners.map((examiner) => (
+							<div
+								key={examiner.id}
+								className={can("manage-examiners") ? "group flex items-center gap-3 rounded-lg bg-background px-4 py-3" : "flex items-center gap-3 rounded-lg bg-background px-4 py-3"}>
 								<Avatar className="h-8 w-8 shrink-0">
 									<AvatarFallback className="bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300 text-xs font-semibold">
 										{getInitials(examiner.name)}
@@ -265,15 +295,25 @@ export default function ProjectDetailPage() {
 									<p className="text-sm font-medium leading-none">{examiner.name}</p>
 									<p className="text-xs text-muted-foreground mt-0.5">{examiner.email}</p>
 								</div>
+								{can("manage-examiners") && (
+									<button
+										type="button"
+										onClick={() => handleRemoveExaminer(examiner.id)}
+										className="ml-1 rounded-full p-1 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all">
+										<IconX size={13} />
+									</button>
+								)}
 							</div>
-						))}
-					</div>
+						))
+					) : (
+						<p className="text-sm text-muted-foreground">No examiners assigned yet.</p>
+					)}
 				</div>
-			)}
+			</div>
 
-			{/* Grades — read-only for IC */}
-			{isIC && members.length > 0 && (
-				<GradePanel projectSlug={slug!} members={members} readOnly />
+			{/* Grades */}
+			{can("give-grade") && members.length > 0 && (
+				<GradePanel projectSlug={slug!} members={members} />
 			)}
 
 			{/* Mark Complete */}
@@ -299,6 +339,13 @@ export default function ProjectDetailPage() {
 
 			{/* Activity */}
 			<ProjectActivity project={project} projectSlug={slug} />
+
+			<ExaminerModal
+				open={examinerModalOpen}
+				onClose={() => setExaminerModalOpen(false)}
+				projectSlug={project.slug}
+				assignedIds={examiners.map((e) => e.id)}
+			/>
 		</div>
 	);
 }

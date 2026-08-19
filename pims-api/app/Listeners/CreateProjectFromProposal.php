@@ -56,9 +56,9 @@ class CreateProjectFromProposal
             $project->supervisor->assignRole('supervisor');
         }
 
-        // Team Leader Role Assignment
+        // Team Leader Role Assignment — only assign to actual students, never to faculty/supervisor
         $leader = User::find($leaderId);
-        if ($leader && ! $leader->hasRole('team-leader')) {
+        if ($leader && $leader->hasRole('student') && ! $leader->hasRole('team-leader')) {
             $leader->assignRole('team-leader');
         }
 

@@ -4,32 +4,45 @@ export type ProjectMilestone = "completed" | "not completed" | "not submitted" |
 
 export type StudentDashboardData = {
 	stats: {
-		totalProjects: number;
 		totalProposals: number;
-		pendingItems: number;
-		nextDeadline: number | null;
+		pendingProposals: number;
+		totalProjects: number;
+		upcomingDeadlines: number;
 	};
-	projectProgress?: Array<{
-		id: string;
+	proposal: {
+		id: number;
+		title: string;
+		slug: string;
+		status: string;
+		type: string;
+		projectType: string;
+		projectArea: string | null;
+		submittedAt: string | null;
+		supervisor: string | null;
+	} | null;
+	project: {
+		id: number;
 		name: string;
 		slug: string;
-		supervisorName: string;
+		status: string;
 		midReport: ProjectMilestone;
 		midSeminar: ProjectMilestone;
 		finalReport: ProjectMilestone;
 		finalSeminar: ProjectMilestone;
-	}>;
-	supervisor?: {
-		id: string;
+		midReportApproved: boolean;
+		finalReportApproved: boolean;
+		midSeminarDeadline: string | null;
+		finalSeminarDeadline: string | null;
+	} | null;
+	supervisor: {
 		name: string;
 		email: string;
-		department?: string;
-		phone?: string;
+		department: string | null;
 	} | null;
+	upcomingDeadlines: Array<{ title: string; date: string }>;
 };
 
 export async function getStudentDashboardData(): Promise<StudentDashboardData> {
 	const res = await api.get("/dashboard");
-	// Unwrap ApiResponse trait: { success, message, data: X, status }
 	return res.data?.data ?? res.data;
 }

@@ -335,36 +335,79 @@ class DashboardService
     public function getStudentDashboardData(int $userId): array
     {
         $proposal = Proposal::where('student_id', $userId)
-            ->with('supervisor:id,name')
+            ->with('supervisor:id,name,email', 'area:id,name')
             ->latest()
             ->first();
 
         $project = Project::where('leader_id', $userId)
             ->orWhereHas('members', fn($q) => $q->where('users.id', $userId))
-            ->with('supervisor:id,name')
+            ->with(['supervisor:id,name,email', 'supervisor.faculty.department:id,name'])
             ->latest()
             ->first();
 
+        $supervisorSource = $project?->supervisor ?? $proposal?->supervisor;
+        $supervisor = $supervisorSource ? [
+            'name'       => $supervisorSource->name,
+            'email'      => $supervisorSource->email,
+            'department' => $supervisorSource->faculty?->department?->name ?? null,
+        ] : null;
+
+        $upcomingDeadlines = [];
+        if ($project) {
+            if ($project->mid_seminar_deadline && Carbon::parse($project->mid_seminar_deadline)->isFuture()) {
+                $upcomingDeadlines[] = [
+                    'title' => 'Mid Seminar',
+                    'date'  => $project->mid_seminar_deadline,
+                ];
+            }
+            if ($project->final_seminar_deadline && Carbon::parse($project->final_seminar_deadline)->isFuture()) {
+                $upcomingDeadlines[] = [
+                    'title' => 'Final Seminar',
+                    'date'  => $project->final_seminar_deadline,
+                ];
+            }
+        }
+
+        $totalProposals  = Proposal::where('student_id', $userId)->count();
+        $pendingProposals = Proposal::where('student_id', $userId)->where('status', ProposalStatus::Pending)->count();
+        $totalProjects   = Project::where('leader_id', $userId)
+            ->orWhereHas('members', fn($q) => $q->where('users.id', $userId))
+            ->count();
+
         return [
+            'stats' => [
+                'totalProposals'   => $totalProposals,
+                'pendingProposals' => $pendingProposals,
+                'totalProjects'    => $totalProjects,
+                'upcomingDeadlines' => count($upcomingDeadlines),
+            ],
             'proposal' => $proposal ? [
-                'id'     => $proposal->id,
-                'title'  => $proposal->title,
-                'slug'   => $proposal->slug,
-                'status' => $proposal->status,
-                'type'   => $proposal->type,
-                'supervisor' => $proposal->supervisor?->name,
+                'id'          => $proposal->id,
+                'title'       => $proposal->title,
+                'slug'        => $proposal->slug,
+                'status'      => $proposal->status->value,
+                'type'        => $proposal->type->value,
+                'projectType' => $proposal->project_type?->value,
+                'projectArea' => $proposal->area?->name,
+                'submittedAt' => $proposal->submitted_at?->format('Y-m-d'),
+                'supervisor'  => $proposal->supervisor?->name,
             ] : null,
             'project' => $project ? [
-                'id'           => $project->id,
-                'name'         => $project->name,
-                'slug'         => $project->slug,
-                'status'       => $project->status,
-                'supervisor'   => $project->supervisor?->name,
-                'midReport'    => $project->mid_report,
-                'midSeminar'   => $project->mid_seminar,
-                'finalReport'  => $project->final_report,
-                'finalSeminar' => $project->final_seminar,
+                'id'                   => $project->id,
+                'name'                 => $project->name,
+                'slug'                 => $project->slug,
+                'status'               => $project->status,
+                'midReport'            => $project->mid_report,
+                'midSeminar'           => $project->mid_seminar,
+                'finalReport'          => $project->final_report,
+                'finalSeminar'         => $project->final_seminar,
+                'midReportApproved'    => (bool) $project->mid_report_approved,
+                'finalReportApproved'  => (bool) $project->final_report_approved,
+                'midSeminarDeadline'   => $project->mid_seminar_deadline,
+                'finalSeminarDeadline' => $project->final_seminar_deadline,
             ] : null,
+            'supervisor'        => $supervisor,
+            'upcomingDeadlines' => $upcomingDeadlines,
         ];
     }
 }

@@ -114,8 +114,8 @@ Route::prefix('v1')->group(function () {
             Route::middleware('permission:approve-proposal')->post('/{proposal:slug}/approve', 'approveByIC');
             Route::middleware('permission:reject-proposal')->post('/{proposal:slug}/reject', 'rejectByIC');
             Route::post('/{proposal:slug}/join', 'joinFacultyProposal');
-            Route::post('/{proposal:slug}/applications/{student:id}/accept', 'acceptApplicant');
-            Route::post('/{proposal:slug}/applications/{student:id}/reject', 'rejectApplicant');
+            Route::post('/{proposal:slug}/applications/{student:id}/accept', 'acceptApplicant')->withoutScopedBindings();
+            Route::post('/{proposal:slug}/applications/{student:id}/reject', 'rejectApplicant')->withoutScopedBindings();
         });
 
         // Faculties

@@ -60,6 +60,8 @@ class RolePermissionSeeder extends Seeder
             'manage-announcements',
             'view-all-proposals',
             'manage-events',
+            'manage-examiners',
+            'give-grade',
         ]);
 
         Role::findByName('supervisor')->syncPermissions([

@@ -256,13 +256,15 @@ export default function FacultyProjectDetailPage() {
 							Faculty members assigned to examine this project.
 						</p>
 					</div>
-					<Button
-						size="sm"
-						onClick={() => setExaminerModalOpen(true)}
-						className="gap-1.5 bg-primary-600 hover:bg-primary-600/90 text-white shrink-0">
-						<IconUserStar size={14} />
-						Manage Examiners
-					</Button>
+					{can("manage-examiners") && (
+						<Button
+							size="sm"
+							onClick={() => setExaminerModalOpen(true)}
+							className="gap-1.5 bg-primary-600 hover:bg-primary-600/90 text-white shrink-0">
+							<IconUserStar size={14} />
+							Manage Examiners
+						</Button>
+					)}
 				</div>
 
 				<div className="mt-4 flex flex-wrap gap-3">
@@ -270,7 +272,7 @@ export default function FacultyProjectDetailPage() {
 						examiners.map((examiner) => (
 							<div
 								key={examiner.id}
-								className="group flex items-center gap-3 rounded-lg bg-background px-4 py-3">
+								className={can("manage-examiners") ? "group flex items-center gap-3 rounded-lg bg-background px-4 py-3" : "flex items-center gap-3 rounded-lg bg-background px-4 py-3"}>
 								<Avatar className="h-8 w-8 shrink-0">
 									<AvatarFallback className="bg-violet-100 text-violet-700 dark:bg-violet-900/40 dark:text-violet-300 text-xs font-semibold">
 										{getInitials(examiner.name)}
@@ -280,12 +282,14 @@ export default function FacultyProjectDetailPage() {
 									<p className="text-sm font-medium leading-none">{examiner.name}</p>
 									<p className="text-xs text-muted-foreground mt-0.5">{examiner.email}</p>
 								</div>
-								<button
-									type="button"
-									onClick={() => handleRemoveExaminer(examiner.id)}
-									className="ml-1 rounded-full p-1 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all">
-									<IconX size={13} />
-								</button>
+								{can("manage-examiners") && (
+									<button
+										type="button"
+										onClick={() => handleRemoveExaminer(examiner.id)}
+										className="ml-1 rounded-full p-1 text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all">
+										<IconX size={13} />
+									</button>
+								)}
 							</div>
 						))
 					) : (
